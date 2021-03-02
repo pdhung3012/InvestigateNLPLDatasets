@@ -19,20 +19,24 @@ createDirIfNotExist(fopOutputSPOCPlain)
 def getPseudoCodeAndCode(df):
     lstText=[]
     lstCode=[]
+    lstLine=[]
     for row_index, row in df_group.iterrows():
         strCode=str(row['code'])
         strText = str(row['text'])
         lstText.append(strText)
         indent=int(row['indent'])
+        strLine=str(row['line'])
         lstIndent=[]
         for i in range(0,indent):
             lstIndent.append('\t')
         strIndent=''.join(lstIndent)
         strCode=''.join([strIndent,strCode])
         lstCode.append(strCode)
+        lstLine.append(strLine)
     strTotalText='\n'.join(lstText)
     strTotalCode='\n'.join(lstCode)
-    return strTotalText,strTotalCode
+    strTotalLine='\n'.join(lstLine)
+    return strTotalText,strTotalCode,strTotalLine
 
 
 
@@ -48,7 +52,7 @@ for group_name, df_group in df_grouped:
     #print('aaa {} {}'.format(type(df_group),group_name))
     index=index+1
     try:
-        strTotalText, strTotalCode=getPseudoCodeAndCode(df_group)
+        strTotalText, strTotalCode,strTotalLine=getPseudoCodeAndCode(df_group)
        # print('type {}'.format(df_group['workerid']))
       #  row0=df_group.itertuples()[0]
         workId=df_group['workerid'].iloc[0]
@@ -56,10 +60,12 @@ for group_name, df_group in df_grouped:
         subId=df_group['subid'].iloc[0]
         fpPlainText='{}/{}_{}_{}_text.txt'.format(fopOutputSPOCPlain,workId,probId,subId)
         fpPlainCode = '{}/{}_{}_{}_code.txt'.format(fopOutputSPOCPlain, workId, probId, subId)
+        fpPlainLine = '{}/{}_{}_{}_line.txt'.format(fopOutputSPOCPlain, workId, probId, subId)
         fopNest=fopOutputSPOCNested+'/'+str(workId)+'/'+str(probId)+'/'+str(subId)+'/'
         createDirIfNotExist(fopNest)
         fpNestText = '{}/{}_{}_{}_text.txt'.format(fopNest, workId, probId, subId)
         fpNestCode = '{}/{}_{}_{}_code.txt'.format(fopNest, workId, probId, subId)
+        fpNestLine = '{}/{}_{}_{}_line.txt'.format(fopNest, workId, probId, subId)
 
         fff=open(fpPlainText,'w')
         fff.write(strTotalText)
@@ -67,11 +73,17 @@ for group_name, df_group in df_grouped:
         fff=open(fpPlainCode,'w')
         fff.write(strTotalCode)
         fff.close()
+        fff=open(fpPlainLine,'w')
+        fff.write(strTotalLine)
+        fff.close()
         fff=open(fpNestText,'w')
         fff.write(strTotalText)
         fff.close()
         fff=open(fpNestCode,'w')
         fff.write(strTotalCode)
+        fff.close()
+        fff=open(fpNestLine,'w')
+        fff.write(strTotalLine)
         fff.close()
     except Exception as e:
         print('{}\n{}'.format(str(e),traceback.format_exc()))
