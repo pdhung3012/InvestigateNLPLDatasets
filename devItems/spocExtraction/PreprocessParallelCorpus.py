@@ -27,7 +27,7 @@ fpOutputEvalCode=fopOutputSplit+'valid.t'
 fpOutputTestText=fopOutputSplit+'test.s'
 fpOutputTestCode=fopOutputSplit+'test.t'
 fpOutputVocab=fopOutputSplit+'vocab.txt'
-fpOutputDict=fopOutputSplit+'vocab.txt'
+fpOutputDict=fopOutputSplit+'dict.txt'
 
 dictVocab={}
 def preprocessFiles(fpIn,fpOut,dictVocab):
@@ -50,6 +50,13 @@ def preprocessFiles(fpIn,fpOut,dictVocab):
     fff.write('\n'.join(lstOut))
     fff.close()
 
+dictVocab={}
+preprocessFiles(fpTrainText,fpOutputTrainText,dictVocab)
+preprocessFiles(fpTrainCode,fpOutputTrainCode,dictVocab)
+preprocessFiles(fpEvalText,fpOutputEvalText,dictVocab)
+preprocessFiles(fpEvalCode,fpOutputEvalCode,dictVocab)
+preprocessFiles(fpTestText,fpOutputTestText,dictVocab)
+preprocessFiles(fpTestCode,fpOutputTestCode,dictVocab)
 
 
 lstDicts=[]
@@ -59,13 +66,6 @@ for key in dictVocab.keys():
     lstDicts.append('{}\t{}'.format(key,val))
     lstVocabs.append('{}'.format(val))
 
-dictVocab={}
-preprocessFiles(fpTrainText,fpOutputTrainText,dictVocab)
-preprocessFiles(fpTrainCode,fpOutputTrainCode,dictVocab)
-preprocessFiles(fpEvalText,fpOutputEvalText,dictVocab)
-preprocessFiles(fpEvalCode,fpOutputEvalCode,dictVocab)
-preprocessFiles(fpTestText,fpOutputTestText,dictVocab)
-preprocessFiles(fpTestCode,fpOutputTestCode,dictVocab)
 
 fff=open(fpOutputVocab,'w')
 fff.write('\n'.join(lstVocabs))
