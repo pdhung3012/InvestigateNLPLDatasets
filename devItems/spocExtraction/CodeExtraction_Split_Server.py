@@ -85,7 +85,7 @@ def createTrainTestSplitData(fpData,fopNest,fopPlain,fpSource,fpTarget):
             fpPlainCode = '{}/{}_{}_{}_code.txt'.format(fopPlain, workId, probId, subId)
             fpPlainLine = '{}/{}_{}_{}_line.txt'.format(fopPlain, workId, probId, subId)
             fopInsideNest= fopNest + '/' + str(workId) + '/' + str(probId) + '/' + str(subId) + '/'
-            createDirIfNotExist(fopNest)
+            createDirIfNotExist(fopInsideNest)
             fpNestText = '{}/{}_{}_{}_text.txt'.format(fopInsideNest, workId, probId, subId)
             fpNestCode = '{}/{}_{}_{}_code.txt'.format(fopInsideNest, workId, probId, subId)
             fpNestLine = '{}/{}_{}_{}_line.txt'.format(fopInsideNest, workId, probId, subId)
@@ -119,6 +119,7 @@ def createTrainTestSplitData(fpData,fopNest,fopPlain,fpSource,fpTarget):
     fff.write('\n'.join(lstTotalCode))
     fff.close()
 
+createDirIfNotExist(fopTrainTestSplit)
 createTrainTestSplitData(fpTrainData,fopOutputTrainSPOCNested,fopOutputTrainSPOCPlain,fpOutputTrainText,fpOutputTrainCode)
 createTrainTestSplitData(fpEvalData,fopOutputEvalSPOCNested,fopOutputEvalSPOCPlain,fpOutputEvalText,fpOutputEvalCode)
 createTrainTestSplitData(fpTestData,fopOutputTestSPOCNested,fopOutputTestSPOCPlain,fpOutputTestText,fpOutputTestCode)
