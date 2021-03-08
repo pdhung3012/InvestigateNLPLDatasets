@@ -7,7 +7,7 @@ import operator
 sys.path.append(os.path.abspath(os.path.join('..')))
 from UtilFunctions import createDirIfNotExist
 
-fopDataFolder='/Users/hungphan/git/dataPapers/'
+fopDataFolder='/home/hung/git/dataPapers/'
 fopInputSPOCData=fopDataFolder+'/SPOCDataset/spoc/'
 fopTrainTestSplit=fopDataFolder + '/parallelCorpus/'
 fopOutputTrainSPOCNested= fopDataFolder + '/outputTrainSPOCNested/'
