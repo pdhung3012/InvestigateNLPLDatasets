@@ -9,8 +9,8 @@ from UtilFunctions import createDirIfNotExist
 
 fopDataFolder='/home/hung/git/dataPapers/'
 fopInputSPOCData=fopDataFolder+'/SPOCDataset/spoc/'
-fopOutputSPOCNested=fopDataFolder+'/outputSPOCNested/'
-fopOutputSPOCPlain=fopDataFolder+'/outputSPOCPlain/'
+fopOutputSPOCNested=fopDataFolder+'/trainSPOCNest/'
+fopOutputSPOCPlain=fopDataFolder+'/trainSPOCPlain/'
 fpTrainData=fopInputSPOCData+'train/spoc-train.tsv'
 
 createDirIfNotExist(fopOutputSPOCNested)
