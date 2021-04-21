@@ -12,6 +12,7 @@ fopDataFolder='/home/hung/git/dataPapers/'
 fopInputSPOCData=fopDataFolder+'/SPOCDataset/spoc/'
 fopTrainTestSplit=fopDataFolder + '/parallelCorpus/'
 fopOutputSplit=fopDataFolder + '/parallelCorpus-Number/'
+createDirIfNotExist(fopOutputSplit)
 
 fpTrainText=fopTrainTestSplit+'train.s'
 fpTrainCode=fopTrainTestSplit+'train.t'
@@ -26,30 +27,36 @@ fpOutputEvalCode=fopOutputSplit+'valid.t'
 fpOutputTestText=fopOutputSplit+'test.s'
 fpOutputTestCode=fopOutputSplit+'test.t'
 fpOutputVocab=fopOutputSplit+'vocab.txt'
-fpOutputDict=fopOutputSplit+'vocab.txt'
+fpOutputDict=fopOutputSplit+'dict.txt'
 
 dictVocab={}
 def preprocessFiles(fpIn,fpOut,dictVocab):
-    fff=open(fpIn,'w')
-    arrIn=fff.read().split('\n')
-    fff.close()
-    fff = open(fpOut, 'w')
-    arrOut = fff.read().split('\n')
+    fff=open(fpIn,'r')
+    strIn=fff.read()
+    arrIn=strIn.split('\n')
     fff.close()
 
-
+    lstOut=[]
     for item in arrIn:
         arrItems=word_tokenize(item)
+        lstLines=[]
         for word in arrItems:
             if word not in dictVocab:
                 dictVocab[word]=str(len(dictVocab.keys())+1)
+            lstLines.append(dictVocab[word])
+        lstOut.append(' '.join(lstLines))
 
-    for item in arrOut:
-        arrItems=word_tokenize(item)
-        for word in arrItems:
-            if word not in dictVocab:
-                dictVocab[word]=str(len(dictVocab.keys())+1)
+    fff=open(fpOut,'w')
+    fff.write('\n'.join(lstOut))
+    fff.close()
 
+dictVocab={}
+preprocessFiles(fpTrainText,fpOutputTrainText,dictVocab)
+preprocessFiles(fpTrainCode,fpOutputTrainCode,dictVocab)
+preprocessFiles(fpEvalText,fpOutputEvalText,dictVocab)
+preprocessFiles(fpEvalCode,fpOutputEvalCode,dictVocab)
+preprocessFiles(fpTestText,fpOutputTestText,dictVocab)
+preprocessFiles(fpTestCode,fpOutputTestCode,dictVocab)
 
 
 lstDicts=[]
@@ -59,13 +66,6 @@ for key in dictVocab.keys():
     lstDicts.append('{}\t{}'.format(key,val))
     lstVocabs.append('{}'.format(val))
 
-dictVocab={}
-preprocessFiles(fpTrainText,fpOutputTrainText,dictVocab)
-preprocessFiles(fpTrainCode,fpOutputTrainCode,dictVocab)
-preprocessFiles(fpEvalText,fpOutputEvalText,dictVocab)
-preprocessFiles(fpEvalCode,fpOutputEvalCode,dictVocab)
-preprocessFiles(fpTestText,fpOutputTestText,dictVocab)
-preprocessFiles(fpTestCode,fpOutputTestCode,dictVocab)
 
 fff=open(fpOutputVocab,'w')
 fff.write('\n'.join(lstVocabs))
