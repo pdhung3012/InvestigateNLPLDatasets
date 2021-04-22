@@ -65,3 +65,20 @@ def writeDictToFile(dictParam,fpFile):
     fFile=open(fpFile,'w')
     fFile.write(strContent)
     fFile.close()
+def writeDictToFile(dictNum,dictText,fpNum,fpText):
+    lstStr=[]
+    lstStr2 = []
+    for key in dictNum.keys():
+        strItem=key+'\t'+str(dictNum[key])
+        strList=sorted(unique(dictText[key]))
+        strItem2=key+'\t'+','.join(strList)
+        lstStr.append(strItem)
+        lstStr2.append(strItem2)
+    strContent='\n'.join(lstStr)
+    fFile=open(fpNum,'w')
+    fFile.write(strContent)
+    fFile.close()
+    strContent = '\n'.join(lstStr2)
+    fFile = open(fpText, 'w')
+    fFile.write(strContent)
+    fFile.close()

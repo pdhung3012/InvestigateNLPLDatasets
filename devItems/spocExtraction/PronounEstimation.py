@@ -7,11 +7,13 @@ from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFile
 
 fopData='/Users/hungphan/git/dataPapers/'
 fopStatisticFolder=fopData+'textInSPOC/trainSPOCPlain/'
-fpTextLogPOS=fopData+'textInSPOC/textLogPOS_train.txt'
+fpNumLogPOS=fopData+'textInSPOC/numLogPOS.txt'
+fpTextLogPOS=fopData+'textInSPOC/textLogPOS.txt'
 
 lstFiles=sorted(glob.glob(fopStatisticFolder+ "*_code.txt"))
 
 dictAllPoses={}
+dictWordPoses={}
 
 for index in range(0,len(lstFiles)):
     fpTextFile=lstFiles[index]
@@ -26,11 +28,14 @@ for index in range(0,len(lstFiles)):
         for itemPOS in lstPoses:
             if not itemPOS[1] in dictAllPoses.keys():
                 dictAllPoses[itemPOS[1]]=1
+                lstItem=[itemPOS[0]]
+                dictWordPoses[itemPOS[1]] = lstItem
             else:
                 dictAllPoses[itemPOS[1]]= dictAllPoses[itemPOS[1]] + 1
+                dictWordPoses[itemPOS[1]].append(itemPOS[0])
 
 dictAllPoses = dict(sorted(dictAllPoses.items(), key=lambda item: item[1],reverse=True))
-writeDictToFile(dictAllPoses,fpTextLogPOS)
+writeDictToFile(dictAllPoses,dictWordPoses,fpNumLogPOS,fpTextLogPOS)
 
 
 
