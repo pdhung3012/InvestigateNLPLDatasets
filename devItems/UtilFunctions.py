@@ -5,6 +5,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from nltk.tokenize import word_tokenize
 from numpy import unique
+import nltk
 
 
 def createDirIfNotExist(fopOutput):
@@ -39,8 +40,6 @@ def preprocess(textInLine):
     # doc = [word for word in doc if word.isalpha()]
     return ' '.join(doc)
 
-
-
 # Python program to illustrate the intersection
 # of two lists in most simple way
 def intersection(lst1, lst2):
@@ -49,3 +48,20 @@ def intersection(lst1, lst2):
 def diff(li1, li2):
     li_dif = [i for i in li1 + li2 if i not in li1 or i not in li2]
     return li_dif
+
+def getPOSInfo(strContent):
+    tokens=word_tokenize(strContent)
+    poses=nltk.pos_tag(tokens)
+    return poses
+
+
+def writeDictToFile(dictParam,fpFile):
+    lstStr=[]
+    for key in dictParam.keys():
+        strItem=key+'\t'+str(dictParam[key])
+        lstStr.append(strItem)
+
+    strContent='\n'.join(lstStr)
+    fFile=open(fpFile,'w')
+    fFile.write(strContent)
+    fFile.close()
