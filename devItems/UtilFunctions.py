@@ -55,7 +55,7 @@ def getPOSInfo(strContent):
     return poses
 
 
-def writeDictToFile(dictParam,fpFile):
+def writeDictToFileText(dictParam,fpFile):
     lstStr=[]
     for key in dictParam.keys():
         strItem=key+'\t'+str(dictParam[key])
@@ -72,6 +72,7 @@ def writeDictToFile(dictNum,dictText,fpNum,fpText):
         strItem=key+'\t'+str(dictNum[key])
         strList=sorted(unique(dictText[key]))
         strItem2=key+'\t'+','.join(strList)
+
         lstStr.append(strItem)
         lstStr2.append(strItem2)
     strContent='\n'.join(lstStr)
