@@ -10,7 +10,7 @@ fopStatisticFolder=fopData+'textInSPOC/trainSPOCPlain/'
 fpNumLogPOS=fopData+'textInSPOC/numLogPOS.txt'
 fpTextLogPOS=fopData+'textInSPOC/textLogPOS.txt'
 
-lstFiles=sorted(glob.glob(fopStatisticFolder+ "*_code.txt"))
+lstFiles=sorted(glob.glob(fopStatisticFolder+ "*_text.txt"))
 
 dictAllPoses={}
 dictWordPoses={}
