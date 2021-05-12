@@ -1,4 +1,4 @@
-import sys
+import sys, traceback
 import clang.cindex
 
 fpTempFile='/Users/hungphan/git/dataPapers/textInSPOC/trainOnlyC/0_61A_42328847_code.cpp'
@@ -52,7 +52,7 @@ class Walker:
         #         print(f"node.get_num_template_arguments = {node.get_num_template_arguments()}")
             if (strNodeType == 'FUNCTION_DECL'):
                 self.currentFuncDeclName=str(node.spelling)
-            backupFatherNode=self.currentFatherFor
+            # backupFatherNode=self.currentFatherFor
             if(strNodeType =='FOR_STMT'):
                 indexOfFor=indexOfFor+1
                 # print('go here')
@@ -81,14 +81,15 @@ class Walker:
             lstLine.append('\t')
             lstLine.append(str(node.spelling))
             strLine=''.join(lstLine)
+            # print(strLine)
             self.listASTRepresents.append(strLine)
             # print(strLine)
         for child in node.get_children():
             childIndex=index+1
             self.walkInForLoop(child,childIndex,indexOfFor)
-            if (strNodeType == 'FOR_STMT'):
-                self.fatherForNode = backupFatherNode
-                indexOfFor=indexOfFor-1
+            # if (strNodeType == 'FOR_STMT'):
+            #     # self.fatherForNode = backupFatherNode
+            #     indexOfFor=indexOfFor-1
 
 
     # def walkInForLoopAndKeepTrackReturnStatement(self, node,index,indexOfFor):
@@ -142,31 +143,39 @@ class Walker:
     #             self.fatherForNode = backupFatherNode
     #             indexOfFor=indexOfFor-1
 
-    def getRepresentASTFromFile(fp,indexTu):
+    def getRepresentASTFromFile(self,fp,indexTu):
         strResult=''
         try:
+            self.filename=fp
             tu = indexTu.parse(fp)
             # print('{}'.format(tu))
             root = tu.cursor
             index = 0
             indexOfForLoop = 0
             self.listASTRepresents=[]
-            walkInForLoop(root, index, indexOfForLoop)
+            self.walkInForLoop(root, index, indexOfForLoop)
             strResult='\n'.join(self.listASTRepresents)
+            # print('aaaa {}'.format(strResult))
         except:
             strResult= str(sys.exc_info()[0])
+            print("Exception in user code:")
+            print("-" * 60)
+            traceback.print_exc(file=sys.stdout)
+            print("-" * 60)
         return strResult
 
 
 
 #
 
-# index = clang.cindex.Index.create()
-# tu = index.parse(fpTempFile)
+# indexTu = clang.cindex.Index.create()
+# tu = indexTu.parse(fpTempFile)
 # print('{}'.format(tu))
 # root = tu.cursor
 # index=0
 # indexOfForLoop=0
 # walker = Walker(fpTempFile)
-# walker.walkInForLoop(root,index,indexOfForLoop)
-# print('size {} {} '.format(len(walker.listForLoops),walker.listForLoops[0].lineNumber))
+# strResult=walker.getRepresentASTFromFile(fpTempFile,indexTu)
+# print(strResult)
+# # # walker.walkInForLoop(root,index,indexOfForLoop)
+# # # print('size {} {} '.format(len(walker.listForLoops),walker.listForLoops[0].lineNumber))

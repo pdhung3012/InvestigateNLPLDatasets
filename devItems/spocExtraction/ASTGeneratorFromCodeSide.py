@@ -22,16 +22,14 @@ f1.close()
 
 
 walker = Walker('')
-indexTu = clang.cindex.Index.create()
 
 for index in range(0,len(lstFiles)):
     fpCodeFileCPP=lstFiles[index]
     fineName=os.path.basename(fpCodeFileCPP)
-    fFile=open(fpCodeFileCPP, 'r')
-    strContentOfFile=fFile.read().strip()
-    fFile.close()
-
-
+    # fFile=open(fpCodeFileCPP, 'r')
+    # strContentOfFile=fFile.read().strip()
+    # fFile.close()
+    indexTu = clang.cindex.Index.create()
 
     strASTOfFile=walker.getRepresentASTFromFile(fpCodeFileCPP,indexTu)
     print('{} {}'.format(index, fpCodeFileCPP))
