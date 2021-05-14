@@ -13,7 +13,6 @@ fpTempCode= 'temp/code1.cpp'
 
 def runASTGenAndSeeResult(fpTempCode,fpJSon,numOmit):
     stream = os.popen("clang++-11 -Xclang -ast-dump=json temp/code1.cpp -o temp/code1_ast.o | sed -n '/XX_MARKER_XX/,$p' > temp/code1_ast.txt")
-    # "clang++ -ast-dump=json /Users/hungphan/git/dataPapers/textInSPOC/temp/code1.cpp -o /Users/hungphan/git/dataPapers/textInSPOC/temp/code1_ast.o | sed -n '/XX_MARKER_XX/,$p' > /Users/hungphan/git/dataPapers/textInSPOC/temp/code1_ast.txt"
     output=stream.read()
     print(output)
     f1=open(fpJSon,'r')
