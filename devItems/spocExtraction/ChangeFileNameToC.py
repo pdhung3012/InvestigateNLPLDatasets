@@ -13,6 +13,7 @@ lstFiles=sorted(glob.glob(fopTrainFolder+ "*_code.txt"))
 createDirIfNotExist(fopTrainFolderOnlyC)
 for i in range(0,len(lstFiles)):
     f1=open(lstFiles[i],'r')
+    print(lstFiles[i])
     fileName=os.path.basename(lstFiles[i])
     newFileName=fileName.replace('.txt','.cpp')
     fpOutpurItem=fopTrainFolderOnlyC+newFileName
