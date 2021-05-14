@@ -5,7 +5,7 @@ import operator
 sys.path.append(os.path.abspath(os.path.join('..')))
 from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText
 
-fopData='/Users/hungphan/git/dataPapers/'
+fopData='../../../dataPapers/'
 fopTextInSPoC=fopData+'textInSPOC/'
 fopTrainFolder=fopTextInSPoC+'trainSPOCPlain/'
 fopTrainFolderOnlyC=fopTextInSPoC+'trainOnlyC/'
