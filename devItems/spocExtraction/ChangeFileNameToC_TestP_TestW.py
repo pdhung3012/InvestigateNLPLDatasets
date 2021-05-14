@@ -8,7 +8,7 @@ from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText
 fopData='../../../dataPapers/'
 fopTextInSPoC=fopData+'textInSPOC/'
 fopTestPFolder=fopTextInSPoC+'testPSPOCPlain/'
-fopTestPFolderOnlyC=fopTextInSPoC+'testPPOnlyC/'
+fopTestPFolderOnlyC=fopTextInSPoC+'testPOnlyC/'
 lstFiles=sorted(glob.glob(fopTestPFolder+ "*_code.txt"))
 createDirIfNotExist(fopTestPFolderOnlyC)
 for i in range(0,len(lstFiles)):
@@ -19,7 +19,7 @@ for i in range(0,len(lstFiles)):
     strContent=f1.read()
     f1.close()
     lstHeaders = ['#include <iostream>', '#include<stdio.h>',
-                  '#include <string>',
+                  '#include <string.h>',
                   '#include<stdlib.h>',
                   '#include<math.h>',
                   '#include<time.h>',
@@ -30,7 +30,14 @@ for i in range(0,len(lstFiles)):
                   '#include<setjmp.h>',
                   '#include<stdarg.h>',
                   '#include<errno.h>',
-                  '#include<iomanip>']
+                  '#include<iomanip>',
+                  '#include <algorithm>',
+                  '#include <vector>',
+                  '#include <limits.h>',
+                  '#include <map>',
+                  '#include <set>', '#include <list>', '#include <stack>', '#include <queue>', '#include <array>',
+                  '#include <unordered_map>',
+                  '#include <unordered_set>', '#include <deque>', '#include <forward_list>']
     strHeader = '\n'.join(lstHeaders)
     strCommand = 'int XX_MARKER_XX = 123234;\n'
     strNewContent = '\n'.join([strHeader, '\n', 'using namespace std;\n', strCommand, strContent])
@@ -51,7 +58,7 @@ for i in range(0,len(lstFiles)):
     strContent=f1.read()
     f1.close()
     lstHeaders = ['#include <iostream>', '#include<stdio.h>',
-                  '#include <string>',
+                  '#include <string.h>',
                   '#include<stdlib.h>',
                   '#include<math.h>',
                   '#include<time.h>',
@@ -62,7 +69,15 @@ for i in range(0,len(lstFiles)):
                   '#include<setjmp.h>',
                   '#include<stdarg.h>',
                   '#include<errno.h>',
-                  '#include<iomanip>']
+                  '#include<iomanip>',
+                  '#include <algorithm>',
+                  '#include <vector>',
+                  '#include <limits.h>',
+                  '#include <map>',
+                  '#include <set>', '#include <list>', '#include <stack>', '#include <queue>', '#include <array>',
+                  '#include <unordered_map>',
+                  '#include <unordered_set>', '#include <deque>', '#include <forward_list>']
+
     strHeader = '\n'.join(lstHeaders)
     strCommand = 'int XX_MARKER_XX = 123234;\n'
     strNewContent = '\n'.join([strHeader, '\n', 'using namespace std;\n', strCommand, strContent])

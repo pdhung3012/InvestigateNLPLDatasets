@@ -5,7 +5,7 @@ import clang.cindex
 
 sys.path.append(os.path.abspath(os.path.join('..')))
 from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText,runASTGenAndSeeResult
-from CASTWalker import  Walker
+
 
 fopData='../../../dataPapers/'
 fopTextInSPoC=fopData+'textInSPOC/'
@@ -25,7 +25,7 @@ dictCountWords={}
 f1=open(fpCombineASTsTestP, 'w')
 f1.write('')
 f1.close()
-walker = Walker('')
+
 for index in range(0,len(lstFiles)):
     fpCodeFileCPP=lstFiles[index]
     fineName=os.path.basename(fpCodeFileCPP)
@@ -49,7 +49,7 @@ dictCountWords={}
 f1=open(fpCombineASTsTestW, 'w')
 f1.write('')
 f1.close()
-walker = Walker('')
+
 for index in range(0,len(lstFiles)):
     fpCodeFileCPP=lstFiles[index]
     fineName=os.path.basename(fpCodeFileCPP)

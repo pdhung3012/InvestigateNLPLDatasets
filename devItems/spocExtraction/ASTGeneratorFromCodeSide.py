@@ -5,7 +5,6 @@ import clang.cindex
 
 sys.path.append(os.path.abspath(os.path.join('..')))
 from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText,runASTGenAndSeeResult
-from CASTWalker import  Walker
 
 fopData='../../../dataPapers/'
 fopTextInSPoC=fopData+'textInSPOC/'
