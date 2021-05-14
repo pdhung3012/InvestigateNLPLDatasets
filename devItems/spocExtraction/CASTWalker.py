@@ -1,7 +1,7 @@
 import sys, traceback
 import clang.cindex
 
-fpTempFile='/Users/hungphan/git/dataPapers/textInSPOC/trainOnlyC/0_281A_49050143_code.cpp'
+fpTempFile='/Users/hungphan/git/dataPapers/textInSPOC/temp/code1.cpp'
 
 class ForLocation:
     def __init__(self):
@@ -171,7 +171,7 @@ class Walker:
 #
 
 indexTu = clang.cindex.Index.create()
-tu = indexTu.parse(fpTempFile, args=['-std=c++17'])
+tu = indexTu.parse(fpTempFile, args=['-std=c++11','-ast-dump=json'])
 print('{}'.format(tu))
 
 
