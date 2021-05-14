@@ -1,12 +1,12 @@
       "name": "XX_MARKER_XX",
-      "mangledName": "_XX_MARKER_XX",
+      "mangledName": "XX_MARKER_XX",
       "type": {
         "qualType": "int"
       },
       "init": "c",
       "inner": [
         {
-          "id": "0x10b5e5a48",
+          "id": "0x18b1a98",
           "kind": "IntegerLiteral",
           "range": {
             "begin": {
@@ -29,7 +29,7 @@
       ]
     },
     {
-      "id": "0x10b5e5a90",
+      "id": "0x18b1ae0",
       "kind": "FunctionDecl",
       "loc": {
         "offset": 314,
@@ -51,13 +51,13 @@
         }
       },
       "name": "main",
-      "mangledName": "_main",
+      "mangledName": "main",
       "type": {
         "qualType": "int ()"
       },
       "inner": [
         {
-          "id": "0x10b5ec878",
+          "id": "0x18c6748",
           "kind": "CompoundStmt",
           "range": {
             "begin": {
@@ -75,7 +75,7 @@
           },
           "inner": [
             {
-              "id": "0x10b5e5bd0",
+              "id": "0x18b1c20",
               "kind": "DeclStmt",
               "range": {
                 "begin": {
@@ -92,7 +92,7 @@
               },
               "inner": [
                 {
-                  "id": "0x10b5e5b40",
+                  "id": "0x18b1b90",
                   "kind": "VarDecl",
                   "loc": {
                     "offset": 331,
@@ -113,16 +113,16 @@
                   },
                   "isUsed": true,
                   "name": "S",
-                  "mangledName": "__ZZ4mainE1S",
+                  "mangledName": "_ZZ4mainE1SB5cxx11",
                   "type": {
-                    "desugaredQualType": "std::__1::basic_string<char>",
-                    "qualType": "std::__1::string",
-                    "typeAliasDeclId": "0x7fa06c8a0540"
+                    "desugaredQualType": "std::__cxx11::basic_string<char>",
+                    "qualType": "std::__cxx11::string",
+                    "typeAliasDeclId": "0x9397e8"
                   },
                   "init": "call",
                   "inner": [
                     {
-                      "id": "0x10b5e5ba8",
+                      "id": "0x18b1bf8",
                       "kind": "CXXConstructExpr",
                       "range": {
                         "begin": {
@@ -137,13 +137,13 @@
                         }
                       },
                       "type": {
-                        "desugaredQualType": "std::__1::basic_string<char>",
-                        "qualType": "std::__1::string",
-                        "typeAliasDeclId": "0x7fa06c8a0540"
+                        "desugaredQualType": "std::__cxx11::basic_string<char>",
+                        "qualType": "std::__cxx11::string",
+                        "typeAliasDeclId": "0x9397e8"
                       },
                       "valueCategory": "rvalue",
                       "ctorType": {
-                        "qualType": "void () noexcept(is_nothrow_default_constructible<allocator_type>::value)"
+                        "qualType": "void () noexcept(is_nothrow_default_constructible<allocator<char>>::value)"
                       },
                       "hadMultipleCandidates": true,
                       "constructionKind": "complete"
@@ -153,7 +153,7 @@
               ]
             },
             {
-              "id": "0x10b5e6c50",
+              "id": "0x18b4f08",
               "kind": "CXXOperatorCallExpr",
               "range": {
                 "begin": {
@@ -169,13 +169,13 @@
                 }
               },
               "type": {
-                "desugaredQualType": "std::__1::basic_istream<char>",
-                "qualType": "basic_istream<char, std::__1::char_traits<char> >"
+                "desugaredQualType": "std::basic_istream<char>",
+                "qualType": "basic_istream<char>"
               },
               "valueCategory": "lvalue",
               "inner": [
                 {
-                  "id": "0x10b5e6c38",
+                  "id": "0x18b4ef0",
                   "kind": "ImplicitCastExpr",
                   "range": {
                     "begin": {
@@ -190,13 +190,13 @@
                     }
                   },
                   "type": {
-                    "qualType": "basic_istream<char, std::__1::char_traits<char> > &(*)(basic_istream<char, std::__1::char_traits<char> > &, basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > &)"
+                    "qualType": "basic_istream<char> &(*)(basic_istream<char> &, basic_string<char> &)"
                   },
                   "valueCategory": "rvalue",
                   "castKind": "FunctionToPointerDecay",
                   "inner": [
                     {
-                      "id": "0x10b5e6bc0",
+                      "id": "0x18b4e68",
                       "kind": "DeclRefExpr",
                       "range": {
                         "begin": {
@@ -211,22 +211,22 @@
                         }
                       },
                       "type": {
-                        "qualType": "basic_istream<char, std::__1::char_traits<char> > &(basic_istream<char, std::__1::char_traits<char> > &, basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > &)"
+                        "qualType": "basic_istream<char> &(basic_istream<char> &, basic_string<char> &)"
                       },
                       "valueCategory": "lvalue",
                       "referencedDecl": {
-                        "id": "0x10b5e6258",
+                        "id": "0xe91498",
                         "kind": "FunctionDecl",
                         "name": "operator>>",
                         "type": {
-                          "qualType": "basic_istream<char, std::__1::char_traits<char> > &(basic_istream<char, std::__1::char_traits<char> > &, basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > &)"
+                          "qualType": "basic_istream<char> &(basic_istream<char> &, basic_string<char> &)"
                         }
                       }
                     }
                   ]
                 },
                 {
-                  "id": "0x10b5e5be8",
+                  "id": "0x18b1c38",
                   "kind": "DeclRefExpr",
                   "range": {
                     "begin": {
@@ -241,24 +241,24 @@
                     }
                   },
                   "type": {
-                    "desugaredQualType": "std::__1::basic_istream<char>",
-                    "qualType": "std::__1::istream",
-                    "typeAliasDeclId": "0x7fa06c0f54a0"
+                    "desugaredQualType": "std::basic_istream<char>",
+                    "qualType": "std::istream",
+                    "typeAliasDeclId": "0x990aa8"
                   },
                   "valueCategory": "lvalue",
                   "referencedDecl": {
-                    "id": "0x10b5b6420",
+                    "id": "0x131b5a8",
                     "kind": "VarDecl",
                     "name": "cin",
                     "type": {
-                      "desugaredQualType": "std::__1::basic_istream<char>",
-                      "qualType": "std::__1::istream",
-                      "typeAliasDeclId": "0x7fa06c0f54a0"
+                      "desugaredQualType": "std::basic_istream<char>",
+                      "qualType": "std::istream",
+                      "typeAliasDeclId": "0x990aa8"
                     }
                   }
                 },
                 {
-                  "id": "0x10b5e5c08",
+                  "id": "0x18b1c58",
                   "kind": "DeclRefExpr",
                   "range": {
                     "begin": {
@@ -273,26 +273,26 @@
                     }
                   },
                   "type": {
-                    "desugaredQualType": "std::__1::basic_string<char>",
-                    "qualType": "std::__1::string",
-                    "typeAliasDeclId": "0x7fa06c8a0540"
+                    "desugaredQualType": "std::__cxx11::basic_string<char>",
+                    "qualType": "std::__cxx11::string",
+                    "typeAliasDeclId": "0x9397e8"
                   },
                   "valueCategory": "lvalue",
                   "referencedDecl": {
-                    "id": "0x10b5e5b40",
+                    "id": "0x18b1b90",
                     "kind": "VarDecl",
                     "name": "S",
                     "type": {
-                      "desugaredQualType": "std::__1::basic_string<char>",
-                      "qualType": "std::__1::string",
-                      "typeAliasDeclId": "0x7fa06c8a0540"
+                      "desugaredQualType": "std::__cxx11::basic_string<char>",
+                      "qualType": "std::__cxx11::string",
+                      "typeAliasDeclId": "0x9397e8"
                     }
                   }
                 }
               ]
             },
             {
-              "id": "0x10b5e6f10",
+              "id": "0x18b5248",
               "kind": "BinaryOperator",
               "range": {
                 "begin": {
@@ -309,14 +309,14 @@
               },
               "type": {
                 "desugaredQualType": "char",
-                "qualType": "std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >::value_type",
-                "typeAliasDeclId": "0x7fa06ca9e1a0"
+                "qualType": "__gnu_cxx::__alloc_traits<std::allocator<char>>::value_type",
+                "typeAliasDeclId": "0xf28ba8"
               },
               "valueCategory": "lvalue",
               "opcode": "=",
               "inner": [
                 {
-                  "id": "0x10b5e6d18",
+                  "id": "0x18b4fd8",
                   "kind": "CXXOperatorCallExpr",
                   "range": {
                     "begin": {
@@ -332,13 +332,13 @@
                   },
                   "type": {
                     "desugaredQualType": "char",
-                    "qualType": "std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >::value_type",
-                    "typeAliasDeclId": "0x7fa06ca9e1a0"
+                    "qualType": "__gnu_cxx::__alloc_traits<std::allocator<char>>::value_type",
+                    "typeAliasDeclId": "0xf28ba8"
                   },
                   "valueCategory": "lvalue",
                   "inner": [
                     {
-                      "id": "0x10b5e6d00",
+                      "id": "0x18b4fc0",
                       "kind": "ImplicitCastExpr",
                       "range": {
                         "begin": {
@@ -353,13 +353,13 @@
                         }
                       },
                       "type": {
-                        "qualType": "std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >::reference (*)(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >::size_type) noexcept"
+                        "qualType": "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>::reference (*)(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>::size_type)"
                       },
                       "valueCategory": "rvalue",
                       "castKind": "FunctionToPointerDecay",
                       "inner": [
                         {
-                          "id": "0x10b5e6ce0",
+                          "id": "0x18b4fa0",
                           "kind": "DeclRefExpr",
                           "range": {
                             "begin": {
@@ -374,22 +374,22 @@
                             }
                           },
                           "type": {
-                            "qualType": "std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >::reference (std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >::size_type) noexcept"
+                            "qualType": "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>::reference (std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>::size_type)"
                           },
                           "valueCategory": "lvalue",
                           "referencedDecl": {
-                            "id": "0x7fa06cad29e0",
+                            "id": "0xf3e110",
                             "kind": "CXXMethodDecl",
                             "name": "operator[]",
                             "type": {
-                              "qualType": "std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >::reference (std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >::size_type) noexcept"
+                              "qualType": "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>::reference (std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>::size_type)"
                             }
                           }
                         }
                       ]
                     },
                     {
-                      "id": "0x10b5e6c88",
+                      "id": "0x18b4f48",
                       "kind": "DeclRefExpr",
                       "range": {
                         "begin": {
@@ -404,24 +404,24 @@
                         }
                       },
                       "type": {
-                        "desugaredQualType": "std::__1::basic_string<char>",
-                        "qualType": "std::__1::string",
-                        "typeAliasDeclId": "0x7fa06c8a0540"
+                        "desugaredQualType": "std::__cxx11::basic_string<char>",
+                        "qualType": "std::__cxx11::string",
+                        "typeAliasDeclId": "0x9397e8"
                       },
                       "valueCategory": "lvalue",
                       "referencedDecl": {
-                        "id": "0x10b5e5b40",
+                        "id": "0x18b1b90",
                         "kind": "VarDecl",
                         "name": "S",
                         "type": {
-                          "desugaredQualType": "std::__1::basic_string<char>",
-                          "qualType": "std::__1::string",
-                          "typeAliasDeclId": "0x7fa06c8a0540"
+                          "desugaredQualType": "std::__cxx11::basic_string<char>",
+                          "qualType": "std::__cxx11::string",
+                          "typeAliasDeclId": "0x9397e8"
                         }
                       }
                     },
                     {
-                      "id": "0x10b5e6cc8",
+                      "id": "0x18b4f88",
                       "kind": "ImplicitCastExpr",
                       "range": {
                         "begin": {
@@ -437,14 +437,14 @@
                       },
                       "type": {
                         "desugaredQualType": "unsigned long",
-                        "qualType": "std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >::size_type",
-                        "typeAliasDeclId": "0x7fa06cab3c40"
+                        "qualType": "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>::size_type",
+                        "typeAliasDeclId": "0xf2d618"
                       },
                       "valueCategory": "rvalue",
                       "castKind": "IntegralCast",
                       "inner": [
                         {
-                          "id": "0x10b5e6ca8",
+                          "id": "0x18b4f68",
                           "kind": "IntegerLiteral",
                           "range": {
                             "begin": {
@@ -469,7 +469,7 @@
                   ]
                 },
                 {
-                  "id": "0x10b5e6ef8",
+                  "id": "0x18b5230",
                   "kind": "ImplicitCastExpr",
                   "range": {
                     "begin": {
@@ -485,14 +485,14 @@
                   },
                   "type": {
                     "desugaredQualType": "char",
-                    "qualType": "std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >::value_type",
-                    "typeAliasDeclId": "0x7fa06ca9e1a0"
+                    "qualType": "__gnu_cxx::__alloc_traits<std::allocator<char>>::value_type",
+                    "typeAliasDeclId": "0xf28ba8"
                   },
                   "valueCategory": "rvalue",
                   "castKind": "IntegralCast",
                   "inner": [
                     {
-                      "id": "0x10b5e6ea0",
+                      "id": "0x18b51d8",
                       "kind": "CallExpr",
                       "range": {
                         "begin": {
@@ -512,7 +512,7 @@
                       "valueCategory": "rvalue",
                       "inner": [
                         {
-                          "id": "0x10b5e6e88",
+                          "id": "0x18b51c0",
                           "kind": "ImplicitCastExpr",
                           "range": {
                             "begin": {
@@ -527,13 +527,13 @@
                             }
                           },
                           "type": {
-                            "qualType": "int (*)(int)"
+                            "qualType": "int (*)(int) throw()"
                           },
                           "valueCategory": "rvalue",
                           "castKind": "FunctionToPointerDecay",
                           "inner": [
                             {
-                              "id": "0x10b5e6e68",
+                              "id": "0x18b5138",
                               "kind": "DeclRefExpr",
                               "range": {
                                 "begin": {
@@ -548,22 +548,22 @@
                                 }
                               },
                               "type": {
-                                "qualType": "int (int)"
+                                "qualType": "int (int) throw()"
                               },
                               "valueCategory": "lvalue",
                               "referencedDecl": {
-                                "id": "0x7fa06c0d2e48",
+                                "id": "0xcba730",
                                 "kind": "FunctionDecl",
                                 "name": "toupper",
                                 "type": {
-                                  "qualType": "int (int)"
+                                  "qualType": "int (int) throw()"
                                 }
                               }
                             }
                           ]
                         },
                         {
-                          "id": "0x10b5e6ee0",
+                          "id": "0x18b5218",
                           "kind": "ImplicitCastExpr",
                           "range": {
                             "begin": {
@@ -584,7 +584,7 @@
                           "castKind": "IntegralCast",
                           "inner": [
                             {
-                              "id": "0x10b5e6ec8",
+                              "id": "0x18b5200",
                               "kind": "ImplicitCastExpr",
                               "range": {
                                 "begin": {
@@ -600,14 +600,14 @@
                               },
                               "type": {
                                 "desugaredQualType": "char",
-                                "qualType": "std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >::value_type",
-                                "typeAliasDeclId": "0x7fa06ca9e1a0"
+                                "qualType": "__gnu_cxx::__alloc_traits<std::allocator<char>>::value_type",
+                                "typeAliasDeclId": "0xf28ba8"
                               },
                               "valueCategory": "rvalue",
                               "castKind": "LValueToRValue",
                               "inner": [
                                 {
-                                  "id": "0x10b5e6e30",
+                                  "id": "0x18b50f8",
                                   "kind": "CXXOperatorCallExpr",
                                   "range": {
                                     "begin": {
@@ -623,13 +623,13 @@
                                   },
                                   "type": {
                                     "desugaredQualType": "char",
-                                    "qualType": "std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >::value_type",
-                                    "typeAliasDeclId": "0x7fa06ca9e1a0"
+                                    "qualType": "__gnu_cxx::__alloc_traits<std::allocator<char>>::value_type",
+                                    "typeAliasDeclId": "0xf28ba8"
                                   },
                                   "valueCategory": "lvalue",
                                   "inner": [
                                     {
-                                      "id": "0x10b5e6e18",
+                                      "id": "0x18b50e0",
                                       "kind": "ImplicitCastExpr",
                                       "range": {
                                         "begin": {
@@ -644,13 +644,13 @@
                                         }
                                       },
                                       "type": {
-                                        "qualType": "std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >::reference (*)(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >::size_type) noexcept"
+                                        "qualType": "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>::reference (*)(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>::size_type)"
                                       },
                                       "valueCategory": "rvalue",
                                       "castKind": "FunctionToPointerDecay",
                                       "inner": [
                                         {
-                                          "id": "0x10b5e6df8",
+                                          "id": "0x18b50c0",
                                           "kind": "DeclRefExpr",
                                           "range": {
                                             "begin": {
@@ -665,22 +665,22 @@
                                             }
                                           },
                                           "type": {
-                                            "qualType": "std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >::reference (std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >::size_type) noexcept"
+                                            "qualType": "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>::reference (std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>::size_type)"
                                           },
                                           "valueCategory": "lvalue",
                                           "referencedDecl": {
-                                            "id": "0x7fa06cad29e0",
+                                            "id": "0xf3e110",
                                             "kind": "CXXMethodDecl",
                                             "name": "operator[]",
                                             "type": {
-                                              "qualType": "std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >::reference (std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >::size_type) noexcept"
+                                              "qualType": "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>::reference (std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>::size_type)"
                                             }
                                           }
                                         }
                                       ]
                                     },
                                     {
-                                      "id": "0x10b5e6da0",
+                                      "id": "0x18b5068",
                                       "kind": "DeclRefExpr",
                                       "range": {
                                         "begin": {
@@ -695,24 +695,24 @@
                                         }
                                       },
                                       "type": {
-                                        "desugaredQualType": "std::__1::basic_string<char>",
-                                        "qualType": "std::__1::string",
-                                        "typeAliasDeclId": "0x7fa06c8a0540"
+                                        "desugaredQualType": "std::__cxx11::basic_string<char>",
+                                        "qualType": "std::__cxx11::string",
+                                        "typeAliasDeclId": "0x9397e8"
                                       },
                                       "valueCategory": "lvalue",
                                       "referencedDecl": {
-                                        "id": "0x10b5e5b40",
+                                        "id": "0x18b1b90",
                                         "kind": "VarDecl",
                                         "name": "S",
                                         "type": {
-                                          "desugaredQualType": "std::__1::basic_string<char>",
-                                          "qualType": "std::__1::string",
-                                          "typeAliasDeclId": "0x7fa06c8a0540"
+                                          "desugaredQualType": "std::__cxx11::basic_string<char>",
+                                          "qualType": "std::__cxx11::string",
+                                          "typeAliasDeclId": "0x9397e8"
                                         }
                                       }
                                     },
                                     {
-                                      "id": "0x10b5e6de0",
+                                      "id": "0x18b50a8",
                                       "kind": "ImplicitCastExpr",
                                       "range": {
                                         "begin": {
@@ -728,14 +728,14 @@
                                       },
                                       "type": {
                                         "desugaredQualType": "unsigned long",
-                                        "qualType": "std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >::size_type",
-                                        "typeAliasDeclId": "0x7fa06cab3c40"
+                                        "qualType": "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>::size_type",
+                                        "typeAliasDeclId": "0xf2d618"
                                       },
                                       "valueCategory": "rvalue",
                                       "castKind": "IntegralCast",
                                       "inner": [
                                         {
-                                          "id": "0x10b5e6dc0",
+                                          "id": "0x18b5088",
                                           "kind": "IntegerLiteral",
                                           "range": {
                                             "begin": {
@@ -770,7 +770,7 @@
               ]
             },
             {
-              "id": "0x10b5ec840",
+              "id": "0x18c6708",
               "kind": "CXXOperatorCallExpr",
               "range": {
                 "begin": {
@@ -786,12 +786,14 @@
                 }
               },
               "type": {
-                "qualType": "std::__1::basic_ostream<char>"
+                "desugaredQualType": "std::basic_ostream<char>",
+                "qualType": "std::basic_ostream<char, std::char_traits<char>>::__ostream_type",
+                "typeAliasDeclId": "0x12738e8"
               },
               "valueCategory": "lvalue",
               "inner": [
                 {
-                  "id": "0x10b5ec828",
+                  "id": "0x18c66f0",
                   "kind": "ImplicitCastExpr",
                   "range": {
                     "begin": {
@@ -806,13 +808,13 @@
                     }
                   },
                   "type": {
-                    "qualType": "std::__1::basic_ostream<char> &(*)(std::__1::basic_ostream<char> &(*)(std::__1::basic_ostream<char> &))"
+                    "qualType": "std::basic_ostream<char, std::char_traits<char>>::__ostream_type &(*)(std::basic_ostream<char, std::char_traits<char>>::__ostream_type &(*)(std::basic_ostream<char, std::char_traits<char>>::__ostream_type &))"
                   },
                   "valueCategory": "rvalue",
                   "castKind": "FunctionToPointerDecay",
                   "inner": [
                     {
-                      "id": "0x10b5ec7a8",
+                      "id": "0x18c6670",
                       "kind": "DeclRefExpr",
                       "range": {
                         "begin": {
@@ -827,22 +829,22 @@
                         }
                       },
                       "type": {
-                        "qualType": "std::__1::basic_ostream<char> &(std::__1::basic_ostream<char> &(*)(std::__1::basic_ostream<char> &))"
+                        "qualType": "std::basic_ostream<char, std::char_traits<char>>::__ostream_type &(std::basic_ostream<char, std::char_traits<char>>::__ostream_type &(*)(std::basic_ostream<char, std::char_traits<char>>::__ostream_type &))"
                       },
                       "valueCategory": "lvalue",
                       "referencedDecl": {
-                        "id": "0x10b20cfa8",
+                        "id": "0x1274400",
                         "kind": "CXXMethodDecl",
                         "name": "operator<<",
                         "type": {
-                          "qualType": "std::__1::basic_ostream<char> &(std::__1::basic_ostream<char> &(*)(std::__1::basic_ostream<char> &))"
+                          "qualType": "std::basic_ostream<char, std::char_traits<char>>::__ostream_type &(std::basic_ostream<char, std::char_traits<char>>::__ostream_type &(*)(std::basic_ostream<char, std::char_traits<char>>::__ostream_type &))"
                         }
                       }
                     }
                   ]
                 },
                 {
-                  "id": "0x10b5e8d60",
+                  "id": "0x18c44b8",
                   "kind": "CXXOperatorCallExpr",
                   "range": {
                     "begin": {
@@ -857,13 +859,13 @@
                     }
                   },
                   "type": {
-                    "desugaredQualType": "std::__1::basic_ostream<char>",
-                    "qualType": "basic_ostream<char, std::__1::char_traits<char> >"
+                    "desugaredQualType": "std::basic_ostream<char>",
+                    "qualType": "basic_ostream<char, std::char_traits<char>>"
                   },
                   "valueCategory": "lvalue",
                   "inner": [
                     {
-                      "id": "0x10b5e8d48",
+                      "id": "0x18c44a0",
                       "kind": "ImplicitCastExpr",
                       "range": {
                         "begin": {
@@ -878,13 +880,13 @@
                         }
                       },
                       "type": {
-                        "qualType": "basic_ostream<char, std::__1::char_traits<char> > &(*)(basic_ostream<char, std::__1::char_traits<char> > &, const basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > &)"
+                        "qualType": "basic_ostream<char, std::char_traits<char>> &(*)(basic_ostream<char, std::char_traits<char>> &, const basic_string<char, std::char_traits<char>, std::allocator<char>> &)"
                       },
                       "valueCategory": "rvalue",
                       "castKind": "FunctionToPointerDecay",
                       "inner": [
                         {
-                          "id": "0x10b5e8cc8",
+                          "id": "0x18c4420",
                           "kind": "DeclRefExpr",
                           "range": {
                             "begin": {
@@ -899,22 +901,22 @@
                             }
                           },
                           "type": {
-                            "qualType": "basic_ostream<char, std::__1::char_traits<char> > &(basic_ostream<char, std::__1::char_traits<char> > &, const basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > &)"
+                            "qualType": "basic_ostream<char, std::char_traits<char>> &(basic_ostream<char, std::char_traits<char>> &, const basic_string<char, std::char_traits<char>, std::allocator<char>> &)"
                           },
                           "valueCategory": "lvalue",
                           "referencedDecl": {
-                            "id": "0x10b5e7608",
+                            "id": "0x10698d0",
                             "kind": "FunctionDecl",
                             "name": "operator<<",
                             "type": {
-                              "qualType": "basic_ostream<char, std::__1::char_traits<char> > &(basic_ostream<char, std::__1::char_traits<char> > &, const basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > &)"
+                              "qualType": "basic_ostream<char, std::char_traits<char>> &(basic_ostream<char, std::char_traits<char>> &, const basic_string<char, std::char_traits<char>, std::allocator<char>> &)"
                             }
                           }
                         }
                       ]
                     },
                     {
-                      "id": "0x10b5e6f30",
+                      "id": "0x18b5268",
                       "kind": "DeclRefExpr",
                       "range": {
                         "begin": {
@@ -929,24 +931,24 @@
                         }
                       },
                       "type": {
-                        "desugaredQualType": "std::__1::basic_ostream<char>",
-                        "qualType": "std::__1::ostream",
-                        "typeAliasDeclId": "0x7fa06c0f5780"
+                        "desugaredQualType": "std::basic_ostream<char>",
+                        "qualType": "std::ostream",
+                        "typeAliasDeclId": "0x990fc8"
                       },
                       "valueCategory": "lvalue",
                       "referencedDecl": {
-                        "id": "0x10b5b6640",
+                        "id": "0x131b620",
                         "kind": "VarDecl",
                         "name": "cout",
                         "type": {
-                          "desugaredQualType": "std::__1::basic_ostream<char>",
-                          "qualType": "std::__1::ostream",
-                          "typeAliasDeclId": "0x7fa06c0f5780"
+                          "desugaredQualType": "std::basic_ostream<char>",
+                          "qualType": "std::ostream",
+                          "typeAliasDeclId": "0x990fc8"
                         }
                       }
                     },
                     {
-                      "id": "0x10b5e8cb0",
+                      "id": "0x18c4408",
                       "kind": "ImplicitCastExpr",
                       "range": {
                         "begin": {
@@ -961,14 +963,14 @@
                         }
                       },
                       "type": {
-                        "desugaredQualType": "const std::__1::basic_string<char>",
-                        "qualType": "const basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >"
+                        "desugaredQualType": "const std::__cxx11::basic_string<char>",
+                        "qualType": "const basic_string<char, std::char_traits<char>, std::allocator<char>>"
                       },
                       "valueCategory": "lvalue",
                       "castKind": "NoOp",
                       "inner": [
                         {
-                          "id": "0x10b5e6f50",
+                          "id": "0x18b5288",
                           "kind": "DeclRefExpr",
                           "range": {
                             "begin": {
@@ -983,19 +985,19 @@
                             }
                           },
                           "type": {
-                            "desugaredQualType": "std::__1::basic_string<char>",
-                            "qualType": "std::__1::string",
-                            "typeAliasDeclId": "0x7fa06c8a0540"
+                            "desugaredQualType": "std::__cxx11::basic_string<char>",
+                            "qualType": "std::__cxx11::string",
+                            "typeAliasDeclId": "0x9397e8"
                           },
                           "valueCategory": "lvalue",
                           "referencedDecl": {
-                            "id": "0x10b5e5b40",
+                            "id": "0x18b1b90",
                             "kind": "VarDecl",
                             "name": "S",
                             "type": {
-                              "desugaredQualType": "std::__1::basic_string<char>",
-                              "qualType": "std::__1::string",
-                              "typeAliasDeclId": "0x7fa06c8a0540"
+                              "desugaredQualType": "std::__cxx11::basic_string<char>",
+                              "qualType": "std::__cxx11::string",
+                              "typeAliasDeclId": "0x9397e8"
                             }
                           }
                         }
@@ -1004,7 +1006,7 @@
                   ]
                 },
                 {
-                  "id": "0x10b5ec790",
+                  "id": "0x18c6658",
                   "kind": "ImplicitCastExpr",
                   "range": {
                     "begin": {
@@ -1019,13 +1021,13 @@
                     }
                   },
                   "type": {
-                    "qualType": "basic_ostream<char, std::__1::char_traits<char> > &(*)(basic_ostream<char, std::__1::char_traits<char> > &)"
+                    "qualType": "basic_ostream<char, std::char_traits<char>> &(*)(basic_ostream<char, std::char_traits<char>> &)"
                   },
                   "valueCategory": "rvalue",
                   "castKind": "FunctionToPointerDecay",
                   "inner": [
                     {
-                      "id": "0x10b5ec768",
+                      "id": "0x18c6630",
                       "kind": "DeclRefExpr",
                       "range": {
                         "begin": {
@@ -1040,19 +1042,19 @@
                         }
                       },
                       "type": {
-                        "qualType": "basic_ostream<char, std::__1::char_traits<char> > &(basic_ostream<char, std::__1::char_traits<char> > &)"
+                        "qualType": "basic_ostream<char, std::char_traits<char>> &(basic_ostream<char, std::char_traits<char>> &)"
                       },
                       "valueCategory": "lvalue",
                       "referencedDecl": {
-                        "id": "0x10b5ec1d8",
+                        "id": "0x127a220",
                         "kind": "FunctionDecl",
                         "name": "endl",
                         "type": {
-                          "qualType": "basic_ostream<char, std::__1::char_traits<char> > &(basic_ostream<char, std::__1::char_traits<char> > &)"
+                          "qualType": "basic_ostream<char, std::char_traits<char>> &(basic_ostream<char, std::char_traits<char>> &)"
                         }
                       },
                       "foundReferencedDecl": {
-                        "id": "0x10b204e38",
+                        "id": "0x1254e40",
                         "kind": "FunctionTemplateDecl",
                         "name": "endl"
                       }

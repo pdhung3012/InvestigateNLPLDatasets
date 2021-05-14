@@ -8,11 +8,11 @@ import subprocess
 sys.path.append(os.path.abspath(os.path.join('..')))
 from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText
 
-fpTempAST= '/Users/hungphan/git/dataPapers/textInSPOC/temp/code1_ast.txt'
-fpTempCode= '/Users/hungphan/git/dataPapers/textInSPOC/temp/code1.cpp'
+fpTempAST= 'temp/code1_ast.txt'
+fpTempCode= 'temp/code1.cpp'
 
 def runASTGenAndSeeResult(fpTempCode,fpJSon,numOmit):
-    stream = os.popen("clang++ -Xclang -ast-dump=json temp/code1.cpp -o temp/code1_ast.o | sed -n '/XX_MARKER_XX/,$p' > /Users/hungphan/git/dataPapers/textInSPOC/temp/code1_ast.txt")
+    stream = os.popen("clang++-11 -Xclang -ast-dump=json temp/code1.cpp -o temp/code1_ast.o | sed -n '/XX_MARKER_XX/,$p' > temp/code1_ast.txt")
     # "clang++ -ast-dump=json /Users/hungphan/git/dataPapers/textInSPOC/temp/code1.cpp -o /Users/hungphan/git/dataPapers/textInSPOC/temp/code1_ast.o | sed -n '/XX_MARKER_XX/,$p' > /Users/hungphan/git/dataPapers/textInSPOC/temp/code1_ast.txt"
     output=stream.read()
     print(output)
