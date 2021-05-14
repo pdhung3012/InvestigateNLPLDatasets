@@ -1,4 +1,4 @@
-import os
+import sys, os, traceback
 import spacy
 from spacy.lang.en import English
 import networkx as nx
@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 from nltk.tokenize import word_tokenize
 from numpy import unique
 import nltk
+import json
+import subprocess
 
 
 def createDirIfNotExist(fopOutput):
@@ -90,3 +92,33 @@ def ngrams(input, n):
     for i in range(len(input)-n+1):
         output.append(input[i:i+n])
     return output
+
+def runASTGenAndSeeResult(fpCode,fpJSon,numOmit):
+    jsonObject=None
+    try:
+        stream = os.popen("clang++-11 -Xclang -ast-dump=json "+fpCode+" | sed -n '/XX_MARKER_XX/,$p' > "+fpJSon)
+        output=stream.read()
+        # print(output)
+        f1=open(fpJSon,'r')
+        strJson=f1.read().strip()
+        f1.close()
+        arrJson=strJson.split('\n')
+        lstStr=[]
+        lstStr.append('{\n\t"kind": "root",\n\t"inner": [')
+        for i in range(numOmit,len(arrJson)):
+            lstStr.append(arrJson[i])
+        strResult='\n'.join(lstStr)
+        f1 = open(fpJSon, 'w')
+        f1.write(strResult)
+        f1.close()
+        # print(strResult)
+        jsonObject = json.loads(strResult)
+
+    except:
+        strResult = str(sys.exc_info()[0])
+        print("Exception in user code:")
+        print("-" * 60)
+        traceback.print_exc(file=sys.stdout)
+        print("-" * 60)
+    return jsonObject
+
