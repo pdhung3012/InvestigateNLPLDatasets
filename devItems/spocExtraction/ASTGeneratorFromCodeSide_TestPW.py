@@ -25,7 +25,7 @@ dictCountWords={}
 f1=open(fpCombineASTsTestP, 'w')
 f1.write('')
 f1.close()
-
+'''
 for index in range(0,len(lstFiles)):
     fpCodeFileCPP=lstFiles[index]
     fineName=os.path.basename(fpCodeFileCPP)
@@ -43,7 +43,7 @@ for index in range(0,len(lstFiles)):
     f1 = open(fpCombineASTsTestP, 'a')
     f1.write(strContentAppend)
     f1.close()
-
+'''
 lstFiles=sorted(glob.glob(fopStatisticFolderTestW+ "*_code.cpp"))
 dictCountWords={}
 f1=open(fpCombineASTsTestW, 'w')

@@ -46,8 +46,8 @@ for i in range(0,len(lstFiles)):
     f1.write(strNewContent)
     f1.close()
 
-fopTestWFolder=fopTextInSPoC+'TestWSPOCPlain/'
-fopTestWFolderOnlyC=fopTextInSPoC+'testWPOnlyC/'
+fopTestWFolder=fopTextInSPoC+'testWSPOCPlain/'
+fopTestWFolderOnlyC=fopTextInSPoC+'testWOnlyC/'
 lstFiles=sorted(glob.glob(fopTestWFolder+ "*_code.txt"))
 createDirIfNotExist(fopTestWFolderOnlyC)
 for i in range(0,len(lstFiles)):
