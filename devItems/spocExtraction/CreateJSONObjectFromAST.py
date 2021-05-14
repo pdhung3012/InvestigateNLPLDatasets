@@ -12,8 +12,8 @@ fpTempAST= '/Users/hungphan/git/dataPapers/textInSPOC/temp/code1_ast.txt'
 fpTempCode= '/Users/hungphan/git/dataPapers/textInSPOC/temp/code1.cpp'
 
 def runASTGenAndSeeResult(fpTempCode,fpJSon,numOmit):
-    stream = os.popen("clang++ -Xclang -ast-dump=json /Users/hungphan/git/dataPapers/textInSPOC/temp/code1.cpp -o /Users/hungphan/git/dataPapers/textInSPOC/temp/code1_ast.o | sed -n '/XX_MARKER_XX/,$p' > /Users/hungphan/git/dataPapers/textInSPOC/temp/code1_ast.txt")
-    "clang++ -ast-dump=json /Users/hungphan/git/dataPapers/textInSPOC/temp/code1.cpp -o /Users/hungphan/git/dataPapers/textInSPOC/temp/code1_ast.o | sed -n '/XX_MARKER_XX/,$p' > /Users/hungphan/git/dataPapers/textInSPOC/temp/code1_ast.txt"
+    stream = os.popen("clang++ -Xclang -ast-dump=json temp/code1.cpp -o temp/code1_ast.o | sed -n '/XX_MARKER_XX/,$p' > /Users/hungphan/git/dataPapers/textInSPOC/temp/code1_ast.txt")
+    # "clang++ -ast-dump=json /Users/hungphan/git/dataPapers/textInSPOC/temp/code1.cpp -o /Users/hungphan/git/dataPapers/textInSPOC/temp/code1_ast.o | sed -n '/XX_MARKER_XX/,$p' > /Users/hungphan/git/dataPapers/textInSPOC/temp/code1_ast.txt"
     output=stream.read()
     print(output)
     f1=open(fpJSon,'r')
