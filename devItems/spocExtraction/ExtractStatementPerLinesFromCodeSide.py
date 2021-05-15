@@ -8,17 +8,35 @@ sys.path.append(os.path.abspath(os.path.join('..')))
 from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText
 
 def traverseJsonObject(jsonObject,dictLines):
-    if 'loc' in jsonObject and 'line' in jsonObject['loc']:
+    beginLine=-1
+    endLine=-1
+    try:
+        beginLine=jsonObject['loc']['line']
+    except :
+        beginLine=-1
+    if( beginLine ==-1):
+        try:
+            beginLine=jsonObject['range']['begin']['line']
+        except :
+            beginLine=-1
+    try:
+        endLine=jsonObject['range']['end']['line']
+    except :
+        endLine=-1
+    if beginLine>0:
         # strName=jsonObject['na']
         strKind=jsonObject['kind']
         # print(strKind)
-        beginLine=jsonObject['loc']['line']
-        if beginLine not in dictLines:
+        # beginLine=jsonObject['loc']['line']
+        strKey = '{}'.format(beginLine)
+        if(endLine>0):
+            strKey='{}-{}'.format(beginLine,endLine)
+        if strKey not in dictLines:
             lstItem=[]
             lstItem.append(strKind)
-            dictLines[beginLine]=lstItem
+            dictLines[strKey]=lstItem
         else:
-            dictLines[beginLine].append(strKind)
+            dictLines[strKey].append(strKind)
     if 'inner' in jsonObject:
         arr=jsonObject['inner']
         for item in arr:
