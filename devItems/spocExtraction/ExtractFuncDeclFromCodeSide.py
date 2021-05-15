@@ -63,7 +63,7 @@ for i in range(0,len(lstFiles)):
             lineEnd=lineBegin
             if 'line' in item["range"]["end"]:
                 lineEnd = item["range"]["end"]["line"]
-            lstStr.append('{}\t{}\t{}')
+            lstStr.append('{}\t{}\t{}'.format(name,lineBegin,lineEnd))
         strAddToFile='\n'.join(lstStr)
         strAddTotal='\n'.join([fileNameItem,strAddToFile,'\n\n\n'])
         f1=open(fpSignatures,'a')
