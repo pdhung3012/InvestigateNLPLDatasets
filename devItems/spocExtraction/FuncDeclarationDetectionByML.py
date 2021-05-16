@@ -137,7 +137,7 @@ def prepareTrainingDataAndLabel(fpPseudoCodeData,fpFuncDeclData,fpCodeData,fpCSV
                 if '-' in arrItem[0] and arrItem[1].startswith('FunctionDecl'):
                     beginLine=int(arrItem[0].split('-')[0])-distanceOfCPPFile
                     endLine = int(arrItem[0].split('-')[1])-distanceOfCPPFile
-                    print('{}'.format(beginLine))
+                    # print('{}'.format(beginLine))
                     strBeginLbl = '{}\t{}'.format(beginLine, 'FuncDecl_Begin')
                     lstNewLabel.append(strBeginLbl)
                     if beginLine !=endLine:
