@@ -184,7 +184,7 @@ def prepareTrainingDataAndLabel(fpPseudoCodeData,fpFuncDeclData,fpCodeData,fpCSV
     csv.close()
 
 def runMLAlgm(fpTrain,fpTestP,fpTestW,fopResultML):
-    classifier= LinearDiscriminantAnalysis()
+    classifier= RandomForestClassifier()
     df_train = pd.read_csv(fpTrain)
     train_label = df_train['score']
     train_data = df_train.drop(['no', 'score','programid','line'], axis=1)
