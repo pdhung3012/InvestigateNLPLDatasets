@@ -70,6 +70,13 @@ def getListOfFeatures(arrPseudoCodes,arrLabels,indexOfPseudoCodes):
         indexScore8 = indexScore8 - 1
     score8 = indexOfPseudoCodes= indexScore8
     lstScores.append(score8)
+
+    if 'return' in arrCurrentPS or  'returns' in arrCurrentPS:
+        score9 = 1
+    else:
+        score9 = 0
+    lstScores.append(score9)
+
     return lstScores
 
 
