@@ -158,6 +158,7 @@ def prepareTrainingDataAndLabel(fpPseudoCodeData,fpFuncDeclData,fpCodeData,fpCSV
 
     csv = open(fpCSVData, 'w')
     indexKey=0
+    indexCsv=0
     for key in dictPseudoCode.keys():
 
         lstPseudoCodeItem=dictPseudoCode[key]
@@ -174,6 +175,7 @@ def prepareTrainingDataAndLabel(fpPseudoCodeData,fpFuncDeclData,fpCodeData,fpCSV
                 # print('{}\t{}'.format(key,lstFeaturesItems))
                 if i==0 and indexKey==1:
                     lenFeats=len(lstFeaturesItems)
+
                     columnTitleRow = "no,programid,line,score,"
                     for i2 in range(0, lenFeats):
                         item = 'feature-' + str(i2 + + 1)
@@ -186,7 +188,8 @@ def prepareTrainingDataAndLabel(fpPseudoCodeData,fpFuncDeclData,fpCodeData,fpCSV
 
                 # vectori = X[i]
                 strFeati = ','.join(map(str,lstFeaturesItems))
-                row = ''.join([str(i2 + 1), ',', str(key), ',', str(lineCheck), ',', str(lblCheck), ',',strFeati,'\n'])
+                indexCsv = indexCsv + 1
+                row = ''.join([str(indexCsv), ',', str(key), ',', str(lineCheck), ',', str(lblCheck), ',',strFeati,'\n'])
                 csv.write(row)
     csv.close()
 
