@@ -2,7 +2,7 @@ from nltk.parse import stanford
 from nltk.tree import Tree
 import json
 import os
-import sys
+import sys,traceback
 # os.environ['STANFORD_PARSER'] = '../../../dataPapers/StanfordParser/stanford-parser-full-2020-11-17'
 # os.environ['STANFORD_MODELS'] = '../../../dataPapers/StanfordParser/stanford-parser-full-2020-11-17'
 
@@ -55,19 +55,19 @@ def tree2dict(tree):
 
 def textToJson(strText):
   try:
-    output = nlp.annotate(text, properties={
+    output = nlp.annotate(strText, properties={
       'annotators': 'parse',
       'outputFormat': 'json'
     })
-    jsonTemp = json.loads(output)
-    strJsonObj = json.dumps(jsonTemp, indent=1)
-    # print(type(jsonObject))
-    # strTree = jsonTemp['sentences'][0]['parse']
-    # tree2 = Tree.fromstring(strTree)
-    # dictTree =tree2dict(tree2)
-    # strJsonObj=json.dumps(dictTree,indent=1)
-    # jsonObj=json.loads(strJsonObj)
+    # print(str(output))
+    # jsonTemp = json.loads(output)
+    strJsonObj = json.dumps(output, indent=1)
   except:
+    # strResult = str(sys.exc_info()[0])
+    print("Exception in user code:")
+    print("-" * 60)
+    traceback.print_exc(file=sys.stdout)
+    print("-" * 60)
     strJsonObj='Error'
   return strJsonObj
 
