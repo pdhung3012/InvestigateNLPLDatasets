@@ -6,7 +6,7 @@ from nltk.parse import stanford
 from nltk.tree import Tree
 import json
 import os
-import sys
+import sys,traceback
 from pycorenlp import StanfordCoreNLP
 nlp = StanfordCoreNLP('http://localhost:9000')
 
@@ -22,8 +22,12 @@ def textToJson(strText):
     })
     jsonTemp = json.loads(output)
     strJsonObj = json.dumps(jsonTemp, indent=1)
-    # strJsonObj =str(jsonTemp)
   except:
+    # strResult = str(sys.exc_info()[0])
+    print("Exception in user code:")
+    print("-" * 60)
+    traceback.print_exc(file=sys.stdout)
+    print("-" * 60)
     strJsonObj='Error'
   return strJsonObj
 
