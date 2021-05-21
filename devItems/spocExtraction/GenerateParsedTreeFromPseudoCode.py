@@ -20,8 +20,9 @@ def textToJson(strText):
       'annotators': 'parse',
       'outputFormat': 'json'
     })
-    jsonTemp = json.loads(output)
-    strJsonObj = json.dumps(jsonTemp, indent=1)
+    # print(str(output))
+    # jsonTemp = json.loads(output)
+    strJsonObj = json.dumps(output, indent=1)
   except:
     # strResult = str(sys.exc_info()[0])
     print("Exception in user code:")
