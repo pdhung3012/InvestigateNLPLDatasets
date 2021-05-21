@@ -91,7 +91,7 @@ from pycorenlp import StanfordCoreNLP
 nlp = StanfordCoreNLP('http://localhost:9000')
 
 text = "The old oak tree from India fell down. I love you."
-
+# ss
 
 
 jsonObject=textToJson(text)
