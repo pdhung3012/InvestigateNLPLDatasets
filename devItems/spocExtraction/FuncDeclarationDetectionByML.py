@@ -88,7 +88,7 @@ def getListOfFeatures(arrPseudoCodes,arrLabels,indexOfPseudoCodes):
 
 
 
-def prepareTrainingDataAndLabel(fpPseudoCodeData,fpFuncDeclData,fpCodeData,fpCSVData):
+def prepareTrainingDataAndLabel(fpPseudoCodeData,fpFuncDeclData,fpCodeData,fpCSVData,fpTxtData):
     f1=open(fpPseudoCodeData,'r')
     arrPseudos=f1.read().split('\n')
     f1.close()
@@ -122,6 +122,9 @@ def prepareTrainingDataAndLabel(fpPseudoCodeData,fpFuncDeclData,fpCodeData,fpCSV
     f1.close()
     dictLabelFuncDecl={}
     txtName = ''
+
+
+
     for i in range(0, len(arrFuncDecl)):
         itemStrip = arrFuncDecl[i].strip()
         if itemStrip.endswith('_code.cpp'):
@@ -130,10 +133,15 @@ def prepareTrainingDataAndLabel(fpPseudoCodeData,fpFuncDeclData,fpCodeData,fpCSV
             dictLabelFuncDecl[txtName] = lstContent
         else:
             dictLabelFuncDecl[txtName].append(arrFuncDecl[i])
+    f1 = open(fpTxtData,'w')
+    f1.write('')
+    f1.close()
 
     for key in dictLabelFuncDecl.keys():
         lstFuncDel=dictLabelFuncDecl[key]
         lstNewLabel=[]
+        arrPseudoCodeItem = '\n'.join(dictPseudoCode[key]).strip().split('\n')
+        arrCodeItem = '\n'.join(dictCode[key]).strip().split('\n')
         # print(lstFuncDel)
         for i in range(0,len(lstFuncDel)):
             strItem=lstFuncDel[i].strip()
@@ -144,17 +152,49 @@ def prepareTrainingDataAndLabel(fpPseudoCodeData,fpFuncDeclData,fpCodeData,fpCSV
                 if '-' in arrItem[0] and arrItem[1].startswith('FunctionDecl'):
                     beginLine=int(arrItem[0].split('-')[0])-distanceOfCPPFile
                     endLine = int(arrItem[0].split('-')[1])-distanceOfCPPFile
-                    # print('{}'.format(beginLine))
-                    strBeginLbl = '{}\t{}'.format(beginLine, 'FuncDecl_Begin')
+                    if beginLine > len(arrPseudoCodeItem) or endLine > len(arrPseudoCodeItem):
+                        continue
+                    strPSLine = arrPseudoCodeItem[beginLine - 1]
+                    strCodeLine = arrCodeItem[beginLine - 1]
+                    strBeginLbl = '{}\t{}\t{}\t{}'.format('FuncDecl_Begin',beginLine,strPSLine,strCodeLine )
                     lstNewLabel.append(strBeginLbl)
                     if beginLine !=endLine:
-                        strEndLbl = '{}\t{}'.format(endLine, 'FuncDecl_End')
+                        strPSLine = arrPseudoCodeItem[endLine - 1]
+                        strCodeLine = arrCodeItem[endLine - 1]
+                        strEndLbl = '{}\t{}\t{}\t{}'.format('FuncDecl_End',endLine,strPSLine,strCodeLine )
                         lstNewLabel.append(strEndLbl)
                 elif '-' not in arrItem[0]:
+
                     beginLine = int(arrItem[0]) - distanceOfCPPFile
-                    strBeginLbl = '{}\t{}'.format(beginLine, 'OtherStatement')
+                    if beginLine > len(arrPseudoCodeItem):
+                        continue
+                    strPSLine = arrPseudoCodeItem[beginLine - 1]
+                    strCodeLine = arrCodeItem[beginLine - 1]
+
+                    strBeginLbl = '{}\t{}\t{}\t{}'.format('OtherStatement',beginLine,strPSLine,strCodeLine )
                     lstNewLabel.append(strBeginLbl)
         dictLabelFuncDecl[key]=lstNewLabel
+
+        dictSingleStmt = {}
+        for oldI in range(0, len(lstNewLabel)):
+            i = len(lstNewLabel) - 1 - oldI
+            numLine = int(lstNewLabel[i].split('\t')[1])
+            if numLine not in dictSingleStmt:
+                # print(numLine)
+                # print(lstNewLabel[i])
+                dictSingleStmt[numLine] = lstNewLabel[i]
+
+        lstAdd = []
+        for keyLine in sorted(dictSingleStmt.keys()):
+            lstAdd.append(dictSingleStmt[keyLine])
+
+        # dictLabelFuncDecl[key]=lstNewLabel
+        # strNewLabel='\n'.join(lstNewLabel)
+        strNewLabel = '\n'.join(lstAdd)
+        strWriteToFile = '\n'.join([key + '_code.txt', strNewLabel, '\n\n\n'])
+        f1 = open(fpTxtData, 'a')
+        f1.write(strWriteToFile)
+        f1.close()
 
     csv = open(fpCSVData, 'w')
     indexKey=0
@@ -169,8 +209,8 @@ def prepareTrainingDataAndLabel(fpPseudoCodeData,fpFuncDeclData,fpCodeData,fpCSV
             arrStmt=dictLabelFuncDecl[key]
             # print(arrStmt)
             for i in range(0,len(arrStmt)):
-                lineCheck=int(arrStmt[i].split('\t')[0])
-                lblCheck=arrStmt[i].split('\t')[1]
+                lineCheck=int(arrStmt[i].split('\t')[1])
+                lblCheck=arrStmt[i].split('\t')[0]
                 lstFeaturesItems=getListOfFeatures(arrPseudos,arrStmt,lineCheck)
                 # print('{}\t{}'.format(key,lstFeaturesItems))
                 if i==0 and indexKey==1:
@@ -239,23 +279,26 @@ fpPseudoCodeData=fopTextSPOC+'combinePseudoCode.txt'
 fpFuncDeclData=fopTextSPOC+'statementLabelFromCode.txt'
 fpCodeData=fopTextSPOC+'combineProgram.txt'
 fpCsvData=fopTextSPOC+'funcDecl_train.csv'
+fpTxtData=fopTextSPOC+'funcDeclLabel_train.txt'
 
 fpPseudoCodeDataTestP=fopTextSPOC+'combinePseudoCode_TestP.txt'
 fpFuncDeclDataTestP=fopTextSPOC+'statementLabelFromCode_TestP.txt'
 fpCodeDataTestP=fopTextSPOC+'combineProgram_TestP.txt'
 fpCsvDataTestP=fopTextSPOC+'funcDecl_testP.csv'
+fpTxtDataTestP=fopTextSPOC+'funcDeclLabel_testP.txt'
 
 fpPseudoCodeDataTestW=fopTextSPOC+'combinePseudoCode_TestW.txt'
 fpFuncDeclDataTestW=fopTextSPOC+'statementLabelFromCode_TestW.txt'
 fpCodeDataTestW=fopTextSPOC+'combineProgram_TestW.txt'
 fpCsvDataTestW=fopTextSPOC+'funcDecl_testW.csv'
+fpTxtDataTestW=fopTextSPOC+'funcDeclLabel_testW.txt'
 
 fopMLResult=fopTextSPOC+'MLResults/fundecl_v1/'
 createDirIfNotExist(fopMLResult)
 
-prepareTrainingDataAndLabel(fpPseudoCodeData,fpFuncDeclData,fpCodeData,fpCsvData)
-prepareTrainingDataAndLabel(fpPseudoCodeDataTestP,fpFuncDeclDataTestP,fpCodeDataTestP,fpCsvDataTestP)
-prepareTrainingDataAndLabel(fpPseudoCodeDataTestW,fpFuncDeclDataTestW,fpCodeDataTestW,fpCsvDataTestW)
+prepareTrainingDataAndLabel(fpPseudoCodeData,fpFuncDeclData,fpCodeData,fpCsvData,fpTxtData)
+prepareTrainingDataAndLabel(fpPseudoCodeDataTestP,fpFuncDeclDataTestP,fpCodeDataTestP,fpCsvDataTestP,fpTxtDataTestP)
+prepareTrainingDataAndLabel(fpPseudoCodeDataTestW,fpFuncDeclDataTestW,fpCodeDataTestW,fpCsvDataTestW,fpTxtDataTestW)
 runMLAlgm(fpCsvData,fpCsvDataTestP,fpCsvDataTestW,fopMLResult)
 
 
