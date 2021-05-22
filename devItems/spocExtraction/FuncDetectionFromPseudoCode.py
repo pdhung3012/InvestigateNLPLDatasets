@@ -65,9 +65,6 @@ for key in dictPseudoCodes.keys():
     lstItemPseudoCodes=dictPseudoCodes[key]
     strContentToPseudoCode='\n'.join(lstItemPseudoCodes).strip()
     lstItemPseudoCodes=strContentToPseudoCode.split('\n')
-    if isNotInAnyFunctionDecl():
-        lstFunc=
-
 
 print('finish')
 
