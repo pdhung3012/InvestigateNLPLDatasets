@@ -52,7 +52,7 @@ def runMLDoc2VecClassification(fopData, fpTrain, fpTestP, fpTestW, fopMLResult):
     labelTestP = []
     labelTestW = []
 
-    for i in range(0,len(arrTrain)//10):
+    for i in range(0,len(arrTrain)):
         if arrTrain[i].strip().endswith('code.txt'):
             continue
         arrItem=arrTrain[i].strip().split('\t')
@@ -64,7 +64,7 @@ def runMLDoc2VecClassification(fopData, fpTrain, fpTestP, fpTestW, fopMLResult):
         corpusTrain.append(strPseudoCode)
         corpus.append(strPseudoCode)
         labelTrain.append(strLabel)
-    for i in range(0,len(arrTestP)//10):
+    for i in range(0,len(arrTestP)):
         if arrTestP[i].strip().endswith('code.txt'):
             continue
         arrItem=arrTestP[i].strip().split('\t')
@@ -75,7 +75,7 @@ def runMLDoc2VecClassification(fopData, fpTrain, fpTestP, fpTestW, fopMLResult):
         corpusTestP.append(strPseudoCode)
         corpus.append(strPseudoCode)
         labelTestP.append(strLabel)
-    for i in range(0,len(arrTestW)//10):
+    for i in range(0,len(arrTestW)):
         if arrTestW[i].strip().endswith('code.txt'):
             continue
         arrItem=arrTestW[i].strip().split('\t')
