@@ -24,6 +24,13 @@ from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText
 
 strConstError='Error_Val'
 strConstSplitWord=' ABA '
+
+fopData='../../../dataPapers/'
+fopTextSPOC=fopData+'textInSPOC/'
+fpHeaderTemp=fopTextSPOC+'tempHeader.txt'
+f1=open(fpHeaderTemp,'r')
+strHeader=f1.read()
+f1.close()
 distanceOfCPPFile=33
 
 
@@ -88,7 +95,8 @@ def getListOfFeatures(arrPseudoCodes,arrLabels,indexOfPseudoCodes):
 
 
 
-def prepareTrainingDataAndLabel(fpPseudoCodeData,fpFuncDeclData,fpCodeData,fpCSVData):
+def prepareTrainingDataAndLabel(fpPseudoCodeData,fpFuncDeclData,fpCodeData,fpCSVData,fopCodeWithComment):
+    createDirIfNotExist(fopCodeWithComment)
     f1=open(fpPseudoCodeData,'r')
     arrPseudos=f1.read().split('\n')
     f1.close()
@@ -107,6 +115,7 @@ def prepareTrainingDataAndLabel(fpPseudoCodeData,fpFuncDeclData,fpCodeData,fpCSV
     arrCodes = f1.read().split('\n')
     f1.close()
     dictCode = {}
+    # dictWithIndentCode = {}
     txtName = ''
     for i in range(0, len(arrCodes)):
         itemStrip = arrCodes[i].strip()
@@ -114,8 +123,11 @@ def prepareTrainingDataAndLabel(fpPseudoCodeData,fpFuncDeclData,fpCodeData,fpCSV
             txtName = itemStrip.replace('_text.txt', '')
             lstContent = []
             dictCode[txtName] = lstContent
+            lst2=[]
+            # dictWithIndentCode[txtName]=lst2
         else:
             dictCode[txtName].append(arrCodes[i])
+            # dictWithIndentCode[txtName].append()
 
     f1 = open(fpFuncDeclData, 'r')
     arrFuncDecl = f1.read().split('\n')
@@ -203,6 +215,33 @@ def prepareTrainingDataAndLabel(fpPseudoCodeData,fpFuncDeclData,fpCodeData,fpCSV
         lstAdd=[]
         for keyLine in sorted(dictSingleStmt.keys()):
             lstAdd.append(dictSingleStmt[keyLine])
+        for item in lstAdd:
+            arrItem=item.split('\t')
+            numLineChange=int(arrItem[1])
+            lblClass=arrItem[0]
+            lstCombineCode=[]
+            if lblClass.endswith('End'):
+                continue
+            for i in range(0,len(arrCodeItem)):
+                if i==(numLineChange-1):
+                    # lstCombineCode.append(arrPseudoCodeItem[i])
+                    strComment='// '+lblClass+'\t'+str(numLineChange+distanceOfCPPFile)+'\t'+arrPseudoCodeItem[i]
+                    if lblClass.startswith('For') or lblClass.startswith('FunctionDecl'):
+                        strComment='{ // '+lblClass+'\t'+str(numLineChange+distanceOfCPPFile)+'\t'+arrPseudoCodeItem[i]
+                    lstCombineCode.append(strComment)
+                else:
+                    lstCombineCode.append(arrCodeItem[i])
+
+            strCombine='\n'.join(lstCombineCode)
+            strCodeWithComments='\n'.join([strHeader,strCombine])
+            fpCombine=fopCodeWithComment+key+'-'+str(numLineChange+distanceOfCPPFile)+'_code.cpp'
+            f1=open(fpCombine,'w')
+            f1.write(strCodeWithComments)
+            f1.close()
+
+
+
+
 
         # dictLabelFuncDecl[key]=lstNewLabel
         # strNewLabel='\n'.join(lstNewLabel)
@@ -254,29 +293,31 @@ def runMLAlgm(fpTrain,fpTestP,fpTestW,fopResultML):
     o2.close()
 
 
-fopData='../../../dataPapers/'
-fopTextSPOC=fopData+'textInSPOC/'
+
 fpPseudoCodeData=fopTextSPOC+'combinePseudoCode.txt'
 fpFuncDeclData=fopTextSPOC+'statementLabelFromCode.txt'
 fpCodeData=fopTextSPOC+'combineProgram.txt'
 fpTxtData=fopTextSPOC+'statementLbl_train.txt'
+fopCodeCommentData=fopTextSPOC+'codeWithComment_Train/'
 
 fpPseudoCodeDataTestP=fopTextSPOC+'combinePseudoCode_TestP.txt'
 fpFuncDeclDataTestP=fopTextSPOC+'statementLabelFromCode_TestP.txt'
 fpCodeDataTestP=fopTextSPOC+'combineProgram_TestP.txt'
 fpTxtDataTestP=fopTextSPOC+'statementLbl_testP.txt'
+fopCodeCommentDataTestP=fopTextSPOC+'codeWithComment_TestP/'
 
 fpPseudoCodeDataTestW=fopTextSPOC+'combinePseudoCode_TestW.txt'
 fpFuncDeclDataTestW=fopTextSPOC+'statementLabelFromCode_TestW.txt'
 fpCodeDataTestW=fopTextSPOC+'combineProgram_TestW.txt'
 fpTxtDataTestW=fopTextSPOC+'statementLbl_testW.txt'
+fopCodeCommentDataTestW=fopTextSPOC+'codeWithComment_TestW/'
 
 fopMLResult=fopTextSPOC+'MLResults/fundecl_v1/'
 createDirIfNotExist(fopMLResult)
 
-prepareTrainingDataAndLabel(fpPseudoCodeDataTestP,fpFuncDeclDataTestP,fpCodeDataTestP,fpTxtDataTestP)
-prepareTrainingDataAndLabel(fpPseudoCodeDataTestW,fpFuncDeclDataTestW,fpCodeDataTestW,fpTxtDataTestW)
-prepareTrainingDataAndLabel(fpPseudoCodeData,fpFuncDeclData,fpCodeData,fpTxtData)
+prepareTrainingDataAndLabel(fpPseudoCodeDataTestP,fpFuncDeclDataTestP,fpCodeDataTestP,fpTxtDataTestP,fopCodeCommentDataTestP)
+prepareTrainingDataAndLabel(fpPseudoCodeDataTestW,fpFuncDeclDataTestW,fpCodeDataTestW,fpTxtDataTestW,fopCodeCommentDataTestW)
+prepareTrainingDataAndLabel(fpPseudoCodeData,fpFuncDeclData,fpCodeData,fpTxtData,fopCodeCommentData)
 # runMLAlgm(fpCsvData,fpCsvDataTestP,fpCsvDataTestW,fopMLResult)
 
 
