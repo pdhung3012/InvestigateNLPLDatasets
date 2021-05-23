@@ -19,12 +19,15 @@ from sklearn.metrics import precision_score,cohen_kappa_score
 import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
+from gensim.models.doc2vec import Doc2Vec, TaggedDocument
+from nltk.tokenize import word_tokenize
 
 sys.path.append(os.path.abspath(os.path.join('..')))
 from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText
 
 
 def runMLTFIDFClassification(fopData,fpTrain,fpTestP,fpTestW,fopMLResult):
+    fpD2v=fopMLResult+'d2v.txt'
     f1=open(fpTrain,'r')
     strTrain=f1.read().strip()
     f1.close()
@@ -83,30 +86,53 @@ def runMLTFIDFClassification(fopData,fpTrain,fpTestP,fpTestW,fopMLResult):
         corpus.append(strPseudoCode)
         labelTestW.append(strLabel)
 
+    tagged_data = [TaggedDocument(words=word_tokenize(_d), tags=[str(i)]) for i, _d in enumerate(corpus)]
 
+    max_epochs = 5
+    vec_size = 20
+    alpha = 0.025
 
-    vectorizer = TfidfVectorizer(ngram_range=(1, 1))
-    vectorizer.fit(corpus)
-    XTrain = vectorizer.transform(corpusTrain)
-    XTrain = XTrain.toarray()
-    pca = PCA(n_components=50)
-    print('prepare to fit transform')
-    XTrain = pca.fit_transform(XTrain)
-    print('end fit transform')
+    model = Doc2Vec(size=vec_size,
+                    alpha=alpha,
+                    min_alpha=0.00025,
+                    min_count=1,
+                    dm=0)
 
-    XTestP = vectorizer.transform(corpusTestP)
-    XTestP = XTestP.toarray()
-    pca = PCA(n_components=50)
-    print('prepare to fit transform TestP')
-    XTestP = pca.fit_transform(XTestP)
-    print('end fit transform')
+    model.build_vocab(tagged_data)
 
-    XTestW = vectorizer.transform(corpusTestW)
-    XTestW = XTestW.toarray()
-    pca = PCA(n_components=50)
-    print('prepare to fit transform TestW')
-    XTestW = pca.fit_transform(XTestW)
-    print('end fit transform')
+    for epoch in range(max_epochs):
+        # print('iteration {0}'.format(epoch))
+        model.train(tagged_data,
+                    total_examples=model.corpus_count,
+                    epochs=model.iter)
+        # decrease the learning rate
+        model.alpha -= 0.0002
+        # fix the learning rate, no decay
+        model.min_alpha = model.alpha
+        print('End epoch{}'.format(epoch))
+
+    model.save(fpD2v)
+
+    XTrain = []
+    XTestP = []
+    XTestW = []
+
+    for i in range(len(corpusTrain)):
+        item = corpusTrain[i]
+        x_data = word_tokenize(item)
+        v1 = model.infer_vector(x_data)
+        XTrain.append(v1)
+    for i in range(len(corpusTestP)):
+        item = corpusTestP[i]
+        x_data = word_tokenize(item)
+        v1 = model.infer_vector(x_data)
+        XTestP.append(v1)
+    for i in range(len(corpusTestW)):
+        item = corpusTestW[i]
+        x_data = word_tokenize(item)
+        v1 = model.infer_vector(x_data)
+        XTestW.append(v1)
+
 
     fpCSVTrain=fopMLResult+'train.csv'
     fpCSVTestP = fopMLResult + 'testP.csv'
@@ -223,6 +249,6 @@ fopData='../../../dataPapers/textInSPOC/'
 fpTrain=fopData+'statementLbl_train.txt'
 fpTestP=fopData+'statementLbl_testP.txt'
 fpTestW=fopData+'statementLbl_testW.txt'
-fopMLResult=fopData+'statementLbl_MLResult/'
+fopMLResult=fopData+'statementLbl_MLResult_doc2vec/'
 
 runMLTFIDFClassification(fopData,fpTrain,fpTestP,fpTestW,fopMLResult)
