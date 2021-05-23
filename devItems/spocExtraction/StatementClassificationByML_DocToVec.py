@@ -26,7 +26,8 @@ sys.path.append(os.path.abspath(os.path.join('..')))
 from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText
 
 
-def runMLTFIDFClassification(fopData,fpTrain,fpTestP,fpTestW,fopMLResult):
+def runMLDoc2VecClassification(fopData, fpTrain, fpTestP, fpTestW, fopMLResult):
+    createDirIfNotExist(fopMLResult)
     fpD2v=fopMLResult+'d2v.txt'
     f1=open(fpTrain,'r')
     strTrain=f1.read().strip()
@@ -202,7 +203,7 @@ def runMLTFIDFClassification(fopData,fpTrain,fpTestP,fpTestW,fopMLResult):
     csv.write('\n'.join(lstCsv))
     csv.close()
 
-    createDirIfNotExist(fopMLResult)
+
     classifier = RandomForestClassifier()
     df_train = pd.read_csv(fpCSVTrain)
     train_label = df_train['score']
@@ -251,4 +252,4 @@ fpTestP=fopData+'statementLbl_testP.txt'
 fpTestW=fopData+'statementLbl_testW.txt'
 fopMLResult=fopData+'statementLbl_MLResult_doc2vec/'
 
-runMLTFIDFClassification(fopData,fpTrain,fpTestP,fpTestW,fopMLResult)
+runMLDoc2VecClassification(fopData, fpTrain, fpTestP, fpTestW, fopMLResult)
