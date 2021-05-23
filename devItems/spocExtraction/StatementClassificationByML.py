@@ -88,30 +88,31 @@ def runMLTFIDFClassification(fopData,fpTrain,fpTestP,fpTestW,fopMLResult):
     vectorizer.fit(corpus)
     XTrain = vectorizer.transform(corpusTrain)
     XTrain = XTrain.toarray()
-    pca = PCA(n_components=50)
-    print('prepare to fit transform')
-    XTrain = pca.fit_transform(XTrain)
-    print('end fit transform')
+    # pca = PCA(n_components=50)
+    # print('prepare to fit transform')
+    # XTrain = pca.fit_transform(XTrain)
+    # print('end fit transform')
 
     XTestP = vectorizer.transform(corpusTestP)
     XTestP = XTestP.toarray()
-    pca = PCA(n_components=50)
-    print('prepare to fit transform TestP')
-    XTestP = pca.fit_transform(XTestP)
-    print('end fit transform')
+    # pca = PCA(n_components=50)
+    # print('prepare to fit transform TestP')
+    # XTestP = pca.fit_transform(XTestP)
+    # print('end fit transform')
 
     XTestW = vectorizer.transform(corpusTestW)
     XTestW = XTestW.toarray()
-    pca = PCA(n_components=50)
-    print('prepare to fit transform TestW')
-    XTestW = pca.fit_transform(XTestW)
-    print('end fit transform')
+    # pca = PCA(n_components=50)
+    # print('prepare to fit transform TestW')
+    # XTestW = pca.fit_transform(XTestW)
+    # print('end fit transform')
 
     fpCSVTrain=fopMLResult+'train.csv'
     fpCSVTestP = fopMLResult + 'testP.csv'
     fpCSVTestW = fopMLResult + 'testW.csv'
 
     lenVector=len(XTrain[0])
+    print('{}'.format(lenVector))
 
     lstCsv=[]
     columnTitleRow = "no,score,"
