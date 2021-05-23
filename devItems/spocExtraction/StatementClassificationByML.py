@@ -112,7 +112,7 @@ def runMLTFIDFClassification(fopData,fpTrain,fpTestP,fpTestW,fopMLResult):
     fpCSVTestW = fopMLResult + 'testW.csv'
 
     lenVector=len(XTrain[0])
-    print('{}'.format(lenVector))
+    print('len vector{}'.format(lenVector))
 
     lstCsv=[]
     columnTitleRow = "no,score,"
@@ -126,17 +126,20 @@ def runMLTFIDFClassification(fopData,fpTrain,fpTestP,fpTestW,fopMLResult):
     # csv.write(columnTitleRow)
     # print(str(len(corpus)))
 
+    print('size of train {}'.format(len(corpusTrain)))
     for i in range(0, len(corpusTrain)):
         vectori = XTrain[i]
         row = ''.join([str(i + 1), ',', str(labelTrain[i]), ','])
         strVector = ",".join(str(j) for j in vectori)
         row = ''.join([row, strVector])
         lstCsv.append(columnTitleRow)
+        print('line {}'.format(i))
         # csv.write(row)
     csv = open(fpCSVTrain, 'w')
     csv.write('\n'.join(lstCsv))
     csv.close()
 
+    print('size of testP {}'.format(len(corpusTestP)))
     lstCsv = []
     lstCsv.append(columnTitleRow)
     for i in range(0, len(corpusTestP)):
@@ -150,6 +153,7 @@ def runMLTFIDFClassification(fopData,fpTrain,fpTestP,fpTestW,fopMLResult):
     csv.write('\n'.join(lstCsv))
     csv.close()
 
+    print('size of testW {}'.format(len(corpusTestW)))
     lstCsv = []
     lstCsv.append(columnTitleRow)
     for i in range(0, len(corpusTestW)):
