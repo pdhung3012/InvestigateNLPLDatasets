@@ -53,6 +53,13 @@ def tree2dict(tree):
   return {tree.label(): [tree2dict(t) if isinstance(t, Tree) else t
                       for t in tree]}
 
+def printIndent(numIndent):
+  lstStr=[]
+  for i in range(0,numIndent):
+    lstStr.append('\t')
+  return ''.join(lstStr)
+
+
 def textToJson(strText):
   try:
     output = nlp.annotate(text, properties={
@@ -60,7 +67,8 @@ def textToJson(strText):
       'outputFormat': 'json'
     })
     jsonTemp = json.loads(output)
-    strJsonObj = json.dumps(jsonTemp, indent=1)
+    strJsonObj = jsonTemp
+    # json.dumps(jsonTemp, indent=1)
     # print(type(jsonObject))
     # strTree = jsonTemp['sentences'][0]['parse']
     # tree2 = Tree.fromstring(strTree)
@@ -71,34 +79,87 @@ def textToJson(strText):
     strJsonObj='Error'
   return strJsonObj
 
-def printTree(jsonObj):
-
+def printTree(jsonObj,index):
   if isinstance(jsonObj,list):
+    # print(str(type(jsonObj)))
+    strIndent = printIndent(index)
+    strLine = '{}{}'.format(strIndent, jsonObj.label())
+    print(strLine)
     for item in jsonObj:
-      # print('go here')
-      printTree(item)
+      # print('go here {} {}'.format(type(item),item.label()))
+      index=index+1
+      # strIndent = printIndent(index)
+      # strLine = '{}{}'.format(strIndent, item.label())
+      # print(strLine)
+      printTree(item,index)
   elif isinstance(jsonObj,str):
-    print(jsonObj)
+    strIndent=printIndent(index)
+    strLine='{}{}'.format(strIndent,jsonObj)
+    print(strLine)
   else:
-    keys = jsonObj.keys()
-    if (len(keys)>0):
-      for key in keys:
-        print(key)
-        printTree(jsonObj[key])
+    print('go here')
+    strIndent=printIndent(index)
+    strLine='{}{}'.format(strIndent,jsonObj.label())
+    print(strLine)
+  # else:
+  #   keys = jsonObj.keys()
+  #   print('{}'.format(keys))
+  #   if (len(keys)>0):
+  #     for key in keys:
+  #       index = index + 1
+  #       strIndent = printIndent(index)
+  #       strLine = '{}{}'.format(strIndent, key)
+  #       print(strLine)
+  #       printTree(jsonObj[key])
 
+def getListOfDepFromText(strText):
+  lstDeps = []
+  try:
+    output = nlp.annotate(text, properties={
+      'annotators': 'parse',
+      'outputFormat': 'json'
+    })
+    jsonTemp = json.loads(output)
+    strJsonObj = jsonTemp
+
+    arrSentences=jsonTemp['sentences']
+    for sentence in arrSentences:
+      jsonDependency = sentence['basicDependencies']
+      for dep in jsonDependency:
+        itemTuple=(dep['dep'],dep['governorGloss'],dep['dependentGloss'])
+        lstDeps.append(itemTuple)
+  except:
+    strJsonObj = 'Error'
+  return lstDeps
+
+def getListOfDependency(jsonDep):
+  lstDeps=[]
+  for dep in jsonDep:
+    strDep='Dep name: {}: {} --> {}'.format(dep['dep'],dep['governorGloss'],dep['dependentGloss'])
+    lstDeps.append(strDep)
+    # print(strDep)
+  return lstDeps
 
 from pycorenlp import StanfordCoreNLP
 nlp = StanfordCoreNLP('http://localhost:9000')
 
-text = "The old oak tree from India fell down. I love you."
-# ss
+text = "Let bal be character array with length 110 ."
 
 
-jsonObject=textToJson(text)
-print('{}'.format(jsonObject))
-# printTree(jsonObject)
+
+# jsonRoot=textToJson(text)
+# # jsonObject=json.loads(jsonObject)
+# print(jsonRoot)
+# jsonObject=jsonRoot['sentences'][0]['parse']
+# jsonDependency=jsonRoot['sentences'][0]['basicDependencies']
+# tree=Tree.fromstring(jsonObject)
+# # print('{}'.format(jsonObject))
+# printTree(tree,0)
+# lstDeps=getListOfDependency(jsonDependency)
+# print('\n'.join(lstDeps))
+
+lstDeps=getListOfDepFromText(text)
+print(lstDeps)
 
 # jsonObj=json.dumps(jsonObject,indent=1)
 # print(jsonObj)
-
-# print('{}'.format(jsonObject['sentences'][0]['parse'])) # tagged output sentence
