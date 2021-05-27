@@ -121,8 +121,8 @@ def getListOfDepFromText(strText):
       'annotators': 'parse',
       'outputFormat': 'json'
     })
-    jsonTemp = json.loads(str(output))
-    strJsonObj = jsonTemp
+    jsonTemp = output
+    # strJsonObj = jsonTemp
 
     arrSentences=jsonTemp['sentences']
     for sentence in arrSentences:

@@ -132,7 +132,7 @@ def getGraphDependencyFromText(strText,nlpObj):
       'annotators': 'parse',
       'outputFormat': 'json'
     })
-    jsonTemp = json.loads(str(output))
+    jsonTemp = output
     strJsonObj = jsonTemp
     arrSentences=jsonTemp['sentences']
     dictWords = {}
