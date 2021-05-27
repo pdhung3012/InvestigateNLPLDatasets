@@ -5,6 +5,8 @@ import os
 import sys
 # os.environ['STANFORD_PARSER'] = '../../../dataPapers/StanfordParser/stanford-parser-full-2020-11-17'
 # os.environ['STANFORD_MODELS'] = '../../../dataPapers/StanfordParser/stanford-parser-full-2020-11-17'
+sys.path.append(os.path.abspath(os.path.join('..')))
+from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText,runASTGenAndSeeResult,getGraphDependencyFromText
 
 fopStanfordCoreNLP='../../../dataPapers/stanford-corenlp-4.2.2/'
 
@@ -132,6 +134,44 @@ def getListOfDepFromText(strText):
     strJsonObj = 'Error'
   return lstDeps
 
+# def getGraphDependencyFromText(strText,nlpObj):
+#   lstDeps = []
+#   lstNodes=[]
+#   lstEdges=[]
+#   try:
+#     output = nlpObj.annotate(strText, properties={
+#       'annotators': 'parse',
+#       'outputFormat': 'json'
+#     })
+#     jsonTemp = json.loads(output)
+#     strJsonObj = jsonTemp
+#     arrSentences=jsonTemp['sentences']
+#     dictWords = {}
+#     for sentence in arrSentences:
+#       jsonDependency = sentence['basicDependencies']
+#       for dep in jsonDependency:
+#         strDep=dep['dep']
+#         source=dep['governorGloss']
+#         target=dep['dependentGloss']
+#         # itemTuple=(dep['dep'],dep['governorGloss'],dep['dependentGloss'])
+#         # lstDeps.append(itemTuple)
+#         if source not in dictWords:
+#           dictWords[source]=len(dictWords.keys())+1
+#           tupleNode=(dictWords[source],'pseudo_node',source)
+#           lstNodes.append(tupleNode)
+#         if target not in dictWords:
+#           dictWords[target]=len(dictWords.keys())+1
+#           tupleNode=(dictWords[target],'pseudo_node',target)
+#           lstNodes.append(tupleNode)
+#         itemTuple=(dictWords[source],dictWords[target],strDep)
+#         lstEdges.append(itemTuple)
+#   except:
+#     strJsonObj = 'Error'
+#
+#
+#   return lstNodes,lstEdges
+
+
 def getListOfDependency(jsonDep):
   lstDeps=[]
   for dep in jsonDep:
@@ -158,8 +198,9 @@ text = "Let bal be character array with length 110 ."
 # lstDeps=getListOfDependency(jsonDependency)
 # print('\n'.join(lstDeps))
 
-lstDeps=getListOfDepFromText(text)
-print(lstDeps)
+# lstDeps=getListOfDepFromText(text)
+lstNodes,lstEdges=getGraphDependencyFromText(text,nlp)
+print('{}\n{}'.format(lstNodes,lstEdges))
 
 # jsonObj=json.dumps(jsonObject,indent=1)
 # print(jsonObj)
