@@ -117,11 +117,11 @@ def printTree(jsonObj,index):
 def getListOfDepFromText(strText):
   lstDeps = []
   try:
-    output = nlp.annotate(text, properties={
+    output = nlp.annotate(strText, properties={
       'annotators': 'parse',
       'outputFormat': 'json'
     })
-    jsonTemp = json.loads(output)
+    jsonTemp = json.loads(str(output))
     strJsonObj = jsonTemp
 
     arrSentences=jsonTemp['sentences']
