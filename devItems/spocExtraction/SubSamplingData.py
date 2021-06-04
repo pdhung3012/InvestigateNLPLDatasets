@@ -9,3 +9,4 @@ sys.path.append(os.path.abspath(os.path.join('..')))
 from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText,runASTGenAndSeeResult,getGraphDependencyFromText
 
 fopData='../../../dataPapers/textInSPOC/'
+
