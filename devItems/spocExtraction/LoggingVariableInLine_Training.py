@@ -8,11 +8,68 @@ import glob
 # os.environ['STANFORD_MODELS'] = '../../../dataPapers/StanfordParser/stanford-parser-full-2020-11-17'
 sys.path.append(os.path.abspath(os.path.join('..')))
 from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText,runASTGenAndSeeResult,getGraphDependencyFromText
+import re
 
 distanceLine=33
+regexInteger='^[-+]?[0-9]+$'
+re_int=re.compile(regexInteger)
+re_float = re.compile("""(?x)
+   ^
+      [+-]?\ *      # first, match an optional sign *and space*
+      (             # then match integers or f.p. mantissas:
+          \d+       # start out with a ...
+          (
+              \.\d* # mantissa of the form a.b or a.
+          )?        # ? takes care of integers of the form a
+         |\.\d+     # mantissa of the form .b
+      )
+      ([eE][+-]?\d+)?  # finally, optionally match an exponent
+   $""")
 
-def preprocessStr(strInput):
+def preprocessStr(strInput,dictLiterals):
+
+    indexOfQuotes=0
+    indexLoop=0
+    prevElement=''
+    lstItemAbt=[]
+    lstReplaceStringTuple=[]
+    for element in strInput:
+        if indexLoop>0:
+            prevElement=strInput[indexLoop-1]
+        if element =='"' and prevElement =='\\':
+            indexOfQuotes = indexOfQuotes + 1
+
+            if indexOfQuotes%2==0:
+                strItem=''.join(lstItemAbt)
+                lenDict=len(dictLiterals.keys())+1
+                strId='SpecialLiteral_String_{}'.format(lenDict)
+                dictLiterals[strId]=strItem
+                itemTuple=(strId,strItem)
+                lstReplaceStringTuple.append(itemTuple)
+            else:
+                lstItemAbt.append(element)
+        else:
+            lstItemAbt.append(element)
+
+    strOutput=strInput
+    for itTu in lstReplaceStringTuple:
+        strOutput=strOutput.replace(itTu[1],itTu[0])
+    # print("\n")
     strOutput=strInput.replace('[',' [ ').replace(']',' ] ').replace('{',' { ').replace('}',' } ').replace('(',' ( ').replace(')',' ) ').replace('.',' . ')
+
+    arrInt=re_int.match(strOutput)
+    for item in arrInt:
+        lenDict = len(dictLiterals.keys()) + 1
+        strId = 'SpecialLiteral_IntLong_{}'.format(lenDict)
+        dictLiterals[strId] = item
+        strOutput=strOutput.replace(item,strId)
+    arrFloat=re_float.match(strOutput)
+    for item in arrFloat:
+        lenDict = len(dictLiterals.keys()) + 1
+        strId = 'SpecialLiteral_FloatDouble_{}'.format(lenDict)
+        dictLiterals[strId] = item
+        strOutput=strOutput.replace(item,strId)
+
     return strOutput
 
 def findLineNumber(jsonObj):
@@ -93,7 +150,7 @@ def parseContentOfTree(jsonObj,currentlineNumber,dictLines):
 
 
 
-def extractVariableAndLiteral(fpPseudoCode,fpPSPreprocess,fopAST,fpVarInfo):
+def extractVariableAndLiteral(fpPseudoCode,fpPSPreprocess,fopAST,fpVarInfo,dictAbstractLiterals):
     f1=open(fpPseudoCode,'r')
     strPseudoCodes=f1.read()
     arrPseudoCodes=strPseudoCodes.strip().split('\n')
@@ -184,9 +241,10 @@ fpVarInfoTrain=fopVarInfo+ 'varInfo_Train.txt'
 fpVarInfoTestP=fopVarInfo+ 'varInfo_TestP.txt'
 fpVarInfoTestW=fopVarInfo+ 'varInfo_TestW.txt'
 
-extractVariableAndLiteral(fpPseudoCodeTrain,fpPSPreprocessTrain,fopASTTrain,fpVarInfoTrain)
-extractVariableAndLiteral(fpPseudoCodeTestP,fpPSPreprocessTestP,fopASTTestP,fpVarInfoTestP)
-extractVariableAndLiteral(fpPseudoCodeTestW,fpPSPreprocessTestW,fopASTTestW,fpVarInfoTestW)
+dictAbstractLiterals={}
+extractVariableAndLiteral(fpPseudoCodeTrain,fpPSPreprocessTrain,fopASTTrain,fpVarInfoTrain,dictAbstractLiterals)
+extractVariableAndLiteral(fpPseudoCodeTestP,fpPSPreprocessTestP,fopASTTestP,fpVarInfoTestP,dictAbstractLiterals)
+extractVariableAndLiteral(fpPseudoCodeTestW,fpPSPreprocessTestW,fopASTTestW,fpVarInfoTestW,dictAbstractLiterals)
 
 
 # lstFiles=sorted(glob.glob(fopASTTrain+ "*_code.cpp"))
