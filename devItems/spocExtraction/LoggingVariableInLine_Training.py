@@ -11,9 +11,9 @@ from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText,run
 import re
 
 distanceLine=33
-regexInteger='^[-+]?[0-9]+$'
-# re_int=re.compile(regexInteger)
-regexFloat="""(?x)
+regexInteger=r'^[-+]?([1-9]\d*|0)$'
+re_int=re.compile(regexInteger)
+regexFloat=r"""(?x)
    ^
       [+-]?\ *      # first, match an optional sign *and space*
       (             # then match integers or f.p. mantissas:
@@ -25,6 +25,7 @@ regexFloat="""(?x)
       )
       ([eE][+-]?\d+)?  # finally, optionally match an exponent
    $"""
+re_float = re.compile(regexFloat)
 # re_float = re.compile("""(?x)
 #    ^
 #       [+-]?\ *      # first, match an optional sign *and space*
@@ -45,46 +46,95 @@ def preprocessStr(strInput,dictLiterals):
     prevElement=''
     lstItemAbt=[]
     lstReplaceStringTuple=[]
+    lstStringTotal=[]
+    isInQuote=False
+    lenBefore=len(dictLiterals.keys())
     for element in strInput:
         if indexLoop>0:
             prevElement=strInput[indexLoop-1]
-        if element =='"' and prevElement =='\\':
+        if element =='"' and not prevElement =='\\':
             indexOfQuotes = indexOfQuotes + 1
 
             if indexOfQuotes%2==0:
+                isInQuote=False
+                lstItemAbt.append('"')
                 strItem=''.join(lstItemAbt)
+                # print(strItem)
                 lenDict=len(dictLiterals.keys())+1
                 strId='SpecialLiteral_String_{}'.format(lenDict)
+                # if not strId in dictLiterals.keys():
                 dictLiterals[strId]=strItem
-                itemTuple=(strId,strItem)
-                lstReplaceStringTuple.append(itemTuple)
+                lstStringTotal.append(strId)
+                # itemTuple=(strId,strItem)
+                # print('oke {}'.format(strItem))
+                # lstReplaceStringTuple.append(itemTuple)
             else:
-                lstItemAbt.append(element)
+                lstItemAbt = []
+                lstItemAbt.append('"')
+                isInQuote = True
+        elif not isInQuote:
+            lstStringTotal.append(element)
         else:
             lstItemAbt.append(element)
+    lenAfter = len(dictLiterals.keys())
+    strOutput=''.join(lstStringTotal)
 
-    strOutput=strInput
-    for itTu in lstReplaceStringTuple:
-        strOutput=strOutput.replace(itTu[1],itTu[0])
-    # print("\n")
-    strOutput=strInput.replace('[',' [ ').replace(']',' ] ').replace('{',' { ').replace('}',' } ').replace('(',' ( ').replace(')',' ) ').replace('.',' . ')
+    arrTokens = strOutput.split()
+    lstStringTotal = []
+    for token in arrTokens:
+        isMatch = re_float.match(token)
+        if isMatch:
+            lstStringTotal.append(token)
+        else:
+            newToken=token.replace('.',' . ')
+            lstStringTotal.append(newToken)
+    strOutput = ' '.join(lstStringTotal)
 
-    arrInt=re.findall(regexInteger,strOutput)
-    if not arrInt is None:
-        for item in arrInt:
+
+    # if(lenAfter>lenBefore):
+    #     print(strOutput)
+    # strOutput=strInput
+    # if len(lstReplaceStringTuple)>0:
+    #     print('list {}'.format(lstReplaceStringTuple))
+    #     for itTu in lstReplaceStringTuple:
+    #         endIdx=len(str(itTu[1]))-1
+    #         strNoQuote=str(itTu[1])[1:endIdx]
+    #         strLiteral='{}{}{}{}{}'.format(chr(92),'"',strNoQuote,chr(92),'"')
+    #         strOutput=strOutput.replace(strLiteral,str(itTu[0]))
+    #         print('{} aaa {}'.format(strOutput, strLiteral))
+    # print(strOutput)
+    strOutput=strOutput.replace('[',' [ ').replace(']',' ] ').replace('{',' { ').replace('}',' } ').replace('(',' ( ').replace(')',' ) ')
+    # print('Out format {}'.format(strOutput))
+
+    arrTokens=strOutput.split()
+    lstStringTotal=[]
+    for token in arrTokens:
+        isMatch=re_int.match(token)
+        if isMatch:
+            strNum=token
             lenDict = len(dictLiterals.keys()) + 1
             strId = 'SpecialLiteral_IntLong_{}'.format(lenDict)
-            dictLiterals[strId] = item
-            strOutput=strOutput.replace(item,strId)
+            # print('Num {}'.format(strNum))
+            dictLiterals[strId] = strNum
+            lstStringTotal.append(strId)
+        else:
+            lstStringTotal.append(token)
+    strOutput=' '.join(lstStringTotal)
 
-    arrFloat=re.findall(regexFloat,strOutput)
-    if not arrFloat is None:
-        for item in arrFloat:
+    arrTokens = strOutput.split()
+    lstStringTotal = []
+    for token in arrTokens:
+        isMatch = re_float.match(token)
+        if isMatch:
+            strNum = token
             lenDict = len(dictLiterals.keys()) + 1
             strId = 'SpecialLiteral_FloatDouble_{}'.format(lenDict)
-            dictLiterals[strId] = item
-            strOutput=strOutput.replace(item,strId)
-
+            # print('Float {}'.format(strNum))
+            dictLiterals[strId] = strNum
+            lstStringTotal.append(strId)
+        else:
+            lstStringTotal.append(token)
+    strOutput = ' '.join(lstStringTotal)
     return strOutput
 
 def findLineNumber(jsonObj):
