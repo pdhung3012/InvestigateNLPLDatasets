@@ -39,7 +39,7 @@ re_float = re.compile(regexFloat)
 #       ([eE][+-]?\d+)?  # finally, optionally match an exponent
 #    $""")
 
-def preprocessStr(strInput,dictLiterals):
+def preprocessStr(strInput,dictLiterals,dictReverseALs):
 
     indexOfQuotes=0
     indexLoop=0
@@ -60,8 +60,13 @@ def preprocessStr(strInput,dictLiterals):
                 lstItemAbt.append('"')
                 strItem=''.join(lstItemAbt)
                 # print(strItem)
-                lenDict=len(dictLiterals.keys())+1
-                strId='SpecialLiteral_String_{}'.format(lenDict)
+                lenDict=len(dictReverseALs.keys())+1
+
+                if not strItem in dictReverseALs:
+                    strId = 'SpecialLiteral_String_{}'.format(lenDict)
+                    dictReverseALs[strItem]=strId
+                else:
+                    strId=dictReverseALs[strItem]
                 # if not strId in dictLiterals.keys():
                 dictLiterals[strId]=strItem
                 lstStringTotal.append(strId)
@@ -112,8 +117,13 @@ def preprocessStr(strInput,dictLiterals):
         isMatch=re_int.match(token)
         if isMatch:
             strNum=token
-            lenDict = len(dictLiterals.keys()) + 1
-            strId = 'SpecialLiteral_IntLong_{}'.format(lenDict)
+            lenDict = len(dictReverseALs.keys()) + 1
+
+            if not strNum in dictReverseALs:
+                strId = 'SpecialLiteral_IntLong_{}'.format(lenDict)
+                dictReverseALs[strNum] = strId
+            else:
+                strId = dictReverseALs[strNum]
             # print('Num {}'.format(strNum))
             dictLiterals[strId] = strNum
             lstStringTotal.append(strId)
@@ -127,8 +137,13 @@ def preprocessStr(strInput,dictLiterals):
         isMatch = re_float.match(token)
         if isMatch:
             strNum = token
-            lenDict = len(dictLiterals.keys()) + 1
-            strId = 'SpecialLiteral_FloatDouble_{}'.format(lenDict)
+            lenDict = len(dictReverseALs.keys()) + 1
+
+            if not strNum in dictReverseALs:
+                strId = 'SpecialLiteral_FloatDouble_{}'.format(lenDict)
+                dictReverseALs[strNum] = strId
+            else:
+                strId = dictReverseALs[strNum]
             # print('Float {}'.format(strNum))
             dictLiterals[strId] = strNum
             lstStringTotal.append(strId)
@@ -215,7 +230,7 @@ def parseContentOfTree(jsonObj,currentlineNumber,dictLines):
 
 
 
-def extractVariableAndLiteral(fpPseudoCode,fpPSPreprocess,fopAST,fpVarInfo,dictAbstractLiterals):
+def extractVariableAndLiteral(fpPseudoCode,fpPSPreprocess,fopAST,fpVarInfo,dictAbstractLiterals,dictReverseALs):
     f1=open(fpPseudoCode,'r')
     strPseudoCodes=f1.read()
     arrPseudoCodes=strPseudoCodes.strip().split('\n')
@@ -227,7 +242,7 @@ def extractVariableAndLiteral(fpPseudoCode,fpPSPreprocess,fopAST,fpVarInfo,dictA
         if strStripItem.endswith('_text.txt'):
             lstPrePS.append(strStripItem)
         else:
-            strPre=preprocessStr(strStripItem,dictAbstractLiterals)
+            strPre=preprocessStr(strStripItem,dictAbstractLiterals,dictReverseALs)
             lstPrePS.append(strPre)
 
     f1=open(fpPSPreprocess,'w')
@@ -308,9 +323,10 @@ fpVarInfoTestW=fopVarInfo+ 'varInfo_TestW.txt'
 fpDictLiterals=fopVarInfo+ 'dictLiterals.txt'
 
 dictAbstractLiterals={}
-extractVariableAndLiteral(fpPseudoCodeTrain,fpPSPreprocessTrain,fopASTTrain,fpVarInfoTrain,dictAbstractLiterals)
-extractVariableAndLiteral(fpPseudoCodeTestP,fpPSPreprocessTestP,fopASTTestP,fpVarInfoTestP,dictAbstractLiterals)
-extractVariableAndLiteral(fpPseudoCodeTestW,fpPSPreprocessTestW,fopASTTestW,fpVarInfoTestW,dictAbstractLiterals)
+dictReverseALs={}
+extractVariableAndLiteral(fpPseudoCodeTrain,fpPSPreprocessTrain,fopASTTrain,fpVarInfoTrain,dictAbstractLiterals,dictReverseALs)
+extractVariableAndLiteral(fpPseudoCodeTestP,fpPSPreprocessTestP,fopASTTestP,fpVarInfoTestP,dictAbstractLiterals,dictReverseALs)
+extractVariableAndLiteral(fpPseudoCodeTestW,fpPSPreprocessTestW,fopASTTestW,fpVarInfoTestW,dictAbstractLiterals,dictReverseALs)
 
 lstStr=[]
 for key in dictAbstractLiterals.keys():
@@ -318,7 +334,7 @@ for key in dictAbstractLiterals.keys():
     lstStr.append(strItem)
 
 f1=open(fpDictLiterals,'w')
-f1.write('\n'.join(strItem))
+f1.write('\n'.join(lstStr))
 f1.close()
 
 
