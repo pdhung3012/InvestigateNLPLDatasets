@@ -12,8 +12,8 @@ import re
 
 distanceLine=33
 regexInteger='^[-+]?[0-9]+$'
-re_int=re.compile(regexInteger)
-re_float = re.compile("""(?x)
+# re_int=re.compile(regexInteger)
+regexFloat="""(?x)
    ^
       [+-]?\ *      # first, match an optional sign *and space*
       (             # then match integers or f.p. mantissas:
@@ -24,7 +24,19 @@ re_float = re.compile("""(?x)
          |\.\d+     # mantissa of the form .b
       )
       ([eE][+-]?\d+)?  # finally, optionally match an exponent
-   $""")
+   $"""
+# re_float = re.compile("""(?x)
+#    ^
+#       [+-]?\ *      # first, match an optional sign *and space*
+#       (             # then match integers or f.p. mantissas:
+#           \d+       # start out with a ...
+#           (
+#               \.\d* # mantissa of the form a.b or a.
+#           )?        # ? takes care of integers of the form a
+#          |\.\d+     # mantissa of the form .b
+#       )
+#       ([eE][+-]?\d+)?  # finally, optionally match an exponent
+#    $""")
 
 def preprocessStr(strInput,dictLiterals):
 
@@ -57,18 +69,21 @@ def preprocessStr(strInput,dictLiterals):
     # print("\n")
     strOutput=strInput.replace('[',' [ ').replace(']',' ] ').replace('{',' { ').replace('}',' } ').replace('(',' ( ').replace(')',' ) ').replace('.',' . ')
 
-    arrInt=re_int.match(strOutput)
-    for item in arrInt:
-        lenDict = len(dictLiterals.keys()) + 1
-        strId = 'SpecialLiteral_IntLong_{}'.format(lenDict)
-        dictLiterals[strId] = item
-        strOutput=strOutput.replace(item,strId)
-    arrFloat=re_float.match(strOutput)
-    for item in arrFloat:
-        lenDict = len(dictLiterals.keys()) + 1
-        strId = 'SpecialLiteral_FloatDouble_{}'.format(lenDict)
-        dictLiterals[strId] = item
-        strOutput=strOutput.replace(item,strId)
+    arrInt=re.findall(regexInteger,strOutput)
+    if not arrInt is None:
+        for item in arrInt:
+            lenDict = len(dictLiterals.keys()) + 1
+            strId = 'SpecialLiteral_IntLong_{}'.format(lenDict)
+            dictLiterals[strId] = item
+            strOutput=strOutput.replace(item,strId)
+
+    arrFloat=re.findall(regexFloat,strOutput)
+    if not arrFloat is None:
+        for item in arrFloat:
+            lenDict = len(dictLiterals.keys()) + 1
+            strId = 'SpecialLiteral_FloatDouble_{}'.format(lenDict)
+            dictLiterals[strId] = item
+            strOutput=strOutput.replace(item,strId)
 
     return strOutput
 
@@ -162,7 +177,7 @@ def extractVariableAndLiteral(fpPseudoCode,fpPSPreprocess,fopAST,fpVarInfo,dictA
         if strStripItem.endswith('_text.txt'):
             lstPrePS.append(strStripItem)
         else:
-            strPre=preprocessStr(strStripItem)
+            strPre=preprocessStr(strStripItem,dictAbstractLiterals)
             lstPrePS.append(strPre)
 
     f1=open(fpPSPreprocess,'w')
@@ -240,11 +255,22 @@ createDirIfNotExist(fopVarInfo)
 fpVarInfoTrain=fopVarInfo+ 'varInfo_Train.txt'
 fpVarInfoTestP=fopVarInfo+ 'varInfo_TestP.txt'
 fpVarInfoTestW=fopVarInfo+ 'varInfo_TestW.txt'
+fpDictLiterals=fopVarInfo+ 'dictLiterals.txt'
 
 dictAbstractLiterals={}
 extractVariableAndLiteral(fpPseudoCodeTrain,fpPSPreprocessTrain,fopASTTrain,fpVarInfoTrain,dictAbstractLiterals)
 extractVariableAndLiteral(fpPseudoCodeTestP,fpPSPreprocessTestP,fopASTTestP,fpVarInfoTestP,dictAbstractLiterals)
 extractVariableAndLiteral(fpPseudoCodeTestW,fpPSPreprocessTestW,fopASTTestW,fpVarInfoTestW,dictAbstractLiterals)
+
+lstStr=[]
+for key in dictAbstractLiterals.keys():
+    strItem='{}\t{}'.format(key,dictAbstractLiterals[key])
+    lstStr.append(strItem)
+
+f1=open(fpDictLiterals,'w')
+f1.write('\n'.join(strItem))
+f1.close()
+
 
 
 # lstFiles=sorted(glob.glob(fopASTTrain+ "*_code.cpp"))
