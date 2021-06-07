@@ -320,7 +320,7 @@ createDirIfNotExist(fopVarInfo)
 fpVarInfoTrain=fopVarInfo+ 'varInfo_Train.txt'
 fpVarInfoTestP=fopVarInfo+ 'varInfo_TestP.txt'
 fpVarInfoTestW=fopVarInfo+ 'varInfo_TestW.txt'
-fpDictLiterals=fopVarInfo+ 'dictLiterals.txt'
+fpDictLiterals=fopData+'ps_preprocess_dictLiterals.txt'
 
 dictAbstractLiterals={}
 dictReverseALs={}
