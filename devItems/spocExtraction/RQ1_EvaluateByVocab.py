@@ -185,8 +185,8 @@ def evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarI
                         # if token in setOfVarsInTraining:
                         #     numDetectCorrectVars=numDetectCorrectVars+1
                         #     setPredictedVarInPS.append(token)
-                strExpectedVarsInPS = str(set(setExpectedVarInPS))
-                strSetOfVarsInTraining = str(setOfVarsInTraining)
+                strExpectedVarsInPS = str(list(set(setExpectedVarInPS)))
+                strSetOfVarsInTraining = str(list(setVarInCode))
                 strTP = str(listTP)
                 strFP = str(listFP)
                 strTN = str(listTN)
@@ -292,8 +292,8 @@ def evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarI
                         # if token in setOfVarsInTraining:
                         #     numDetectCorrectVars=numDetectCorrectVars+1
                         #     setPredictedVarInPS.append(token)
-                strExpectedVarsInPS=str(set(setExpectedVarInPS))
-                strSetOfVarsInTraining=str(setOfVarsInTraining)
+                strExpectedVarsInPS = str(list(set(setExpectedVarInPS)))
+                strSetOfVarsInTraining = str(list(setVarInCode))
                 strTP = str(listTP)
                 strFP = str(listFP)
                 strTN = str(listTN)
