@@ -108,7 +108,7 @@ def preprocessStr(strInput,dictLiterals,dictReverseALs):
     #         strOutput=strOutput.replace(strLiteral,str(itTu[0]))
     #         print('{} aaa {}'.format(strOutput, strLiteral))
     # print(strOutput)
-    strOutput=strOutput.replace('[',' [ ').replace(']',' ] ').replace('{',' { ').replace('}',' } ').replace('(',' ( ').replace(')',' ) ')
+    strOutput=strOutput.replace('=',' = ').replace('[',' [ ').replace(']',' ] ').replace('{',' { ').replace('}',' } ').replace('(',' ( ').replace(')',' ) ')
     # print('Out format {}'.format(strOutput))
 
     arrTokens=strOutput.split()

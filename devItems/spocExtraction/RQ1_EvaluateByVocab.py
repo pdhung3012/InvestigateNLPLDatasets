@@ -154,7 +154,6 @@ def evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarI
             if strIndexInRealFile in dictVarInfoItems.keys():
                 setVarInCode=set(dictVarInfoItems[strIndexInRealFile])
                 setExpectedVarInPS=[]
-                setPredictedVarInPS = []
                 numTP = 0
                 numTN = 0
                 numFP = 0
@@ -165,6 +164,10 @@ def evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarI
                 listFN = []
                 for idxToken in range(len(arrPSTokens)):
                     token = arrPSTokens[idxToken]
+
+                    if token in setVarInCode:
+                        setExpectedVarInPS.append(token)
+
                     if token in setVarInCode and token in setOfVarsInTraining:
                         numTP = numTP + 1
                         listTP.append(token)
@@ -182,9 +185,11 @@ def evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarI
                         # if token in setOfVarsInTraining:
                         #     numDetectCorrectVars=numDetectCorrectVars+1
                         #     setPredictedVarInPS.append(token)
-                strTP=str(listTP)
+                strExpectedVarsInPS = str(set(setExpectedVarInPS))
+                strSetOfVarsInTraining = str(setOfVarsInTraining)
+                strTP = str(listTP)
                 strFP = str(listFP)
-                strTN=str(listTN)
+                strTN = str(listTN)
                 strFN = str(listFN)
                 prec = 0
                 rec = 0
@@ -192,9 +197,11 @@ def evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarI
                     prec = numTP * 1.0 / (numTP + numFP)
                 if (numTP + numFN) > 0:
                     rec = numTP * 1.0 / (numTP + numFN)
-                strLineItem = '{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format((indexPSLine + 1), numTP, numFP,
-                                                                                  numTN, numFN, prec, rec, strTP, strFP,
-                                                                                  strTN, strFN)
+                strLineItem = '{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format((indexPSLine + 1), numTP,
+                                                                                          numFP, numTN, numFN, prec,
+                                                                                          rec, strExpectedVarsInPS,
+                                                                                          strSetOfVarsInTraining, strTP,
+                                                                                          strFP, strTN, strFN)
                 lstResultItem.append(strLineItem)
         dictResultForTest[key]=lstResultItem
 
@@ -254,7 +261,6 @@ def evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarI
             if strIndexInRealFile in dictVarInfoItems.keys():
                 setVarInCode=set(dictVarInfoItems[strIndexInRealFile])
                 setExpectedVarInPS=[]
-                setPredictedVarInPS = []
                 numTP = 0
                 numTN = 0
                 numFP = 0
@@ -265,6 +271,10 @@ def evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarI
                 listFN = []
                 for idxToken in range(len(arrPSTokens)):
                     token = arrPSTokens[idxToken]
+
+                    if token in setVarInCode:
+                        setExpectedVarInPS.append(token)
+
                     if token in setVarInCode and token in setOfVarsInTraining:
                         numTP = numTP + 1
                         listTP.append(token)
@@ -282,6 +292,8 @@ def evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarI
                         # if token in setOfVarsInTraining:
                         #     numDetectCorrectVars=numDetectCorrectVars+1
                         #     setPredictedVarInPS.append(token)
+                strExpectedVarsInPS=str(set(setExpectedVarInPS))
+                strSetOfVarsInTraining=str(setOfVarsInTraining)
                 strTP = str(listTP)
                 strFP = str(listFP)
                 strTN = str(listTN)
@@ -292,7 +304,7 @@ def evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarI
                     prec = numTP * 1.0 / (numTP + numFP)
                 if (numTP + numFN)>0:
                     rec = numTP * 1.0 / (numTP + numFN)
-                strLineItem = '{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format((indexPSLine + 1), numTP, numFP, numTN, numFN,prec,rec,strTP,strFP,strTN,strFN)
+                strLineItem = '{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format((indexPSLine + 1), numTP, numFP, numTN, numFN,prec,rec,strExpectedVarsInPS,strSetOfVarsInTraining,strTP,strFP,strTN,strFN)
                 lstResultItem.append(strLineItem)
         dictResultForTest[key]=lstResultItem
 
