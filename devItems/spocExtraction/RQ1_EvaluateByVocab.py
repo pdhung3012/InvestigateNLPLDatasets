@@ -229,7 +229,7 @@ def evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarI
 
     prec=numTotalTP*1.0/(numTotalTP+numTotalFP)
     rec=numTotalTP*1.0/(numTotalTP+numTotalFN)
-    strTestResult='TestP accuracy (prec/rec/TP/FP/TN/FN): {}\t{}\t{}\t{}\t{}\t{}\n'.format(prec,rec,numTotalTN,numTotalFP,numTotalTN,numTotalFN)
+    strTestResult='TestP accuracy (prec/rec/TP/FP/TN/FN): {}\t{}\t{}\t{}\t{}\t{}\n'.format(prec,rec,numTotalTP,numTotalFP,numTotalTN,numTotalFN)
     f1=open(fpResultDetailsTotal,'a')
     f1.write(strTestResult)
     f1.close()
@@ -326,7 +326,7 @@ def evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarI
 
     prec = numTotalTP * 1.0 / (numTotalTP + numTotalFP)
     rec = numTotalTP * 1.0 / (numTotalTP + numTotalFN)
-    strTestResult = 'TestW accuracy (prec/rec/TP/FP/TN/FN): {}\t{}\t{}\t{}\t{}\t{}\n'.format(prec, rec, numTotalTN,
+    strTestResult = 'TestW accuracy (prec/rec/TP/FP/TN/FN): {}\t{}\t{}\t{}\t{}\t{}\n'.format(prec, rec, numTotalTP,
                                                                                                  numTotalFP, numTotalTN,
                                                                                                  numTotalFN)
     f1 = open(fpResultDetailsTotal, 'a')
