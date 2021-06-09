@@ -373,12 +373,13 @@ fpVarInfoTrain=fopVarInfo+ 'varInfo_Train.txt'
 fpVarInfoTestP=fopVarInfo+ 'varInfo_TestP.txt'
 fpVarInfoTestW=fopVarInfo+ 'varInfo_TestW.txt'
 fpDictLiterals=fopData+'ps_preprocess_dictLiterals.txt'
+fpDictVars=fopData+'ps_preprocess_dictVars.txt'
 fpResultTestP=fopData+'rq1_result_TestP.txt'
 fpResultTestW=fopData+'rq1_result_TestW.txt'
 fpResultDetailsTotal=fopData+'rq1_result_details.txt'
 
 
-evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarInfoTrain,fpVarInfoTestP,fpVarInfoTestW,fpResultTestP,fpResultTestW,fpResultDetailsTotal,fpDictLiterals)
+evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarInfoTrain,fpVarInfoTestP,fpVarInfoTestW,fpResultTestP,fpResultTestW,fpResultDetailsTotal,fpDictLiterals,fpDictVars)
 #
 
 
