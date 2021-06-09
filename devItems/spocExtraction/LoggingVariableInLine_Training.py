@@ -204,9 +204,11 @@ def parseContentOfTree(jsonObj,currentlineNumber,dictLines):
             try:
                 refObj=getProperty(jsonObj,'referencedDecl')
                 if not str(refObj) =='None':
-                    itemTupleToAdd += ('referencedDecl',)
-                    itemTupleToAdd += (getProperty(refObj,'name'),)
-                    itemTupleToAdd += (jsonObj['type']['qualType'],)
+                    strReferKind=refObj['kind']
+                    if strReferKind=='VarDecl':
+                        itemTupleToAdd += ('referencedDecl',)
+                        itemTupleToAdd += (getProperty(refObj,'name'),)
+                        itemTupleToAdd += (jsonObj['type']['qualType'],)
             except:
                 isRunThrough=False
                 # print('error get type of referencedDecl')
