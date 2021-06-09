@@ -87,10 +87,10 @@ def evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarI
     setOfVarsInTraining=set(setOfVarsInTraining)
     print('train var info {} {}'.format(len(dictVarsInTraining.keys()),len(setOfVarsInTraining)))
 
-    sorted_d = sorted(dictCountVarsInTraining.items(), key=operator.itemgetter(1),reverse=True)
+    listSorted=sorted(dictCountVarsInTraining.items(), key=operator.itemgetter(1),reverse=True)
     lstStr=[]
-    for key in sorted_d.keys():
-        strItem='{}\t{}'.format(key,sorted_d[key])
+    for key in listSorted:
+        strItem='{}\t{}'.format(key,dictCountVarsInTraining[key])
         lstStr.append(strItem)
 
     f1=open(fpDictVarsInTraining,'w')
