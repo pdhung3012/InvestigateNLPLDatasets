@@ -119,6 +119,7 @@ def evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarI
                 if not arrStripItem[1].endswith('Literal'):
                     if not arrStripItem[0] in dictLineAndVar.keys():
                         dictLineAndVar[arrStripItem[0]]=[]
+                        dictLineAndVar[arrStripItem[0]].append(arrStripItem[2])
                     else:
                         dictLineAndVar[arrStripItem[0]].append(arrStripItem[2])
 
@@ -143,6 +144,7 @@ def evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarI
                 if not arrStripItem[1].endswith('Literal'):
                     if not arrStripItem[0] in dictLineAndVar.keys():
                         dictLineAndVar[arrStripItem[0]]=[]
+                        dictLineAndVar[arrStripItem[0]].append(arrStripItem[2])
                     else:
                         dictLineAndVar[arrStripItem[0]].append(arrStripItem[2])
 
@@ -158,6 +160,7 @@ def evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarI
         arrPseudoCodes=dictPseudoCodesTestP[key]
         if not key in dictVarsInTestP.keys():
             continue
+
         dictVarInfoItems=dictVarsInTestP[key]
         lstResultItem=[]
         print(key)
@@ -265,6 +268,12 @@ def evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarI
         arrPseudoCodes=dictPseudoCodesTestW[key]
         if not key in dictVarsInTestW.keys():
             continue
+
+        if key == '12_116A_49029021':
+            lstTemp = dictVarsInTestW[key]
+            print(lstTemp)
+            input('hello abc ')
+
         dictVarInfoItems=dictVarsInTestW[key]
         lstResultItem=[]
         print(key)
