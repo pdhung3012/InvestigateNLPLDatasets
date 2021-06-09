@@ -200,7 +200,7 @@ def parseContentOfTree(jsonObj,currentlineNumber,dictLines):
                 itemTupleToAdd += ( jsonObj['type']['qualType'],)
             except:
                 print('error get type of varDecl')
-        else:
+        elif not strKind.startswith('CXX'):
             try:
                 refObj=getProperty(jsonObj,'referencedDecl')
                 if not str(refObj) =='None':
