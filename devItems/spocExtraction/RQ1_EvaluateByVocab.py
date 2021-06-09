@@ -9,12 +9,13 @@ import glob
 sys.path.append(os.path.abspath(os.path.join('..')))
 from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText,runASTGenAndSeeResult,getGraphDependencyFromText
 import re
+import operator
 
 distanceInRange=33
 
 
 
-def evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarInfoTrain,fpVarInfoTestP,fpVarInfoTestW,fpResultTestP,fpResultTestW,fpResultDetailsTotal,fpDictLiterals):
+def evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarInfoTrain,fpVarInfoTestP,fpVarInfoTestW,fpResultTestP,fpResultTestW,fpResultDetailsTotal,fpDictLiterals,fpDictVarsInTraining):
     f1 = open(fpPSPreprocessTestP, 'r')
     strPseudoCodes = f1.read()
     arrPseudoCodes = strPseudoCodes.strip().split('\n')
@@ -58,6 +59,7 @@ def evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarI
     currentKey = ''
     dictVarsInTraining={}
     setOfVarsInTraining=[]
+    dictCountVarsInTraining={}
     for i in range(0, len(arrVarInfo)):
         strStripItem = arrVarInfo[i].strip()
         # print(strStripItem)
@@ -77,9 +79,24 @@ def evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarI
                         dictLineAndVar[arrStripItem[0]]=[]
                     else:
                         setOfVarsInTraining.append(arrStripItem[2])
+                        if not arrStripItem[2] in dictCountVarsInTraining.keys():
+                            dictCountVarsInTraining[arrStripItem[2]]=1
+                        else:
+                            dictCountVarsInTraining[arrStripItem[2]] =dictCountVarsInTraining[arrStripItem[2]]+ 1
                         dictLineAndVar[arrStripItem[0]].append(arrStripItem[2])
     setOfVarsInTraining=set(setOfVarsInTraining)
     print('train var info {} {}'.format(len(dictVarsInTraining.keys()),len(setOfVarsInTraining)))
+
+    sorted_d = sorted(dictCountVarsInTraining.items(), key=operator.itemgetter(1),reverse=True)
+    lstStr=[]
+    for key in sorted_d.keys():
+        strItem='{}\t{}'.format(key,sorted_d[key])
+        lstStr.append(strItem)
+
+    f1=open(fpDictVarsInTraining,'w')
+    f1.write('\n'.join(lstStr))
+    f1.close()
+
 
     f1 = open(fpVarInfoTestP, 'r')
     strVarInfo = f1.read()
