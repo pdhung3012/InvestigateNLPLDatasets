@@ -10,6 +10,7 @@ sys.path.append(os.path.abspath(os.path.join('..')))
 from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText,runASTGenAndSeeResult,getGraphDependencyFromText
 import re
 
+setSpecialKeywords=set(['cin','cout'])
 distanceLine=33
 regexInteger=r'^[-+]?([1-9]\d*|0)$'
 re_int=re.compile(regexInteger)
@@ -200,12 +201,13 @@ def parseContentOfTree(jsonObj,currentlineNumber,dictLines):
                 itemTupleToAdd += ( jsonObj['type']['qualType'],)
             except:
                 print('error get type of varDecl')
-        elif not strKind.startswith('CXX'):
+        else:
             try:
                 refObj=getProperty(jsonObj,'referencedDecl')
                 if not str(refObj) =='None':
                     strReferKind=refObj['kind']
-                    if strReferKind=='VarDecl':
+                    strName=getProperty(refObj,'name')
+                    if strReferKind=='VarDecl' and (not strName in setSpecialKeywords):
                         itemTupleToAdd += ('referencedDecl',)
                         itemTupleToAdd += (getProperty(refObj,'name'),)
                         itemTupleToAdd += (jsonObj['type']['qualType'],)
