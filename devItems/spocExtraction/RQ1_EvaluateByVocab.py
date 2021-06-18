@@ -269,10 +269,10 @@ def evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarI
         if not key in dictVarsInTestW.keys():
             continue
 
-        if key == '12_116A_49029021':
-            lstTemp = dictVarsInTestW[key]
-            print(lstTemp)
-            input('hello abc ')
+        # if key == '12_116A_49029021':
+        #     lstTemp = dictVarsInTestW[key]
+        #     print(lstTemp)
+        #     input('hello abc ')
 
         dictVarInfoItems=dictVarsInTestW[key]
         lstResultItem=[]
@@ -389,7 +389,7 @@ fpResultDetailsTotal=fopData+'rq1_result_details.txt'
 
 
 evaluateDetectVarByVocabulary(fpPSPreprocessTestP,fpPSPreprocessTestW,fpVarInfoTrain,fpVarInfoTestP,fpVarInfoTestW,fpResultTestP,fpResultTestW,fpResultDetailsTotal,fpDictLiterals,fpDictVars)
-#
+
 
 
 
