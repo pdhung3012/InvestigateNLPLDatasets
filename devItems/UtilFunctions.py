@@ -96,6 +96,7 @@ def ngrams(input, n):
 def runASTGenAndSeeResult(fpCode,fpJSon,numOmit):
     jsonObject=None
     try:
+        # strCommand="clang++-11 -Xclang -ast-dump=json "+fpCode+" | sed -n '/XX_MARKER_XX/,$p' > "+fpJSon
         stream = os.popen("clang++-11 -Xclang -ast-dump=json "+fpCode+" | sed -n '/XX_MARKER_XX/,$p' > "+fpJSon)
         output=stream.read()
         # print(output)
@@ -113,13 +114,14 @@ def runASTGenAndSeeResult(fpCode,fpJSon,numOmit):
         f1.close()
         # print(strResult)
         jsonObject = json.loads(strResult)
+        # print(strCommand)
 
     except:
         strResult = str(sys.exc_info()[0])
-        print("Exception in user code:")
-        print("-" * 60)
-        traceback.print_exc(file=sys.stdout)
-        print("-" * 60)
+        # print("Exception in user code:")
+        # print("-" * 60)
+        # traceback.print_exc(file=sys.stdout)
+        # print("-" * 60)
     return jsonObject
 
 
