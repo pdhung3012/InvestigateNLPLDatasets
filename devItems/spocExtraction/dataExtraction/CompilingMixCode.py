@@ -9,14 +9,9 @@ import asyncio
 import time
 from joblib import Parallel,delayed
 
-def background(f):
-    def wrapped(*args, **kwargs):
-        return asyncio.get_event_loop().run_in_executor(None, f, *args, **kwargs)
-    return wrapped
-
-@background
 def checkAndGenerateAST(i, lstCFilesStep1, fopStep2,fopASTInfo,fpLog,numOmit):
     fpMixFileCPP = lstCFilesStep1[i]
+    lenFile=len(lstCFilesStep1)
     nameOfFile = os.path.basename(fpMixFileCPP)
     fpCompiledCPP = fopStep2 + nameOfFile
     fpASTItem = fopASTInfo + nameOfFile.replace('.cpp', '_ast.txt')
@@ -25,7 +20,7 @@ def checkAndGenerateAST(i, lstCFilesStep1, fopStep2,fopASTInfo,fpLog,numOmit):
 
         jsonObject = runASTGenAndSeeResult(fpMixFileCPP, fpASTItem, numOmit)
         # strASTOfFile=walker.getRepresentASTFromFile(fpCodeFileCPP,indexTu)
-        print('{} {}'.format(i, fpMixFileCPP))
+        print('{}/{} {}'.format(i,len(lstCFilesStep1), fpMixFileCPP))
         if str(jsonObject) != 'Error' or str(jsonObject) != 'None':
             # arrContentOfFile=strContentOfFile.split('\n')
             strContentAppend = '\n'.join([nameOfFile, str(jsonObject), '\n\n\n'])
@@ -61,8 +56,7 @@ def compileMixCCodeAndSave(fopStep1,fopStep2,fopASTInfo,fpLog,numOmit):
     lstCFilesStep1=glob.glob(fopStep1+'*.cpp')
 
     t = time.time()
-    results = Parallel(n_jobs=8)(delayed(checkAndGenerateAST)(i,lstCFilesStep1, fopStep2, fopASTInfo,fpLog,numOmit) for i in range(0,len(lstCFilesStep1)))
-    print(results)
+    Parallel(n_jobs=8)(delayed(checkAndGenerateAST)(i,lstCFilesStep1, fopStep2, fopASTInfo,fpLog,numOmit) for i in range(0,len(lstCFilesStep1)))
     print(time.time() - t)
 
     # for i in range(0,len(lstCFilesStep1)):
