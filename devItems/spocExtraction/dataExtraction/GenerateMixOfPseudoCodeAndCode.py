@@ -27,7 +27,7 @@ def getMostComplicatedPseudocode(arrPseudoCode,arrCode,distanceHeader,topN):
     indxValue=0
     lstReturn=[]
     for key in dictSortedByNum.keys():
-        if checkComplicatedPseudoCodeAndCode(arrPseudoCode[key],arrCode[key-distanceHeader]):
+        if checkComplicatedPseudoCodeAndCode(arrPseudoCode[key],arrCode[key+distanceHeader]):
             lstReturn.append(key)
             indxValue=indxValue+1
         if( indxValue==topN):
