@@ -23,7 +23,7 @@ def getMostComplicatedPseudocode(arrPseudoCode,arrCode,distanceHeader,topN):
         numItem=len(item.split())
         dictLen[i]=numItem
 
-    dictSortedByNum=dict(sorted(dictLen.items(), key=lambda item: item[1]))
+    dictSortedByNum=dict(sorted(dictLen.items(), key=lambda item: item[1],reverse=True))
     indxValue=0
     lstReturn=[]
     for key in dictSortedByNum.keys():
