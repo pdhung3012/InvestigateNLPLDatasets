@@ -83,6 +83,8 @@ fpLogTrain=fopCompiledFiles+'log_train.txt'
 fpLogTestP=fopCompiledFiles+'log_testP.txt'
 fpLogTestW=fopCompiledFiles+'log_testW.txt'
 numOmit=30
-compileMixCCodeAndSave(fopStep1TestPMixFiles,fopStep2TestPMixFiles,fopStep3TestPMixFiles,fpLogTestP,numOmit)
+# compileMixCCodeAndSave(fopStep1TestPMixFiles,fopStep2TestPMixFiles,fopStep3TestPMixFiles,fpLogTestP,numOmit)
+compileMixCCodeAndSave(fopStep1TestWMixFiles,fopStep2TestWMixFiles,fopStep3TestWMixFiles,fpLogTestW,numOmit)
+compileMixCCodeAndSave(fopStep1TrainMixFiles,fopStep2TrainMixFiles,fopStep3TrainMixFiles,fpLogTrain,numOmit)
 
 
