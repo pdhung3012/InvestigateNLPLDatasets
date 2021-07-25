@@ -17,7 +17,7 @@ def checkComplicatedPseudoCodeAndCode(strPseudoCode,strCode):
     return isCom
 
 def getMostComplicatedPseudocode(arrPseudoCode,arrCode,distanceHeader,topN):
-    dictLen=[]
+    dictLen={}
     for i in range(0,len(arrPseudoCode)):
         item=arrPseudoCode[i].strip()
         numItem=len(item.split())
