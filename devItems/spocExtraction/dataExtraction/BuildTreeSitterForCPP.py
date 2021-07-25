@@ -8,7 +8,7 @@ sys.path.append(os.path.abspath(os.path.join('../../')))
 from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText
 
 
-fopData='/home/hungphd/dataPapers/'
+fopData='/home/hungphd/'
 fopGithub='/home/hungphd/git/'
 fopBuildFolder=fopData+'build-tree-sitter/'
 createDirIfNotExist(fopBuildFolder)
