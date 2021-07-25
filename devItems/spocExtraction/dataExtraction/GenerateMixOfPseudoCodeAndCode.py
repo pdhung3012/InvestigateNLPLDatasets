@@ -5,7 +5,16 @@ import operator
 sys.path.append(os.path.abspath(os.path.join('..')))
 from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText
 
-
+def checkComplicatedPseudoCodeAndCode(strPseudoCode,strCode):
+    isCom=False
+    arrPseudoCode=strPseudoCode.strip().split()
+    arrCode = strCode.strip().split()
+    if (len(arrCode)<=3 or len(arrPseudoCode)<=3):
+        isCom=False
+    elif 'main' in strPseudoCode or 'nan' in strPseudoCode or 'return' in strPseudoCode:
+        isCom=False
+    isCom=True
+    return isCom
 
 
 def generateMixFiles(fopPseudoCode,fopCodeFile,fopOutputMix):
@@ -26,6 +35,8 @@ def generateMixFiles(fopPseudoCode,fopCodeFile,fopOutputMix):
 
     #     replace pseudocode to code
         for indPseudoCode in range(0,len(arrPseudoLines)):
+            if(not checkComplicatedPseudoCodeAndCode(arrPseudoLines[indPseudoCode].strip(),arrCodeLines[indPseudoCode+distanceHeader]) ):
+                continue
             lstStrCodeCombine=[]
             for ind in range(0,distanceHeader):
                 lstStrCodeCombine.append(arrCodeLines[ind])
