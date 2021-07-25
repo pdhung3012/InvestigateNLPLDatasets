@@ -16,6 +16,26 @@ def checkComplicatedPseudoCodeAndCode(strPseudoCode,strCode):
 
     return isCom
 
+def getMostComplicatedPseudocode(arrPseudoCode,arrCode,distanceHeader,topN):
+    dictLen=[]
+    for i in range(0,len(arrPseudoCode)):
+        item=arrPseudoCode[i].strip()
+        numItem=len(item.split())
+        dictLen[i]=numItem
+
+    dictSortedByNum=dict(sorted(dictLen.items(), key=lambda item: item[1]))
+    indxValue=0
+    lstReturn=[]
+    for key in dictSortedByNum.keys():
+        if checkComplicatedPseudoCodeAndCode(arrPseudoCode[key],arrCode[key-distanceHeader]):
+            lstReturn.append(key)
+            indxValue=indxValue+1
+        if( indxValue==topN):
+            break
+    return lstReturn
+
+
+
 
 def generateMixFiles(fopPseudoCode,fopCodeFile,fopOutputMix):
     createDirIfNotExist(fopOutputMix)
@@ -33,8 +53,9 @@ def generateMixFiles(fopPseudoCode,fopCodeFile,fopOutputMix):
         arrPseudoLines = f1.read().strip().split('\n')
         f1.close()
 
+        lstIndexes=getMostComplicatedPseudocode(arrPseudoLines,arrCodeLines,distanceHeader,4)
     #     replace pseudocode to code
-        for indPseudoCode in range(0,len(arrPseudoLines)):
+        for indPseudoCode in range(0,len(lstIndexes)):
             if not checkComplicatedPseudoCodeAndCode(arrPseudoLines[indPseudoCode].strip(),arrCodeLines[indPseudoCode+distanceHeader].strip()) :
                 continue
             lstStrCodeCombine=[]
