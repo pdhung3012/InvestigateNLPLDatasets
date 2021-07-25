@@ -18,7 +18,7 @@ def checkAndGenerateAST(i, lstCFilesStep1, fopStep2,fopASTInfo,fpLog,numOmit):
     isRunOK = False
     try:
 
-        jsonObject = runASTGenAndSeeResult(fpMixFileCPP, fpASTItem, numOmit)
+        jsonObject,strCommand = runASTGenAndSeeResult(fpMixFileCPP, fpASTItem, numOmit)
         # strASTOfFile=walker.getRepresentASTFromFile(fpCodeFileCPP,indexTu)
         print('{}/{} {}'.format(i,len(lstCFilesStep1), fpMixFileCPP))
         if str(jsonObject) != 'Error' or str(jsonObject) != 'None':
@@ -31,11 +31,13 @@ def checkAndGenerateAST(i, lstCFilesStep1, fopStep2,fopASTInfo,fpLog,numOmit):
             f1 = open(fpLog, 'a')
             f1.write('{}\t{}\n'.format(nameOfFile, 'True'))
             f1.close()
-            iwRunOK = True
+            isRunOK = True
+            # print('{}\t{}'.format(strCommand,isRunOK))
         else:
             f1 = open(fpLog, 'a')
             f1.write('{}\t{}\n'.format(nameOfFile, 'False'))
             f1.close()
+            print('{}\t{}'.format(strCommand,isRunOK))
     except:
         print("Exception in user code:")
         print("-" * 60)

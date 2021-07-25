@@ -95,8 +95,9 @@ def ngrams(input, n):
 
 def runASTGenAndSeeResult(fpCode,fpJSon,numOmit):
     jsonObject=None
+    strCommand = "clang++-11 -Xclang -ast-dump=json " + fpCode + " | sed -n '/XX_MARKER_XX/,$p' > " + fpJSon
     try:
-        # strCommand="clang++-11 -Xclang -ast-dump=json "+fpCode+" | sed -n '/XX_MARKER_XX/,$p' > "+fpJSon
+
         stream = os.popen("clang++-11 -Xclang -ast-dump=json "+fpCode+" | sed -n '/XX_MARKER_XX/,$p' > "+fpJSon)
         output=stream.read()
         # print(output)
@@ -122,7 +123,7 @@ def runASTGenAndSeeResult(fpCode,fpJSon,numOmit):
         # print("-" * 60)
         # traceback.print_exc(file=sys.stdout)
         # print("-" * 60)
-    return jsonObject
+    return jsonObject,strCommand
 
 
 def getGraphDependencyFromText(strText,nlpObj):
