@@ -33,9 +33,10 @@ Language.build_library(
 
   # Include one or more languages
   [
-    fopGithub+'/tree-sitter-go',
-    fopGithub+'/tree-sitter-javascript',
-    fopGithub+'/tree-sitter-python',
+    # fopGithub+'/tree-sitter',
+    # fopGithub+'/tree-sitter-go',
+    # fopGithub+'/tree-sitter-javascript',
+    # fopGithub+'/tree-sitter-python',
     fopGithub+'/tree-sitter-c',
     fopGithub+'/tree-sitter-cpp'
   ]
