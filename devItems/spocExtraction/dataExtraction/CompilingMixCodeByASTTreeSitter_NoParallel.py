@@ -63,9 +63,11 @@ def compileMixCCodeAndSave(fopStep1,fopStep2,fopASTInfo,fpLog):
 
     lstCFilesStep1=glob.glob(fopStep1+'*.cpp')
 
-    t = time.time()
-    Parallel(n_jobs=8)(delayed(checkAndGenerateAST)(i,lstCFilesStep1, fopStep2, fopASTInfo,fpLog) for i in range(0,len(lstCFilesStep1)))
-    print(time.time() - t)
+    # t = time.time()
+    # Parallel(n_jobs=8)(delayed(checkAndGenerateAST)(i,lstCFilesStep1, fopStep2, fopASTInfo,fpLog) for i in range(0,len(lstCFilesStep1)))
+    for i in range(0, len(lstCFilesStep1)):
+        checkAndGenerateAST(i, lstCFilesStep1, fopStep2, fopASTInfo, fpLog)
+    # print(time.time() - t)
 
     # for i in range(0,len(lstCFilesStep1)):
     #     checkAndGenerateAST( i,)
