@@ -132,9 +132,9 @@ def getJsonDict(fpCPP,fpDotGraphAllText,fpDotGraphAllImage,fpDotGraphSimplifyTex
     try:
         f1 = open(fpCPP, 'r')
         strCode = f1.read()
-        arrCodes=strCode.strip().split('\n')
+        arrCodes=strCode.split('\n')
         f1.close()
-        parser.parse(bytes(strCode, 'utf8'))
+        tree=parser.parse(bytes(strCode, 'utf8'))
         cursor = tree.walk()
         node = cursor.node
 
@@ -144,7 +144,7 @@ def getJsonDict(fpCPP,fpDotGraphAllText,fpDotGraphAllImage,fpDotGraphSimplifyTex
             if strItem.startswith('//'):
                 indexComment=i
                 break
-
+        # print('a comment here {}'.format(arrCodes[indexComment]))
         startIndex=indexComment-offsetContext
         endIndex=indexComment+offsetContext
 
@@ -158,14 +158,15 @@ def getJsonDict(fpCPP,fpDotGraphAllText,fpDotGraphAllImage,fpDotGraphSimplifyTex
         graph.layout(prog='dot')
         graph.draw(fpDotGraphAllImage)
 
-        startLine = indexComment - offsetLine
-        endLine = indexComment + offsetLine
+        startLine = indexComment - offsetContext
+        endLine = indexComment + offsetContext
         simpleGraph = copyGraphWithinLineIndex(graph, startLine, endLine)
         simpleGraph.write(fpDotGraphSimplifyText)
         simpleGraph.layout(prog='dot')
         simpleGraph.draw(fpDotGraphSimplifyImage)
     except:
         dictJson=None
+        traceback.print_exc()
     return dictJson
 
 def walkTreeAndReturnJSonObject(node,arrCodes,listId,nlpObj):
@@ -296,7 +297,7 @@ def getGraphDependencyFromText(strText,nlpObj):
     dictTotal['isTerminal'] = False
     dictTotal['children'] = []
     indexSentence=0
-    print(strText)
+    # print(strText)
     for sentence in arrSentences:
       jsonDependency = sentence['basicDependencies']
       strParseContent=sentence['parse']
@@ -338,56 +339,56 @@ def getGraphDependencyFromText(strText,nlpObj):
 
 
 
-fopData='/home/hungphd/'
-fopGithub='/home/hungphd/git/'
-fopBuildFolder=fopData+'build-tree-sitter/'
-fpLanguageSo=fopBuildFolder+'my-languages.so'
-fpDotGraphText=fopGithub+'dataPapers/temp.dot'
-fpDotGraphImg=fopGithub+'dataPapers/temp.png'
-fpSimpleDotGraphText=fopGithub+'dataPapers/temp_simplify.dot'
-fpSimpleDotGraphImg=fopGithub+'dataPapers/temp_simplify.png'
-
-CPP_LANGUAGE = Language(fpLanguageSo, 'cpp')
-fpTempCPPFile=fopGithub+'dataPapers/1_2A_42264131_v2.cpp'
-
-from pycorenlp import StanfordCoreNLP
-nlp = StanfordCoreNLP('http://localhost:9000')
-
-parser = Parser()
-parser.set_language(CPP_LANGUAGE)
-
-f1=open(fpTempCPPFile,'r')
-strCode=f1.read()
-arrCodes=strCode.split('\n')
-f1.close()
-
-tree= parser.parse(bytes(strCode,'utf8'))
-cursor = tree.walk()
-node=cursor.node
-print(type(tree))
-print(str(node))
-print(str(len(node.children)))
-# for property, value in vars(cursor).items():
-#     print(property, ":", value)
-# print(vars(tree))
-lstId=[]
-dictJson=walkTreeAndReturnJSonObject(node,arrCodes,lstId,nlp)
-print(str(dictJson))
-ind=1
-graph=pgv.AGraph(directed=True)
-dictLabel={}
-getDotGraph(dictJson,dictLabel,graph)
-graph.write(fpDotGraphText)
-graph.layout(prog='dot')
-graph.draw(fpDotGraphImg)
-
-offsetLine=3
-commentIndexLine=34
-startLine=commentIndexLine-offsetLine
-endLine=commentIndexLine+offsetLine
-simpleGraph=copyGraphWithinLineIndex(graph,startLine,endLine)
-simpleGraph.write(fpSimpleDotGraphText)
-simpleGraph.layout(prog='dot')
-simpleGraph.draw(fpSimpleDotGraphImg)
+# fopData='/home/hungphd/'
+# fopGithub='/home/hungphd/git/'
+# fopBuildFolder=fopData+'build-tree-sitter/'
+# fpLanguageSo=fopBuildFolder+'my-languages.so'
+# fpDotGraphText=fopGithub+'dataPapers/temp.dot'
+# fpDotGraphImg=fopGithub+'dataPapers/temp.png'
+# fpSimpleDotGraphText=fopGithub+'dataPapers/temp_simplify.dot'
+# fpSimpleDotGraphImg=fopGithub+'dataPapers/temp_simplify.png'
+#
+# CPP_LANGUAGE = Language(fpLanguageSo, 'cpp')
+# fpTempCPPFile=fopGithub+'dataPapers/1_2A_42264131_v2.cpp'
+#
+# from pycorenlp import StanfordCoreNLP
+# nlp = StanfordCoreNLP('http://localhost:9000')
+#
+# parser = Parser()
+# parser.set_language(CPP_LANGUAGE)
+#
+# f1=open(fpTempCPPFile,'r')
+# strCode=f1.read()
+# arrCodes=strCode.split('\n')
+# f1.close()
+#
+# tree= parser.parse(bytes(strCode,'utf8'))
+# cursor = tree.walk()
+# node=cursor.node
+# print(type(tree))
+# print(str(node))
+# print(str(len(node.children)))
+# # for property, value in vars(cursor).items():
+# #     print(property, ":", value)
+# # print(vars(tree))
+# lstId=[]
+# dictJson=walkTreeAndReturnJSonObject(node,arrCodes,lstId,nlp)
+# print(str(dictJson))
+# ind=1
+# graph=pgv.AGraph(directed=True)
+# dictLabel={}
+# getDotGraph(dictJson,dictLabel,graph)
+# graph.write(fpDotGraphText)
+# graph.layout(prog='dot')
+# graph.draw(fpDotGraphImg)
+#
+# offsetLine=3
+# commentIndexLine=34
+# startLine=commentIndexLine-offsetLine
+# endLine=commentIndexLine+offsetLine
+# simpleGraph=copyGraphWithinLineIndex(graph,startLine,endLine)
+# simpleGraph.write(fpSimpleDotGraphText)
+# simpleGraph.layout(prog='dot')
+# simpleGraph.draw(fpSimpleDotGraphImg)
 
 

@@ -32,7 +32,7 @@ def checkAndGenerateAST(i, lstCFilesStep1, fopStep2,fopASTInfo,fopStep4GraphAll,
         fpDotGraphSimplifyImage = fopStep4GraphSimplify + nameWithoutExtension + '_simplify.png'
         jsonObject = getJsonDict(fpMixFileCPP,fpDotGraphAllText, fpDotGraphAllImage, fpDotGraphSimplifyText, fpDotGraphSimplifyImage,parser,nlpObj,offsetContext)
         # strASTOfFile=walker.getRepresentASTFromFile(fpCodeFileCPP,indexTu)
-        print('{}/{} {}'.format(i,len(lstCFilesStep1), fpMixFileCPP))
+
         if str(jsonObject) != 'Error' or str(jsonObject) != 'None':
             # arrContentOfFile=strContentOfFile.split('\n')
             strContentAppend = '\n'.join([nameOfFile, str(jsonObject), '\n\n\n'])
@@ -49,13 +49,15 @@ def checkAndGenerateAST(i, lstCFilesStep1, fopStep2,fopASTInfo,fopStep4GraphAll,
             f1 = open(fpLog, 'a')
             f1.write('{}\t{}\n'.format(nameOfFile, 'False'))
             f1.close()
-            print('{}\t{}'.format(strCommand,isRunOK))
+            # print('{}\t{}'.format(strCommand,isRunOK))
+        print('OK {}/{} {}'.format(i, len(lstCFilesStep1), fpMixFileCPP))
     except:
         print("Exception in user code:")
         print("-" * 60)
         traceback.print_exc(file=sys.stdout)
         print("-" * 60)
         print('Error: {} {}'.format(i, fpMixFileCPP))
+        print('Error {}/{} {}'.format(i, len(lstCFilesStep1), fpMixFileCPP))
     return i
 
 
@@ -73,6 +75,7 @@ def compileMixCCodeAndSave(fopStep1,fopStep2,fopASTInfo,fopStep4GraphAll,fopStep
     # Parallel(n_jobs=8)(delayed(checkAndGenerateAST)(i,lstCFilesStep1, fopStep2, fopASTInfo,fpLog) for i in range(0,len(lstCFilesStep1)))
     for i in range(0, len(lstCFilesStep1)):
         checkAndGenerateAST(i, lstCFilesStep1, fopStep2, fopASTInfo,fopStep4GraphAll,fopStep4GraphSimplify,fpLog,nlpObj,offsetContext)
+        # break
     # print(time.time() - t)
 
     # for i in range(0,len(lstCFilesStep1)):
@@ -102,6 +105,12 @@ fopStep4GraphAllTrain=fopStep4GraphAll+'testW/'
 fopStep4GraphSimplifyTestP=fopStep4GraphSimplify+'train/'
 fopStep4GraphSimplifyTestW=fopStep4GraphSimplify+'testP/'
 fopStep4GraphSimplifyTrain=fopStep4GraphSimplify+'testW/'
+createDirIfNotExist(fopStep4GraphAllTestP)
+createDirIfNotExist(fopStep4GraphAllTestW)
+createDirIfNotExist(fopStep4GraphAllTrain)
+createDirIfNotExist(fopStep4GraphSimplifyTestP)
+createDirIfNotExist(fopStep4GraphSimplifyTestW)
+createDirIfNotExist(fopStep4GraphSimplifyTrain)
 
 
 
