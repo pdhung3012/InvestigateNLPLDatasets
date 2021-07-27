@@ -243,6 +243,7 @@ def getGraphDependencyFromText(strText,nlpObj):
       dictTotal['children'].append(jsonPOS)
   except:
     strJsonObj = 'Error'
+    dictTotal=None
     traceback.print_exc()
 
 
