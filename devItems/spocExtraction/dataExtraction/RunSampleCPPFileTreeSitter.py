@@ -8,7 +8,26 @@ sys.path.append(os.path.abspath(os.path.join('../../')))
 from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText
 from tree_sitter import Language, Parser
 import pygraphviz as pgv
-import pylab
+import pylab,traceback
+from pyparsing import OneOrMore, nestedExpr
+
+fopStanfordCoreNLP='../../../dataPapers/stanford-corenlp-4.2.2/'
+
+strParseResultsType="<class 'pyparsing.ParseResults'>"
+strStrType="<class 'str'>"
+
+def getPrefixId(startPointLine,startPointOffset,endPointLine,endPointOffset):
+    strId='{}--{}--{}--{}'.format(startPointLine,startPointOffset,endPointLine,endPointOffset)
+    return strId
+
+def getLineAndOffsetFromLabel(strLabel):
+    # print(strLabel)
+    arrLineInfo=strLabel.split('\n')[0].strip().split('--')
+    startLine=int(arrLineInfo[0])
+    startOffset = int(arrLineInfo[1])
+    endLine = int(arrLineInfo[2])
+    endOffset = int(arrLineInfo[3])
+    return (startLine,startOffset,endLine,endOffset)
 
 def getTerminalValue(startPointLine,startPointOffset,endPointLine,endPointOffset,arrCodes):
     lstStr=[]
@@ -28,11 +47,64 @@ def getTerminalValue(startPointLine,startPointOffset,endPointLine,endPointOffset
     strReturn='\n'.join(lstStr)
     return strReturn
 
+def addNodeEdgeForNLPart(dictNL,graph,strId):
+    # isTerminal=dictNL['isTerminal']
+    strNewKey=strId+'\n'+str(dictNL['label'])
+    # if 'label' in dictNL.keys():
+    #     strNewKey=strId+'\n'+str(dictNL['label'])
+    graph.add_node(strNewKey,color='red')
+    lstChildren=dictNL['children']
+    for i in range(0,len(lstChildren)):
+        strChildKey=addNodeEdgeForNLPart(lstChildren[i],graph,strId)
+        graph.add_edge(strNewKey,strChildKey,color='red')
+
+    if 'dependencies' in dictNL.keys():
+        lstDeps=dictNL['dependencies']
+        for i in range(0,len(lstDeps)):
+            tup=lstDeps[i]
+            strSource=strId+'\n'+tup[3]
+            strTarget = strId + '\n' + tup[4]
+            graph.add_edge(strSource,strTarget,color='green',label=tup[2])
+    return strNewKey
+
+def copyGraphWithinLineIndex(graph,startLineIndex,endLineIndex):
+    newGraph=pgv.AGraph(directed=True)
+    # nodes=graph.nodes()
+    # edges=graph.edges()
+    try:
+        for node in graph.nodes_iter():
+            # print(node)
+            colorNode=node.attr['color']
+            labelNode = str(node)
+            tup=getLineAndOffsetFromLabel(labelNode)
+            if tup[0]>=startLineIndex and tup[2]<=endLineIndex:
+                newGraph.add_node(labelNode,color=colorNode)
+    except:
+        isError=True
+
+    try:
+        for edge in graph.edges_iter():
+            colorNode = edge.attr['color']
+            labelNode = edge.attr['label']
+            # print(edge.attr)
+            sourceLbl = str(edge[0])
+            targetLbl = str(edge[1])
+            tupSource = getLineAndOffsetFromLabel(sourceLbl)
+            tupTarget = getLineAndOffsetFromLabel(targetLbl)
+            if tupSource[0] >= startLineIndex and tupSource[2] <= endLineIndex and tupTarget[0] >= startLineIndex and \
+                    tupTarget[2] <= endLineIndex:
+                newGraph.add_edge(sourceLbl, targetLbl, label=labelNode, color=colorNode)
+    except:
+        # traceback.print_exc()
+        isError=True
+
+
+    return newGraph
 
 def getDotGraph(dictJson,dictLabel,graph):
     strType=str(dictJson['type'])
-    ind=int(dictJson['id'])
-    strLabel=str(ind)+'__'+dictJson['type']
+    strId=getPrefixId(dictJson['startLine'],dictJson['startOffset'],dictJson['endLine'],dictJson['endOffset'])
+    strLabel=strId+'\n'+strType
     # endPoint=int(str(dictJson['end_point']).split(',')[0].replace('(',''))
     # if endPoint<33:
     #     return 'include_label'
@@ -48,7 +120,10 @@ def getDotGraph(dictJson,dictLabel,graph):
                 #     graph.add_node(strChildLabel,color='blue')
                 #     dictLabel[strChildLabel] = 1
             graph.add_edge(strLabel,strChildLabel,color='blue')
-
+    if 'nlGraph' in dictJson.keys():
+        dictNL=dictJson['nlGraph']
+        strNLID=addNodeEdgeForNLPart(dictNL, graph,strId)
+        graph.add_edge(strLabel, strNLID, color='red')
     return strLabel
 
 def getJsonDict(fpCPP,fpDotGraphText,fpDotGraphImage,parser):
@@ -72,7 +147,7 @@ def getJsonDict(fpCPP,fpDotGraphText,fpDotGraphImage,parser):
         dictJson=None
     return dictJson
 
-def walkTreeAndReturnJSonObject(node,arrCodes,listId):
+def walkTreeAndReturnJSonObject(node,arrCodes,listId,nlpObj):
     dictJson={}
     strType=str(node.type)
     dictJson['type']=strType
@@ -102,7 +177,7 @@ def walkTreeAndReturnJSonObject(node,arrCodes,listId):
             arrChildEnd = str(listChildren[i].end_point).split(',')
             endChildLine = int(arrChildEnd[0].replace('(', ''))
             if endChildLine>=33:
-                childNode = walkTreeAndReturnJSonObject(listChildren[i], arrCodes, listId)
+                childNode = walkTreeAndReturnJSonObject(listChildren[i], arrCodes, listId,nlpObj)
                 dictJson['children'].append(childNode)
     elif len(dictJson['type'])>3:
         dictJson['children'] = []
@@ -117,8 +192,130 @@ def walkTreeAndReturnJSonObject(node,arrCodes,listId):
         dictChild['endOffset'] = endOffset
         dictJson['children'].append(dictChild)
 
+    if dictJson['type'] == 'comment':
+        # dictChild['isComment'] = True
+        strTextComment = dictJson['children'][0]['type'].replace('//','').strip()
+        jsonComment = getGraphDependencyFromText(strTextComment, nlpObj)
+        # print('go to comment here {} aaa {}'.format(jsonComment,strTextComment))
+
+        if jsonComment is not None:
+            # print('comment {}'.format(jsonComment))
+            dictJson['children'][0]['nlGraph'] = jsonComment
 
     return dictJson
+
+def walkAndGetPOSJSon(dataParseResult,indexSentence,lstNonTerminals,lstTerminals):
+  dictJson={}
+  if str(type(dataParseResult))==strParseResultsType and len(dataParseResult)==2:
+    # print( str(type(dataParseResult[0])))
+    if str(type(dataParseResult[0]))==strStrType:
+      if  str(type(dataParseResult[1]))==strStrType:
+        # print('ok1')
+        dictJson['tag']=str(dataParseResult[0])
+        dictJson['value'] = str(dataParseResult[1])
+        dictJson['isTerminal'] = True
+        dictJson['children'] = []
+
+        newId = len(lstTerminals) + 1
+        strValue=dictJson['value']
+        strLabel ='Sent'+str(indexSentence) +'_Terminal'+str(newId) + '\n' + strValue
+        lstTerminals.append(strLabel)
+        dictJson['label'] = strLabel
+      elif str(type(dataParseResult[1]))==strParseResultsType:
+        # print('ok 2')
+        dictJson['tag'] = str(dataParseResult[0])
+        dictJson['children']=[]
+        dictJson['children'].append( walkAndGetPOSJSon(dataParseResult[1],indexSentence,lstNonTerminals,lstTerminals))
+        dictJson['isTerminal'] = False
+        dictJson['value'] = ''
+        newId = len(lstNonTerminals) + 1
+        strTag = dictJson['tag']
+        strLabel = 'Sent' + str(indexSentence) + '_NonTerminal' + str(newId) + '\n' + strTag
+        lstNonTerminals.append(strLabel)
+        dictJson['label'] = strLabel
+
+  elif str(type(dataParseResult))==strParseResultsType and len(dataParseResult)==1:
+    # print('go to branch here')
+    dictJson=walkAndGetPOSJSon(dataParseResult[0],indexSentence,lstNonTerminals,lstTerminals)
+  elif str(type(dataParseResult))==strParseResultsType and len(dataParseResult)>2:
+    if str(type(dataParseResult[0])) == strStrType:
+      strTag =str(dataParseResult[0])
+      dictJson['tag']=strTag
+      dictJson['value'] = ''
+      dictJson['isTerminal'] = False
+      dictJson['children'] = []
+      newId = len(lstNonTerminals) + 1
+      strLabel = 'Sent' + str(indexSentence) + '_NonTerminal' + str(newId) + '\n' + strTag
+      lstNonTerminals.append(strLabel)
+      dictJson['label'] = strLabel
+
+      for i in range(1,len(dataParseResult)):
+        dictChildI=walkAndGetPOSJSon(dataParseResult[i],indexSentence,lstNonTerminals,lstTerminals)
+        dictJson['children'].append(dictChildI)
+  return dictJson
+
+
+def getGraphDependencyFromText(strText,nlpObj):
+  lstDeps = []
+  lstNodes=[]
+  lstEdges=[]
+
+  try:
+    output = nlpObj.annotate(strText, properties={
+      'annotators': 'parse',
+      'outputFormat': 'json'
+    })
+    jsonTemp = output
+    # strJsonObj = jsonTemp
+    arrSentences=jsonTemp['sentences']
+    dictTotal={}
+    dictTotal['tag'] = 'Paragraph'
+    dictTotal['label'] = 'Paragraph'
+    dictTotal['value'] = ''
+    dictTotal['isTerminal'] = False
+    dictTotal['children'] = []
+    indexSentence=0
+    print(strText)
+    for sentence in arrSentences:
+      jsonDependency = sentence['basicDependencies']
+      strParseContent=sentence['parse']
+      lstNonTerminals = []
+      lstTerminals = []
+      indexSentence=indexSentence+1
+      data = OneOrMore(nestedExpr()).parseString(strParseContent)
+      dictWords = {}
+      jsonPOS=walkAndGetPOSJSon(data,indexSentence,lstNonTerminals,lstTerminals)
+      # print('POS {}'.format(jsonPOS))
+
+      for dep in jsonDependency:
+        strDep=dep['dep']
+        if strDep=='ROOT':
+            continue
+        # print('dep : {}'.format(dep))
+        indexSource=dep['governor']
+        indexTarget=dep['dependent']
+        # print(source+' ss '+target)
+        # itemTuple=(dep['dep'],dep['governorGloss'],dep['dependentGloss'])
+        # lstDeps.append(itemTuple)
+        # if source not in dictWords:
+        #   dictWords[source]=len(dictWords.keys())+1
+        #   tupleNode=(dictWords[source],'pseudo_node',source)
+        #   lstNodes.append(tupleNode)
+        # if target not in dictWords:
+        #   dictWords[target]=len(dictWords.keys())+1
+        #   tupleNode=(dictWords[target],'pseudo_node',target)
+        #   lstNodes.append(tupleNode)
+        itemTuple=(indexSource,indexTarget,strDep,lstTerminals[indexSource-1],lstTerminals[indexTarget-1])
+        lstEdges.append(itemTuple)
+      jsonPOS['dependencies']=lstEdges
+      dictTotal['children'].append(jsonPOS)
+  except:
+    strJsonObj = 'Error'
+    dictTotal=None
+    traceback.print_exc()
+  return dictTotal
+
+
 
 fopData='/home/hungphd/'
 fopGithub='/home/hungphd/git/'
@@ -126,8 +323,14 @@ fopBuildFolder=fopData+'build-tree-sitter/'
 fpLanguageSo=fopBuildFolder+'my-languages.so'
 fpDotGraphText=fopGithub+'dataPapers/temp.dot'
 fpDotGraphImg=fopGithub+'dataPapers/temp.png'
+fpSimpleDotGraphText=fopGithub+'dataPapers/temp_simplify.dot'
+fpSimpleDotGraphImg=fopGithub+'dataPapers/temp_simplify.png'
+
 CPP_LANGUAGE = Language(fpLanguageSo, 'cpp')
 fpTempCPPFile=fopGithub+'dataPapers/1_2A_42264131_v2.cpp'
+
+from pycorenlp import StanfordCoreNLP
+nlp = StanfordCoreNLP('http://localhost:9000')
 
 parser = Parser()
 parser.set_language(CPP_LANGUAGE)
@@ -147,7 +350,7 @@ print(str(len(node.children)))
 #     print(property, ":", value)
 # print(vars(tree))
 lstId=[]
-dictJson=walkTreeAndReturnJSonObject(node,arrCodes,lstId)
+dictJson=walkTreeAndReturnJSonObject(node,arrCodes,lstId,nlp)
 print(str(dictJson))
 ind=1
 graph=pgv.AGraph(directed=True)
@@ -156,3 +359,14 @@ getDotGraph(dictJson,dictLabel,graph)
 graph.write(fpDotGraphText)
 graph.layout(prog='dot')
 graph.draw(fpDotGraphImg)
+
+offsetLine=3
+commentIndexLine=34
+startLine=commentIndexLine-offsetLine
+endLine=commentIndexLine+offsetLine
+simpleGraph=copyGraphWithinLineIndex(graph,startLine,endLine)
+simpleGraph.write(fpSimpleDotGraphText)
+simpleGraph.layout(prog='dot')
+simpleGraph.draw(fpSimpleDotGraphImg)
+
+

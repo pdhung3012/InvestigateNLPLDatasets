@@ -218,7 +218,7 @@ def getGraphDependencyFromText(strText,nlpObj):
       data = OneOrMore(nestedExpr()).parseString(strParseContent)
       dictWords = {}
       jsonPOS=walkAndGetPOSJSon(data,dictWords)
-      print('POS {}'.format(jsonPOS))
+      # print('POS {}'.format(jsonPOS))
 
       for dep in jsonDependency:
         strDep=dep['dep']
