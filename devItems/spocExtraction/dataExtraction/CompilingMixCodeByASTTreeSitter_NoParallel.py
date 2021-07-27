@@ -13,11 +13,11 @@ from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText
 from tree_sitter import Language, Parser
 from LibForGraphExtractionFromMixCode import getJsonDict
 
-def checkAndGenerateAST(i, lstCFilesStep1, fopStep2,fopASTInfo,fopStep4GraphAll,fopStep4GraphSimplify,fpLog,nlpObj,offsetContext):
+def checkAndGenerateAST(i, lstCFilesStep1, fopStep2,fopASTInfo,fopStep4GraphAll,fopStep4GraphSimplify,fpLog,nlpObj,offsetContext,isSaveGraph):
     fpMixFileCPP = lstCFilesStep1[i]
     lenFile=len(lstCFilesStep1)
     nameOfFile = os.path.basename(fpMixFileCPP)
-    nameWithoutExtension=nameOfFile.replace('.csv','')
+    nameWithoutExtension=nameOfFile.replace('.cpp','')
     fpCompiledCPP = fopStep2 + nameOfFile
     fpASTItem = fopASTInfo + nameOfFile.replace('.cpp', '_ast.txt')
     isRunOK = False
@@ -30,7 +30,7 @@ def checkAndGenerateAST(i, lstCFilesStep1, fopStep2,fopASTInfo,fopStep4GraphAll,
         fpDotGraphAllImage = fopStep4GraphAll + nameWithoutExtension + '_all.png'
         fpDotGraphSimplifyText = fopStep4GraphSimplify + nameWithoutExtension + '_simplify.dot'
         fpDotGraphSimplifyImage = fopStep4GraphSimplify + nameWithoutExtension + '_simplify.png'
-        jsonObject = getJsonDict(fpMixFileCPP,fpDotGraphAllText, fpDotGraphAllImage, fpDotGraphSimplifyText, fpDotGraphSimplifyImage,parser,nlpObj,offsetContext)
+        jsonObject = getJsonDict(fpMixFileCPP,fpDotGraphAllText, fpDotGraphAllImage, fpDotGraphSimplifyText, fpDotGraphSimplifyImage,parser,nlpObj,offsetContext,isSaveGraph)
         # strASTOfFile=walker.getRepresentASTFromFile(fpCodeFileCPP,indexTu)
 
         if str(jsonObject) != 'Error' or str(jsonObject) != 'None':
@@ -61,9 +61,11 @@ def checkAndGenerateAST(i, lstCFilesStep1, fopStep2,fopASTInfo,fopStep4GraphAll,
     return i
 
 
-def compileMixCCodeAndSave(fopStep1,fopStep2,fopASTInfo,fopStep4GraphAll,fopStep4GraphSimplify,fpLog,nlpObj,offsetContext):
+def compileMixCCodeAndSave(fopStep1,fopStep2,fopASTInfo,fopStep4GraphAll,fopStep4GraphSimplify,fpLog,nlpObj,offsetContext,isSaveGraph):
     createDirIfNotExist(fopStep2)
     createDirIfNotExist(fopASTInfo)
+    createDirIfNotExist(fopStep4GraphAll)
+    createDirIfNotExist(fopStep4GraphSimplify)
 
     f1 = open(fpLog, 'w')
     f1.write('')
@@ -74,7 +76,7 @@ def compileMixCCodeAndSave(fopStep1,fopStep2,fopASTInfo,fopStep4GraphAll,fopStep
     # t = time.time()
     # Parallel(n_jobs=8)(delayed(checkAndGenerateAST)(i,lstCFilesStep1, fopStep2, fopASTInfo,fpLog) for i in range(0,len(lstCFilesStep1)))
     for i in range(0, len(lstCFilesStep1)):
-        checkAndGenerateAST(i, lstCFilesStep1, fopStep2, fopASTInfo,fopStep4GraphAll,fopStep4GraphSimplify,fpLog,nlpObj,offsetContext)
+        checkAndGenerateAST(i, lstCFilesStep1, fopStep2, fopASTInfo,fopStep4GraphAll,fopStep4GraphSimplify,fpLog,nlpObj,offsetContext,isSaveGraph)
         # break
     # print(time.time() - t)
 
@@ -99,18 +101,12 @@ fopStep3TrainMixFiles=fopASTFiles+'train/'
 fopStep3TestPMixFiles=fopASTFiles+'testP/'
 fopStep3TestWMixFiles=fopASTFiles+'testW/'
 
-fopStep4GraphAllTestP=fopStep4GraphAll+'train/'
-fopStep4GraphAllTestW=fopStep4GraphAll+'testP/'
-fopStep4GraphAllTrain=fopStep4GraphAll+'testW/'
-fopStep4GraphSimplifyTestP=fopStep4GraphSimplify+'train/'
-fopStep4GraphSimplifyTestW=fopStep4GraphSimplify+'testP/'
-fopStep4GraphSimplifyTrain=fopStep4GraphSimplify+'testW/'
-createDirIfNotExist(fopStep4GraphAllTestP)
-createDirIfNotExist(fopStep4GraphAllTestW)
-createDirIfNotExist(fopStep4GraphAllTrain)
-createDirIfNotExist(fopStep4GraphSimplifyTestP)
-createDirIfNotExist(fopStep4GraphSimplifyTestW)
-createDirIfNotExist(fopStep4GraphSimplifyTrain)
+fopStep4GraphAllTestP=fopStep4GraphAll+'testP/'
+fopStep4GraphAllTestW=fopStep4GraphAll+'testW/'
+fopStep4GraphAllTrain=fopStep4GraphAll+'train/'
+fopStep4GraphSimplifyTestP=fopStep4GraphSimplify+'testP/'
+fopStep4GraphSimplifyTestW=fopStep4GraphSimplify+'testW/'
+fopStep4GraphSimplifyTrain=fopStep4GraphSimplify+'train/'
 
 
 
@@ -135,8 +131,8 @@ parser.set_language(CPP_LANGUAGE)
 
 numOmit=30
 offsetContext=3
-compileMixCCodeAndSave(fopStep1TestPMixFiles,fopStep2TestPMixFiles,fopStep3TestPMixFiles,fopStep4GraphAllTestP,fopStep4GraphSimplifyTestP,fpLogTestP,nlpObj,offsetContext)
-compileMixCCodeAndSave(fopStep1TestWMixFiles,fopStep2TestWMixFiles,fopStep3TestWMixFiles,fopStep4GraphAllTestW,fopStep4GraphSimplifyTestW,fpLogTestW,nlpObj,offsetContext)
-compileMixCCodeAndSave(fopStep1TrainMixFiles,fopStep2TrainMixFiles,fopStep3TrainMixFiles,fopStep4GraphAllTrain,fopStep4GraphSimplifyTrain,fpLogTrain,nlpObj,offsetContext)
+compileMixCCodeAndSave(fopStep1TestPMixFiles,fopStep2TestPMixFiles,fopStep3TestPMixFiles,fopStep4GraphAllTestP,fopStep4GraphSimplifyTestP,fpLogTestP,nlpObj,offsetContext,False)
+compileMixCCodeAndSave(fopStep1TestWMixFiles,fopStep2TestWMixFiles,fopStep3TestWMixFiles,fopStep4GraphAllTestW,fopStep4GraphSimplifyTestW,fpLogTestW,nlpObj,offsetContext,False)
+compileMixCCodeAndSave(fopStep1TrainMixFiles,fopStep2TrainMixFiles,fopStep3TrainMixFiles,fopStep4GraphAllTrain,fopStep4GraphSimplifyTrain,fpLogTrain,nlpObj,offsetContext,False)
 
 

@@ -126,7 +126,7 @@ def getDotGraph(dictJson,dictLabel,graph):
         graph.add_edge(strLabel, strNLID, color='red')
     return strLabel
 
-def getJsonDict(fpCPP,fpDotGraphAllText,fpDotGraphAllImage,fpDotGraphSimplifyText,fpDotGraphSimplifyImage,parser,nlpObj,offsetContext):
+def getJsonDict(fpCPP,fpDotGraphAllText,fpDotGraphAllImage,fpDotGraphSimplifyText,fpDotGraphSimplifyImage,parser,nlpObj,offsetContext,isSaveGraph):
     dictJson=None
     g=None
     try:
@@ -150,20 +150,22 @@ def getJsonDict(fpCPP,fpDotGraphAllText,fpDotGraphAllImage,fpDotGraphSimplifyTex
 
         lstIds=[]
         dictJson=walkTreeAndReturnJSonObject(node,arrCodes,lstIds,nlpObj)
-        ind=1
-        graph = pgv.AGraph(directed=True)
-        dictLabel = {}
-        getDotGraph(dictJson, dictLabel, graph)
-        graph.write(fpDotGraphAllText)
-        graph.layout(prog='dot')
-        graph.draw(fpDotGraphAllImage)
 
-        startLine = indexComment - offsetContext
-        endLine = indexComment + offsetContext
-        simpleGraph = copyGraphWithinLineIndex(graph, startLine, endLine)
-        simpleGraph.write(fpDotGraphSimplifyText)
-        simpleGraph.layout(prog='dot')
-        simpleGraph.draw(fpDotGraphSimplifyImage)
+        if isSaveGraph:
+            graph = pgv.AGraph(directed=True)
+            dictLabel = {}
+            getDotGraph(dictJson, dictLabel, graph)
+            graph.write(fpDotGraphAllText)
+            graph.layout(prog='dot')
+            graph.draw(fpDotGraphAllImage)
+            # print('draw graph here {}'.format(fpDotGraphAllImage))
+
+            startLine = indexComment - offsetContext
+            endLine = indexComment + offsetContext
+            simpleGraph = copyGraphWithinLineIndex(graph, startLine, endLine)
+            simpleGraph.write(fpDotGraphSimplifyText)
+            simpleGraph.layout(prog='dot')
+            simpleGraph.draw(fpDotGraphSimplifyImage)
     except:
         dictJson=None
         traceback.print_exc()
