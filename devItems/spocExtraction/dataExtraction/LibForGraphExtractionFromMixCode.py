@@ -47,7 +47,7 @@ def getTerminalValue(startPointLine,startPointOffset,endPointLine,endPointOffset
     strReturn='\n'.join(lstStr)
     return strReturn
 
-def addNodeEdgeForNLPart(dictNL,graph,strId):
+def addNodeEdgeForNLPart(dictNL,dictFatherLabel,graph,strId):
     # isTerminal=dictNL['isTerminal']
     strNewKey=strId+'\n'+str(dictNL['label'])
     # if 'label' in dictNL.keys():
@@ -57,6 +57,7 @@ def addNodeEdgeForNLPart(dictNL,graph,strId):
     for i in range(0,len(lstChildren)):
         strChildKey=addNodeEdgeForNLPart(lstChildren[i],graph,strId)
         graph.add_edge(strNewKey,strChildKey,color='red')
+        dictFatherLabel[strChildKey]=strNewKey
 
     if 'dependencies' in dictNL.keys():
         lstDeps=dictNL['dependencies']
@@ -67,10 +68,11 @@ def addNodeEdgeForNLPart(dictNL,graph,strId):
             graph.add_edge(strSource,strTarget,color='green',label=tup[2])
     return strNewKey
 
-def copyGraphWithinLineIndex(graph,startLineIndex,endLineIndex):
+def copyGraphWithinLineIndex(graph,dictFatherLabel,startLineIndex,endLineIndex):
     newGraph=pgv.AGraph(directed=True)
     # nodes=graph.nodes()
     # edges=graph.edges()
+    lstNodesStr=[]
     try:
         for node in graph.nodes_iter():
             # print(node)
@@ -79,6 +81,7 @@ def copyGraphWithinLineIndex(graph,startLineIndex,endLineIndex):
             tup=getLineAndOffsetFromLabel(labelNode)
             if tup[0]>=startLineIndex and tup[2]<=endLineIndex:
                 newGraph.add_node(labelNode,color=colorNode)
+                lstNodesStr.append(labelNode)
     except:
         isError=True
 
@@ -99,9 +102,24 @@ def copyGraphWithinLineIndex(graph,startLineIndex,endLineIndex):
         isError=True
 
 
+    try:
+        setNodeStr=set(lstNodesStr)
+        for node in lstNodesStr:
+            # print(node)
+            nodeIter=node
+            while nodeIter in dictFatherLabel and dictFatherLabel[nodeIter] not in setNodeStr:
+                nodeChild=nodeIter
+                nodeIter=dictFatherLabel[nodeIter]
+                newGraph.add_node(nodeIter,color='blue')
+                newGraph.add_edge(nodeIter,nodeChild,color='blue')
+
+    except:
+        isError=True
+
+
     return newGraph
 
-def getDotGraph(dictJson,dictLabel,graph):
+def getDotGraph(dictJson,dictLabel,dictFatherLabel,graph):
     strType=str(dictJson['type'])
     strId=getPrefixId(dictJson['startLine'],dictJson['startOffset'],dictJson['endLine'],dictJson['endOffset'])
     strLabel=strId+'\n'+strType
@@ -120,10 +138,12 @@ def getDotGraph(dictJson,dictLabel,graph):
                 #     graph.add_node(strChildLabel,color='blue')
                 #     dictLabel[strChildLabel] = 1
             graph.add_edge(strLabel,strChildLabel,color='blue')
+            dictFatherLabel[strChildLabel]=strLabel
     if 'nlGraph' in dictJson.keys():
         dictNL=dictJson['nlGraph']
-        strNLID=addNodeEdgeForNLPart(dictNL, graph,strId)
+        strNLID=addNodeEdgeForNLPart(dictNL,dictFatherLabel, graph,strId)
         graph.add_edge(strLabel, strNLID, color='red')
+        dictFatherLabel[strNLID] = strLabel
     return strLabel
 
 def getJsonDict(fpCPP,fpDotGraphAllText,fpDotGraphAllImage,fpDotGraphSimplifyText,fpDotGraphSimplifyImage,parser,nlpObj,offsetContext,isSaveGraph):
@@ -154,7 +174,8 @@ def getJsonDict(fpCPP,fpDotGraphAllText,fpDotGraphAllImage,fpDotGraphSimplifyTex
         if isSaveGraph:
             graph = pgv.AGraph(directed=True)
             dictLabel = {}
-            getDotGraph(dictJson, dictLabel, graph)
+            dictFatherLabel={}
+            getDotGraph(dictJson, dictLabel,dictFatherLabel, graph)
             graph.write(fpDotGraphAllText)
             graph.layout(prog='dot')
             graph.draw(fpDotGraphAllImage)
@@ -162,7 +183,7 @@ def getJsonDict(fpCPP,fpDotGraphAllText,fpDotGraphAllImage,fpDotGraphSimplifyTex
 
             startLine = indexComment - offsetContext
             endLine = indexComment + offsetContext
-            simpleGraph = copyGraphWithinLineIndex(graph, startLine, endLine)
+            simpleGraph = copyGraphWithinLineIndex(graph,dictFatherLabel, startLine, endLine)
             simpleGraph.write(fpDotGraphSimplifyText)
             simpleGraph.layout(prog='dot')
             simpleGraph.draw(fpDotGraphSimplifyImage)
