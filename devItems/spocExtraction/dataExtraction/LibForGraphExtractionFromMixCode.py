@@ -242,7 +242,8 @@ def walkAndGetPOSJSon(dataParseResult,indexSentence,lstNonTerminals,lstTerminals
 
         newId = len(lstTerminals) + 1
         strValue=dictJson['value']
-        strLabel ='Sent'+str(indexSentence) +'_Terminal'+str(newId) + '\n' + strValue
+        strTag=dictJson['tag']
+        strLabel ='Sent'+str(indexSentence) +'_Terminal'+str(newId)+'\n'+strTag + '\n' + strValue
         lstTerminals.append(strLabel)
         dictJson['label'] = strLabel
       elif str(type(dataParseResult[1]))==strParseResultsType:
