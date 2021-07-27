@@ -11,7 +11,7 @@ from joblib import Parallel,delayed
 from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText
 
 from tree_sitter import Language, Parser
-from RunSampleCPPFileTreeSitter import getJsonDict
+from LibForGraphExtractionFromMixCode import getJsonDict
 
 def checkAndGenerateAST(i, lstCFilesStep1, fopStep2,fopASTInfo,fpLog):
     fpMixFileCPP = lstCFilesStep1[i]

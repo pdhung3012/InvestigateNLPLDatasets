@@ -11,20 +11,26 @@ from joblib import Parallel,delayed
 from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText
 
 from tree_sitter import Language, Parser
-from RunSampleCPPFileTreeSitter import getJsonDict
+from LibForGraphExtractionFromMixCode import getJsonDict
 
-def checkAndGenerateAST(i, lstCFilesStep1, fopStep2,fopASTInfo,fpLog):
+def checkAndGenerateAST(i, lstCFilesStep1, fopStep2,fopASTInfo,fopStep4GraphAll,fopStep4GraphSimplify,fpLog,nlpObj,offsetContext):
     fpMixFileCPP = lstCFilesStep1[i]
     lenFile=len(lstCFilesStep1)
     nameOfFile = os.path.basename(fpMixFileCPP)
+    nameWithoutExtension=nameOfFile.replace('.csv','')
     fpCompiledCPP = fopStep2 + nameOfFile
     fpASTItem = fopASTInfo + nameOfFile.replace('.cpp', '_ast.txt')
     isRunOK = False
     try:
         parser = Parser()
         parser.set_language(CPP_LANGUAGE)
-
-        jsonObject = getJsonDict(fpMixFileCPP,parser)
+        # getJsonDict(fpCPP, fpDotGraphAllText, fpDotGraphAllImage, fpDotGraphSimplifyText, fpDotGraphSimplifyImage,
+        #             parser, offsetContext)
+        fpDotGraphAllText=fopStep4GraphAll+nameWithoutExtension+'_all.dot'
+        fpDotGraphAllImage = fopStep4GraphAll + nameWithoutExtension + '_all.png'
+        fpDotGraphSimplifyText = fopStep4GraphSimplify + nameWithoutExtension + '_simplify.dot'
+        fpDotGraphSimplifyImage = fopStep4GraphSimplify + nameWithoutExtension + '_simplify.png'
+        jsonObject = getJsonDict(fpMixFileCPP,fpDotGraphAllText, fpDotGraphAllImage, fpDotGraphSimplifyText, fpDotGraphSimplifyImage,parser,nlpObj,offsetContext)
         # strASTOfFile=walker.getRepresentASTFromFile(fpCodeFileCPP,indexTu)
         print('{}/{} {}'.format(i,len(lstCFilesStep1), fpMixFileCPP))
         if str(jsonObject) != 'Error' or str(jsonObject) != 'None':
@@ -53,7 +59,7 @@ def checkAndGenerateAST(i, lstCFilesStep1, fopStep2,fopASTInfo,fpLog):
     return i
 
 
-def compileMixCCodeAndSave(fopStep1,fopStep2,fopASTInfo,fpLog):
+def compileMixCCodeAndSave(fopStep1,fopStep2,fopASTInfo,fopStep4GraphAll,fopStep4GraphSimplify,fpLog,nlpObj,offsetContext):
     createDirIfNotExist(fopStep2)
     createDirIfNotExist(fopASTInfo)
 
@@ -66,7 +72,7 @@ def compileMixCCodeAndSave(fopStep1,fopStep2,fopASTInfo,fpLog):
     # t = time.time()
     # Parallel(n_jobs=8)(delayed(checkAndGenerateAST)(i,lstCFilesStep1, fopStep2, fopASTInfo,fpLog) for i in range(0,len(lstCFilesStep1)))
     for i in range(0, len(lstCFilesStep1)):
-        checkAndGenerateAST(i, lstCFilesStep1, fopStep2, fopASTInfo, fpLog)
+        checkAndGenerateAST(i, lstCFilesStep1, fopStep2, fopASTInfo,fopStep4GraphAll,fopStep4GraphSimplify,fpLog,nlpObj,offsetContext)
     # print(time.time() - t)
 
     # for i in range(0,len(lstCFilesStep1)):
@@ -78,6 +84,8 @@ fopData='../../../../dataPapers/textInSPOC/'
 fopMixFiles=fopData+'mix_step1/'
 fopASTFiles=fopData+'mix_step3_treesitter/'
 fopCompiledFiles=fopData+'mix_step2/'
+fopStep4GraphAll=fopData+'mix_step4_graphAll/'
+fopStep4GraphSimplify=fopData+'mix_step4_graphSimplify/'
 fopStep1TrainMixFiles=fopMixFiles+'train/'
 fopStep1TestPMixFiles=fopMixFiles+'testP/'
 fopStep1TestWMixFiles=fopMixFiles+'testW/'
@@ -87,6 +95,17 @@ fopStep2TestWMixFiles=fopCompiledFiles+'testW/'
 fopStep3TrainMixFiles=fopASTFiles+'train/'
 fopStep3TestPMixFiles=fopASTFiles+'testP/'
 fopStep3TestWMixFiles=fopASTFiles+'testW/'
+
+fopStep4GraphAllTestP=fopStep4GraphAll+'train/'
+fopStep4GraphAllTestW=fopStep4GraphAll+'testP/'
+fopStep4GraphAllTrain=fopStep4GraphAll+'testW/'
+fopStep4GraphSimplifyTestP=fopStep4GraphSimplify+'train/'
+fopStep4GraphSimplifyTestW=fopStep4GraphSimplify+'testP/'
+fopStep4GraphSimplifyTrain=fopStep4GraphSimplify+'testW/'
+
+
+
+
 fpLogTrain=fopCompiledFiles+'log_train.txt'
 fpLogTestP=fopCompiledFiles+'log_testP.txt'
 fpLogTestW=fopCompiledFiles+'log_testW.txt'
@@ -95,6 +114,10 @@ fopDataRoot='/home/hungphd/'
 fopGithub='/home/hungphd/git/'
 fopBuildFolder=fopDataRoot+'build-tree-sitter/'
 fpLanguageSo=fopBuildFolder+'my-languages.so'
+
+from pycorenlp import StanfordCoreNLP
+nlpObj = StanfordCoreNLP('http://localhost:9000')
+
 CPP_LANGUAGE = Language(fpLanguageSo, 'cpp')
 parser = Parser()
 parser.set_language(CPP_LANGUAGE)
@@ -102,8 +125,9 @@ parser.set_language(CPP_LANGUAGE)
 
 
 numOmit=30
-compileMixCCodeAndSave(fopStep1TestPMixFiles,fopStep2TestPMixFiles,fopStep3TestPMixFiles,fpLogTestP)
-compileMixCCodeAndSave(fopStep1TestWMixFiles,fopStep2TestWMixFiles,fopStep3TestWMixFiles,fpLogTestW)
-compileMixCCodeAndSave(fopStep1TrainMixFiles,fopStep2TrainMixFiles,fopStep3TrainMixFiles,fpLogTrain)
+offsetContext=3
+compileMixCCodeAndSave(fopStep1TestPMixFiles,fopStep2TestPMixFiles,fopStep3TestPMixFiles,fopStep4GraphAllTestP,fopStep4GraphSimplifyTestP,fpLogTestP,nlpObj,offsetContext)
+compileMixCCodeAndSave(fopStep1TestWMixFiles,fopStep2TestWMixFiles,fopStep3TestWMixFiles,fopStep4GraphAllTestW,fopStep4GraphSimplifyTestW,fpLogTestW,nlpObj,offsetContext)
+compileMixCCodeAndSave(fopStep1TrainMixFiles,fopStep2TrainMixFiles,fopStep3TrainMixFiles,fopStep4GraphAllTrain,fopStep4GraphSimplifyTrain,fpLogTrain,nlpObj,offsetContext)
 
 

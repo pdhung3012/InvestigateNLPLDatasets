@@ -126,23 +126,44 @@ def getDotGraph(dictJson,dictLabel,graph):
         graph.add_edge(strLabel, strNLID, color='red')
     return strLabel
 
-def getJsonDict(fpCPP,fpDotGraphText,fpDotGraphImage,parser):
+def getJsonDict(fpCPP,fpDotGraphAllText,fpDotGraphAllImage,fpDotGraphSimplifyText,fpDotGraphSimplifyImage,parser,nlpObj,offsetContext):
     dictJson=None
     g=None
     try:
         f1 = open(fpCPP, 'r')
         strCode = f1.read()
+        arrCodes=strCode.strip().split('\n')
         f1.close()
         parser.parse(bytes(strCode, 'utf8'))
         cursor = tree.walk()
         node = cursor.node
-        id=1
-        dictJson=walkTreeAndReturnJSonObject(node,id)
+
+        indexComment=-1
+        for i in range(0,len(arrCodes)):
+            strItem=arrCodes[i].strip()
+            if strItem.startswith('//'):
+                indexComment=i
+                break
+
+        startIndex=indexComment-offsetContext
+        endIndex=indexComment+offsetContext
+
+        lstIds=[]
+        dictJson=walkTreeAndReturnJSonObject(node,arrCodes,lstIds,nlpObj)
         ind=1
-        graph=pgv.AGraph()
-        getDotGraph(dictJson,ind,graph)
-        graph.render(filename=fpDotGraphText)
-        pylab.savefig(fpDotGraphImage)
+        graph = pgv.AGraph(directed=True)
+        dictLabel = {}
+        getDotGraph(dictJson, dictLabel, graph)
+        graph.write(fpDotGraphAllText)
+        graph.layout(prog='dot')
+        graph.draw(fpDotGraphAllImage)
+
+        startLine = indexComment - offsetLine
+        endLine = indexComment + offsetLine
+        simpleGraph = copyGraphWithinLineIndex(graph, startLine, endLine)
+        simpleGraph.write(fpDotGraphSimplifyText)
+        simpleGraph.layout(prog='dot')
+        simpleGraph.draw(fpDotGraphSimplifyImage)
     except:
         dictJson=None
     return dictJson
