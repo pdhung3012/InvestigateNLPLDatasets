@@ -55,7 +55,7 @@ def addNodeEdgeForNLPart(dictNL,dictFatherLabel,graph,strId):
     graph.add_node(strNewKey,color='red')
     lstChildren=dictNL['children']
     for i in range(0,len(lstChildren)):
-        strChildKey=addNodeEdgeForNLPart(lstChildren[i],graph,strId)
+        strChildKey=addNodeEdgeForNLPart(lstChildren[i],dictFatherLabel,graph,strId)
         graph.add_edge(strNewKey,strChildKey,color='red')
         dictFatherLabel[strChildKey]=strNewKey
 
@@ -103,6 +103,7 @@ def copyGraphWithinLineIndex(graph,dictFatherLabel,startLineIndex,endLineIndex):
 
 
     try:
+        print('dict nodeFather: {}\nlist: {}'.format(dictFatherLabel,lstNodesStr))
         setNodeStr=set(lstNodesStr)
         for node in lstNodesStr:
             # print(node)
@@ -110,6 +111,7 @@ def copyGraphWithinLineIndex(graph,dictFatherLabel,startLineIndex,endLineIndex):
             while nodeIter in dictFatherLabel and dictFatherLabel[nodeIter] not in setNodeStr:
                 nodeChild=nodeIter
                 nodeIter=dictFatherLabel[nodeIter]
+                print('father {} and child {}'.format(nodeIter,nodeChild))
                 newGraph.add_node(nodeIter,color='blue')
                 newGraph.add_edge(nodeIter,nodeChild,color='blue')
 
@@ -132,7 +134,7 @@ def getDotGraph(dictJson,dictLabel,dictFatherLabel,graph):
     if 'children' in dictJson.keys():
         lstChildren=dictJson['children']
         for i in range(0,len(lstChildren)):
-            strChildLabel=getDotGraph(lstChildren[i],dictLabel,graph)
+            strChildLabel=getDotGraph(lstChildren[i],dictFatherLabel,dictLabel,graph)
             # if strChildLabel!='include_label':
                 # if strChildLabel not in dictLabel.keys():
                 #     graph.add_node(strChildLabel,color='blue')
