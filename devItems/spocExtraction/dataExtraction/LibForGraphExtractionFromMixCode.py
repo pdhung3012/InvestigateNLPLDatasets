@@ -103,7 +103,7 @@ def copyGraphWithinLineIndex(graph,dictFatherLabel,startLineIndex,endLineIndex):
 
 
     try:
-        print('dict nodeFather: {}\nlist: {}'.format(dictFatherLabel,lstNodesStr))
+        # print('dict nodeFather: {}\nlist: {}'.format(dictFatherLabel,lstNodesStr))
         setNodeStr=set(lstNodesStr)
         for node in lstNodesStr:
             # print(node)
@@ -111,7 +111,7 @@ def copyGraphWithinLineIndex(graph,dictFatherLabel,startLineIndex,endLineIndex):
             while nodeIter in dictFatherLabel and dictFatherLabel[nodeIter] not in setNodeStr:
                 nodeChild=nodeIter
                 nodeIter=dictFatherLabel[nodeIter]
-                print('father {} and child {}'.format(nodeIter,nodeChild))
+                # print('father {} and child {}'.format(nodeIter,nodeChild))
                 newGraph.add_node(nodeIter,color='blue')
                 newGraph.add_edge(nodeIter,nodeChild,color='blue')
 
