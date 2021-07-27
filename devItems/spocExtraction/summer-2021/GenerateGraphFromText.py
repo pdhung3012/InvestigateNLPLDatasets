@@ -2,13 +2,17 @@ from nltk.parse import stanford
 from nltk.tree import Tree
 import json
 import os
-import sys
+import sys,traceback
 # os.environ['STANFORD_PARSER'] = '../../../dataPapers/StanfordParser/stanford-parser-full-2020-11-17'
 # os.environ['STANFORD_MODELS'] = '../../../dataPapers/StanfordParser/stanford-parser-full-2020-11-17'
 sys.path.append(os.path.abspath(os.path.join('..')))
 from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText,runASTGenAndSeeResult,getGraphDependencyFromText
+from pyparsing import OneOrMore, nestedExpr
 
 fopStanfordCoreNLP='../../../dataPapers/stanford-corenlp-4.2.2/'
+
+strParseResultsType="<class 'pyparsing.ParseResults'>"
+strStrType="<class 'str'>"
 
 # sp = stanford.StanfordParser()
 #
@@ -68,8 +72,9 @@ def textToJson(strText):
       'annotators': 'parse',
       'outputFormat': 'json'
     })
-    jsonTemp = json.loads(output)
-    strJsonObj = jsonTemp
+    print(output)
+    # jsonTemp = json.loads(output)
+    strJsonObj =str(output)
     # json.dumps(jsonTemp, indent=1)
     # print(type(jsonObject))
     # strTree = jsonTemp['sentences'][0]['parse']
@@ -79,6 +84,10 @@ def textToJson(strText):
     # jsonObj=json.loads(strJsonObj)
   except:
     strJsonObj='Error'
+    print("Exception in user code:")
+    print("-" * 60)
+    traceback.print_exc(file=sys.stdout)
+    print("-" * 60)
   return strJsonObj
 
 def printTree(jsonObj,index):
@@ -134,42 +143,111 @@ def getListOfDepFromText(strText):
     strJsonObj = 'Error'
   return lstDeps
 
-# def getGraphDependencyFromText(strText,nlpObj):
-#   lstDeps = []
-#   lstNodes=[]
-#   lstEdges=[]
-#   try:
-#     output = nlpObj.annotate(strText, properties={
-#       'annotators': 'parse',
-#       'outputFormat': 'json'
-#     })
-#     jsonTemp = json.loads(output)
-#     strJsonObj = jsonTemp
-#     arrSentences=jsonTemp['sentences']
-#     dictWords = {}
-#     for sentence in arrSentences:
-#       jsonDependency = sentence['basicDependencies']
-#       for dep in jsonDependency:
-#         strDep=dep['dep']
-#         source=dep['governorGloss']
-#         target=dep['dependentGloss']
-#         # itemTuple=(dep['dep'],dep['governorGloss'],dep['dependentGloss'])
-#         # lstDeps.append(itemTuple)
-#         if source not in dictWords:
-#           dictWords[source]=len(dictWords.keys())+1
-#           tupleNode=(dictWords[source],'pseudo_node',source)
-#           lstNodes.append(tupleNode)
-#         if target not in dictWords:
-#           dictWords[target]=len(dictWords.keys())+1
-#           tupleNode=(dictWords[target],'pseudo_node',target)
-#           lstNodes.append(tupleNode)
-#         itemTuple=(dictWords[source],dictWords[target],strDep)
-#         lstEdges.append(itemTuple)
-#   except:
-#     strJsonObj = 'Error'
-#
-#
-#   return lstNodes,lstEdges
+def walkAndGetPOSJSon(dataParseResult,dictWords):
+  dictJson={}
+  if str(type(dataParseResult))==strParseResultsType and len(dataParseResult)==2:
+    print( str(type(dataParseResult[0])))
+    if str(type(dataParseResult[0]))==strStrType:
+      if  str(type(dataParseResult[1]))==strStrType:
+        # print('ok1')
+        dictJson['tag']=str(dataParseResult[0])
+        dictJson['value'] = str(dataParseResult[1])
+        dictJson['isTerminal'] = True
+        dictJson['children'] = []
+        newId = len(dictWords.keys()) + 1
+        strValue=dictJson['value']
+        strLabel=''
+        if  strValue not in dictWords.keys():
+          dictWords[strValue] = newId
+          strLabel = str(newId) + '__' + strValue
+        else:
+          strLabel = str(dictWords[strValue]) + '__' + strValue
+        dictJson['label'] = strLabel
+      elif str(type(dataParseResult[1]))==strParseResultsType:
+        # print('ok 2')
+
+        dictJson['tag'] = str(dataParseResult[0])
+        if dictJson['tag'] == 'ROOT':
+          newId = len(dictWords.keys()) + 1
+          dictWords['ROOT'] = newId
+          strLabel = str(dictWords['ROOT']) + '__' + dictJson['tag']
+          dictJson['label'] = strLabel
+
+
+        dictJson['children']=[]
+        dictJson['children'].append( walkAndGetPOSJSon(dataParseResult[1],dictWords))
+        dictJson['isTerminal'] = False
+        dictJson['value'] = ''
+
+  elif str(type(dataParseResult))==strParseResultsType and len(dataParseResult)==1:
+    # print('go to branch here')
+    dictJson=walkAndGetPOSJSon(dataParseResult[0],dictWords)
+  elif str(type(dataParseResult))==strParseResultsType and len(dataParseResult)>2:
+    if str(type(dataParseResult[0])) == strStrType:
+      strTag =str(dataParseResult[0])
+      dictJson['tag']=strTag
+      dictJson['value'] = ''
+      dictJson['isTerminal'] = False
+      dictJson['children'] = []
+      for i in range(1,len(dataParseResult)):
+        dictChildI=walkAndGetPOSJSon(dataParseResult[i],dictWords)
+        dictJson['children'].append(dictChildI)
+  return dictJson
+
+
+def getGraphDependencyFromText(strText,nlpObj):
+  lstDeps = []
+  lstNodes=[]
+  lstEdges=[]
+  try:
+    output = nlpObj.annotate(strText, properties={
+      'annotators': 'parse',
+      'outputFormat': 'json'
+    })
+    jsonTemp = output
+    # strJsonObj = jsonTemp
+    arrSentences=jsonTemp['sentences']
+    dictTotal={}
+    dictTotal['tag'] = 'Paragraph'
+    dictTotal['value'] = ''
+    dictTotal['isTerminal'] = False
+    dictTotal['children'] = []
+    for sentence in arrSentences:
+      jsonDependency = sentence['basicDependencies']
+      strParseContent=sentence['parse']
+      data = OneOrMore(nestedExpr()).parseString(strParseContent)
+      dictWords = {}
+      jsonPOS=walkAndGetPOSJSon(data,dictWords)
+      print('POS {}'.format(jsonPOS))
+
+      for dep in jsonDependency:
+        strDep=dep['dep']
+        source=dep['governorGloss']
+        target=dep['dependentGloss']
+        # print(source+' ss '+target)
+        itemTuple=(dep['dep'],dep['governorGloss'],dep['dependentGloss'])
+        lstDeps.append(itemTuple)
+        # if source not in dictWords:
+        #   dictWords[source]=len(dictWords.keys())+1
+        #   tupleNode=(dictWords[source],'pseudo_node',source)
+        #   lstNodes.append(tupleNode)
+        # if target not in dictWords:
+        #   dictWords[target]=len(dictWords.keys())+1
+        #   tupleNode=(dictWords[target],'pseudo_node',target)
+        #   lstNodes.append(tupleNode)
+        strSource=str(dictWords[source])+'__'+source
+        strTarget =str(dictWords[target]) + '__' + target
+        itemTuple=(dictWords[source],dictWords[target],strDep,strSource,strTarget)
+        lstEdges.append(itemTuple)
+      jsonPOS['dependencies']=lstEdges
+      dictTotal['children'].append(jsonPOS)
+  except:
+    strJsonObj = 'Error'
+    traceback.print_exc()
+
+
+
+  return dictTotal
 
 
 def getListOfDependency(jsonDep):
@@ -184,7 +262,8 @@ from pycorenlp import StanfordCoreNLP
 nlp = StanfordCoreNLP('http://localhost:9000')
 
 text = "Let bal be character array with length 110 ."
-
+# jsonObj=textToJson(text)
+# print(jsonObj)
 
 
 # jsonRoot=textToJson(text)
@@ -199,8 +278,14 @@ text = "Let bal be character array with length 110 ."
 # print('\n'.join(lstDeps))
 
 # lstDeps=getListOfDepFromText(text)
-lstNodes,lstEdges=getGraphDependencyFromText(text,nlp)
-print('{}\n{}'.format(lstNodes,lstEdges))
+dictTotal=getGraphDependencyFromText(text,nlp)
+print('{}'.format(dictTotal))
+
+# nlpdata = '(ROOT (S (NP (PRP He)) (VP (VBD did) (RB n\'t) (VP (VB get) (NP (DT a) (NN reply)))) (. .)))'
+# data = OneOrMore(nestedExpr()).parseString(nlpdata)
+# print(data)
+# # print(type(data[0][1]))
+# print(len(data[0]))
 
 # jsonObj=json.dumps(jsonObject,indent=1)
 # print(jsonObj)
