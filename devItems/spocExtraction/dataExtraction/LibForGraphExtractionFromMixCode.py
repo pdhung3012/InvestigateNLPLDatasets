@@ -56,8 +56,9 @@ def addNodeEdgeForNLPart(dictNL,dictFatherLabel,graph,strId):
     lstChildren=dictNL['children']
     for i in range(0,len(lstChildren)):
         strChildKey=addNodeEdgeForNLPart(lstChildren[i],dictFatherLabel,graph,strId)
-        graph.add_edge(strNewKey,strChildKey,color='red')
-        dictFatherLabel[strChildKey]=strNewKey
+        if strNewKey!=strChildKey:
+            graph.add_edge(strNewKey,strChildKey,color='red')
+            dictFatherLabel[strChildKey]=strNewKey
 
     if 'dependencies' in dictNL.keys():
         lstDeps=dictNL['dependencies']
@@ -65,7 +66,8 @@ def addNodeEdgeForNLPart(dictNL,dictFatherLabel,graph,strId):
             tup=lstDeps[i]
             strSource=strId+'\n'+tup[3]
             strTarget = strId + '\n' + tup[4]
-            graph.add_edge(strSource,strTarget,color='green',label=tup[2])
+            if strSource!=strTarget:
+                graph.add_edge(strSource,strTarget,color='green',label=tup[2])
     return strNewKey
 
 def copyGraphWithinLineIndex(graph,dictFatherLabel,startLineIndex,endLineIndex):
@@ -106,18 +108,26 @@ def copyGraphWithinLineIndex(graph,dictFatherLabel,startLineIndex,endLineIndex):
         # print('dict nodeFather: {}\nlist: {}'.format(dictFatherLabel,lstNodesStr))
         setNodeStr=set(lstNodesStr)
         for node in lstNodesStr:
+            # print(type(node))
             # print(node)
             nodeIter=node
-            while nodeIter in dictFatherLabel and dictFatherLabel[nodeIter] not in setNodeStr:
+            # and (str(dictFatherLabel[nodeIter]) not in setNodeStr
+            indexGo=0
+            while ((nodeIter in dictFatherLabel.keys() )and (not str(dictFatherLabel[nodeIter])in setNodeStr)):
+                indexGo=indexGo+1
                 nodeChild=nodeIter
                 nodeIter=dictFatherLabel[nodeIter]
                 # print('father {} and child {}'.format(nodeIter,nodeChild))
+                # setNodeStr.add(nodeIter)
                 newGraph.add_node(nodeIter,color='blue')
                 newGraph.add_edge(nodeIter,nodeChild,color='blue')
+            # if indexGo>0:
+            # print('{}'.format(dictFatherLabel.keys()))
+            # print('abel {} has {} fathers and a real father {}'.format(node.replace('\n',' ENDLINE '),indexGo,dictFatherLabel[node].replace('\n',' ENDLINE ')))
 
     except:
         isError=True
-
+        traceback.print_exc()
 
     return newGraph
 
@@ -134,18 +144,24 @@ def getDotGraph(dictJson,dictLabel,dictFatherLabel,graph):
     if 'children' in dictJson.keys():
         lstChildren=dictJson['children']
         for i in range(0,len(lstChildren)):
-            strChildLabel=getDotGraph(lstChildren[i],dictFatherLabel,dictLabel,graph)
+            strChildLabel=getDotGraph(lstChildren[i],dictLabel,dictFatherLabel,graph)
             # if strChildLabel!='include_label':
                 # if strChildLabel not in dictLabel.keys():
                 #     graph.add_node(strChildLabel,color='blue')
                 #     dictLabel[strChildLabel] = 1
-            graph.add_edge(strLabel,strChildLabel,color='blue')
-            dictFatherLabel[strChildLabel]=strLabel
+            if strLabel!=strChildLabel:
+                graph.add_edge(strLabel,strChildLabel,color='blue')
+            # if strChildLabel=='33--0--33--3\nprimitive_type':
+            #     print('add father to this label {}'.format(strChildLabel.replace('\n',' ENDLINE ')))
+                dictFatherLabel[strChildLabel]=strLabel
+            # if strChildLabel == '33--0--33--3\nprimitive_type':
+            #     print('get value {}'.format(dictFatherLabel[strChildLabel.replace('\n',' ENDLINE ')]))
     if 'nlGraph' in dictJson.keys():
         dictNL=dictJson['nlGraph']
         strNLID=addNodeEdgeForNLPart(dictNL,dictFatherLabel, graph,strId)
-        graph.add_edge(strLabel, strNLID, color='red')
-        dictFatherLabel[strNLID] = strLabel
+        if strLabel!=strNLID:
+            graph.add_edge(strLabel, strNLID, color='red')
+            dictFatherLabel[strNLID] = strLabel
     return strLabel
 
 def getJsonDict(fpCPP,fpDotGraphAllText,fpDotGraphAllImage,fpDotGraphSimplifyText,fpDotGraphSimplifyImage,parser,nlpObj,offsetContext,isSaveGraph):

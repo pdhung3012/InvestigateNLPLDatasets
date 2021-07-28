@@ -76,7 +76,10 @@ def compileMixCCodeAndSave(fopStep1,fopStep2,fopASTInfo,fopStep4GraphAll,fopStep
     # t = time.time()
     # Parallel(n_jobs=8)(delayed(checkAndGenerateAST)(i,lstCFilesStep1, fopStep2, fopASTInfo,fpLog) for i in range(0,len(lstCFilesStep1)))
     for i in range(0, len(lstCFilesStep1)):
+        # if i!=2:
+        #     continue
         checkAndGenerateAST(i, lstCFilesStep1, fopStep2, fopASTInfo,fopStep4GraphAll,fopStep4GraphSimplify,fpLog,nlpObj,offsetContext,isSaveGraph)
+
         # break
     # print(time.time() - t)
 
@@ -132,7 +135,7 @@ parser.set_language(CPP_LANGUAGE)
 numOmit=30
 offsetContext=3
 compileMixCCodeAndSave(fopStep1TestPMixFiles,fopStep2TestPMixFiles,fopStep3TestPMixFiles,fopStep4GraphAllTestP,fopStep4GraphSimplifyTestP,fpLogTestP,nlpObj,offsetContext,True)
-compileMixCCodeAndSave(fopStep1TestWMixFiles,fopStep2TestWMixFiles,fopStep3TestWMixFiles,fopStep4GraphAllTestW,fopStep4GraphSimplifyTestW,fpLogTestW,nlpObj,offsetContext,True)
-compileMixCCodeAndSave(fopStep1TrainMixFiles,fopStep2TrainMixFiles,fopStep3TrainMixFiles,fopStep4GraphAllTrain,fopStep4GraphSimplifyTrain,fpLogTrain,nlpObj,offsetContext,True)
+# compileMixCCodeAndSave(fopStep1TestWMixFiles,fopStep2TestWMixFiles,fopStep3TestWMixFiles,fopStep4GraphAllTestW,fopStep4GraphSimplifyTestW,fpLogTestW,nlpObj,offsetContext,True)
+# compileMixCCodeAndSave(fopStep1TrainMixFiles,fopStep2TrainMixFiles,fopStep3TrainMixFiles,fopStep4GraphAllTrain,fopStep4GraphSimplifyTrain,fpLogTrain,nlpObj,offsetContext,True)
 
 
