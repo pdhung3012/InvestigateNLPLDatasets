@@ -87,13 +87,13 @@ def compileMixCCodeAndSave(fopStep1,fopStep2,fopASTInfo,fopStep4GraphAll,fopStep
     #     checkAndGenerateAST( i,)
 
 
-fopData='../../../../dataPapers/textInSPOC/'
+fopData='../../../../dataPapers/textInSPOC/mixCode/'
 
-fopMixFiles=fopData+'mix_step1/'
-fopASTFiles=fopData+'mix_step3_treesitter/'
-fopCompiledFiles=fopData+'mix_step2/'
-fopStep4GraphAll=fopData+'mix_step4_graphAll/'
-fopStep4GraphSimplify=fopData+'mix_step4_graphSimplify/'
+fopMixFiles=fopData+'step1/'
+fopASTFiles=fopData+'step3_treesitter/'
+fopCompiledFiles=fopData+'step2/'
+fopStep4GraphAll=fopData+'step4_graphAll/'
+fopStep4GraphSimplify=fopData+'step4_graphSimplify/'
 fopStep1TrainMixFiles=fopMixFiles+'train/'
 fopStep1TestPMixFiles=fopMixFiles+'testP/'
 fopStep1TestWMixFiles=fopMixFiles+'testW/'
@@ -134,8 +134,8 @@ parser.set_language(CPP_LANGUAGE)
 
 numOmit=30
 offsetContext=3
-compileMixCCodeAndSave(fopStep1TestPMixFiles,fopStep2TestPMixFiles,fopStep3TestPMixFiles,fopStep4GraphAllTestP,fopStep4GraphSimplifyTestP,fpLogTestP,nlpObj,offsetContext,True)
-# compileMixCCodeAndSave(fopStep1TestWMixFiles,fopStep2TestWMixFiles,fopStep3TestWMixFiles,fopStep4GraphAllTestW,fopStep4GraphSimplifyTestW,fpLogTestW,nlpObj,offsetContext,True)
-# compileMixCCodeAndSave(fopStep1TrainMixFiles,fopStep2TrainMixFiles,fopStep3TrainMixFiles,fopStep4GraphAllTrain,fopStep4GraphSimplifyTrain,fpLogTrain,nlpObj,offsetContext,True)
+compileMixCCodeAndSave(fopStep1TestPMixFiles,fopStep2TestPMixFiles,fopStep3TestPMixFiles,fopStep4GraphAllTestP,fopStep4GraphSimplifyTestP,fpLogTestP,nlpObj,offsetContext,False)
+compileMixCCodeAndSave(fopStep1TestWMixFiles,fopStep2TestWMixFiles,fopStep3TestWMixFiles,fopStep4GraphAllTestW,fopStep4GraphSimplifyTestW,fpLogTestW,nlpObj,offsetContext,False)
+compileMixCCodeAndSave(fopStep1TrainMixFiles,fopStep2TrainMixFiles,fopStep3TrainMixFiles,fopStep4GraphAllTrain,fopStep4GraphSimplifyTrain,fpLogTrain,nlpObj,offsetContext,False)
 
 
