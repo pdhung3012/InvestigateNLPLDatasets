@@ -66,14 +66,14 @@ def generateLabelsForMixCodeFromCorrectCode(fopMixCodeStep2,fopCorrectCodeCPP,fo
             jsonOfCorrectVersion=ast.literal_eval(strJSonCorrect)
             strType, strOffset, isFound=lookUpJSonObjectWithLine(jsonOfCorrectVersion,indexComment)
             if isFound:
-                strAppend='{}\t{}\t{}\n'.format(nameOfMixVersion,strType,strOffset)
+                strAppend='{}\t{}\t{}\t{}\n'.format(nameOfMixVersion,(indexComment+1),strType,strOffset)
                 f1=open(fpLabel,'a')
                 f1.write(strAppend)
                 f1.close()
 
         except:
             traceback.print_exc()
-            strAppend = '{}\t{}\t{}\n'.format(nameOfMixVersion, 'UNK', 'UNK')
+            strAppend = '{}\t{}\t{}\t{}\n'.format(nameOfMixVersion,(indexComment+1), 'UNK', 'UNK')
             f1 = open(fpLabel, 'a')
             f1.write(strAppend)
             f1.close()

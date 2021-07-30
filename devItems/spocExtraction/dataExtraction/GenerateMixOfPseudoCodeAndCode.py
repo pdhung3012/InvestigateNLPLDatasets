@@ -53,9 +53,10 @@ def generateMixFiles(fopPseudoCode,fopCodeFile,fopOutputMix):
         arrPseudoLines = f1.read().strip().split('\n')
         f1.close()
 
-        lstIndexes=getMostComplicatedPseudocode(arrPseudoLines,arrCodeLines,distanceHeader,4)
+        # lstIndexes=getMostComplicatedPseudocode(arrPseudoLines,arrCodeLines,distanceHeader,4)
     #     replace pseudocode to code
-        for indPseudoCode in range(0,len(lstIndexes)):
+    #     for indPseudoCode in range(0,len(lstIndexes)):
+        for indPseudoCode in range(0,len(arrPseudoLines)):
             if not checkComplicatedPseudoCodeAndCode(arrPseudoLines[indPseudoCode].strip(),arrCodeLines[indPseudoCode+distanceHeader].strip()) :
                 continue
             lstStrCodeCombine=[]
@@ -82,7 +83,8 @@ fopTrainPseudocode=fopData+'trainSPOCPlain/'
 fopTestPPseudocode=fopData+'testPSPOCPlain/'
 fopTestWPseudocode=fopData+'testWSPOCPlain/'
 
-fopMixFiles=fopData+'mix_step1/'
+fopMixFiles=fopData+'mixCode/step1/'
+createDirIfNotExist(fopMixFiles)
 fopOutputTrainMixFiles=fopMixFiles+'train/'
 fopOutputTestPMixFiles=fopMixFiles+'testP/'
 fopOutputTestWMixFiles=fopMixFiles+'testW/'
