@@ -87,8 +87,8 @@ def generateLabelsForMixCodeFromCorrectCode(fopMixCodeStep2,fopCorrectCodeCPP,fo
 fopRoot='../../../../dataPapers/textInSPOC/'
 fopRootCorrectCodeJson=fopRoot+'correctCodeJson/step3_treesitter/'
 fopRootCorrectCodeCPP=fopRoot+'correctCodeJson/step2/'
-fopRootMixCodeStep2=fopRoot+'mixCodeJson/step2/'
-fopRootMixCodeStep5=fopRoot+'mixCodeJson/step5/'
+fopRootMixCodeStep2=fopRoot+'mixCode/step2/'
+fopRootMixCodeStep5=fopRoot+'mixCode/step5/'
 createDirIfNotExist(fopRootMixCodeStep5)
 fopRootCPPCode=fopRoot+'CppCode/'
 lstFolderNames=['testW','testP','train']
