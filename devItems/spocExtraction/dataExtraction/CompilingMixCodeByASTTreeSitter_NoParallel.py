@@ -87,7 +87,7 @@ def compileMixCCodeAndSave(fopStep1,fopStep2,fopASTInfo,fopStep4GraphAll,fopStep
     #     checkAndGenerateAST( i,)
 
 
-fopData='../../../../dataPapers/textInSPOC/mixCode/'
+fopData='../../../../dataPapers/textInSPOC/mixCode_v2/'
 
 fopMixFiles=fopData+'step1/'
 fopASTFiles=fopData+'step3_treesitter/'
