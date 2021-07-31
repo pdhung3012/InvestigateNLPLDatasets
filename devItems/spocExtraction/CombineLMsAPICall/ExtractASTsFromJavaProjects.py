@@ -76,9 +76,9 @@ def walkJavaTreeAndReturnJSonObject(node,arrCodes,listId):
 
             arrChildEnd = str(listChildren[i].end_point).split(',')
             endChildLine = int(arrChildEnd[0].replace('(', ''))
-            if endChildLine>=33:
-                childNode = walkJavaTreeAndReturnJSonObject(listChildren[i], arrCodes, listId)
-                dictJson['children'].append(childNode)
+            # if endChildLine>=33:
+            childNode = walkJavaTreeAndReturnJSonObject(listChildren[i], arrCodes, listId)
+            dictJson['children'].append(childNode)
     elif len(dictJson['type'])>3:
         dictJson['children'] = []
         strTerminal = getTerminalValue(startLine, startOffset, endLine, endOffset, arrCodes)
