@@ -76,7 +76,7 @@ def statisticComment(fopInputJson,fopComment,fpLogComment):
                     lstStrComments=[]
                     for item in lstComments:
                         # print('comment {}'.format(item))
-                        lstStrComments.append('{}\t{}'.format(item[0],item[1].replace('\n',' ENDLINE ')))
+                        lstStrComments.append('{}\t{}'.format(item[0],item[1].replace('\t',' TABCHAR ').replace('\n',' ENDLINE ')))
                     f1=open(fpItemLogComment,'w')
                     f1.write('\n'.join(lstStrComments))
                     f1.close()
