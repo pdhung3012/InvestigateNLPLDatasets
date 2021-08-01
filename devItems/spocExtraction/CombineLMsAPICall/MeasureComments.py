@@ -46,7 +46,7 @@ def statisticComment(fopInputJson,fopComment,fpLogComment,fopImport):
     createDirIfNotExist(fopInputJson)
     createDirIfNotExist(fopComment)
     createDirIfNotExist(fopImport)
-    lstProjectNames = glob.glob(fopInputJson + '*/')
+    lstProjectNames = sorted(glob.glob(fopInputJson + '*/'))
 
     f1 = open(fpLogComment, 'w')
     f1.write('')
@@ -54,10 +54,12 @@ def statisticComment(fopInputJson,fopComment,fpLogComment,fopImport):
 
     for i in range(0, len(lstProjectNames)):
         try:
+            # if(i<=70):
+            #     continue
             fopProjectItem = lstProjectNames[i]
             arrFopItem = fopProjectItem.split('/')
             projectFolderName = arrFopItem[len(arrFopItem) - 2]
-            lstFpASTInfos=glob.glob(fopProjectItem+'*.txt')
+            lstFpASTInfos=sorted(glob.glob(fopProjectItem+'*.txt'))
             fpDictFileJavaLocation =fopInputJson+projectFolderName+'.txt'
             dictKeyAndJavaFiles={}
             f1=open(fpDictFileJavaLocation,'r')
@@ -70,11 +72,21 @@ def statisticComment(fopInputJson,fopComment,fpLogComment,fopImport):
                     dictKeyAndJavaFiles[arrItem[0]]=arrItem[1]
             numRunOK = 0
             print('begin {} {} {}'.format(i,projectFolderName,len(lstFpASTInfos)))
+            # if i==70:
+            #     break
+            # amutu__tdw
             dictKeyAndImport={}
             createDirIfNotExist(fopComment+projectFolderName+'/')
             for j in range(0,len(lstFpASTInfos)):
                 try:
+
                     fpItemASTInfo = lstFpASTInfos[j]
+
+                    # if i==71:
+                    #     print('work for file {}'.format(fpItemASTInfo))
+                    byteCount = os.path.getsize(fpItemASTInfo)
+                    if byteCount>1000000:
+                        continue
                     itemNameAST = os.path.basename(fpItemASTInfo).replace('_ast.txt', '_comment.txt')
                     strKeyAST = os.path.basename(fpItemASTInfo).replace('_ast.txt', '')
                     fpItemLogComment=fopComment+projectFolderName+'/'+itemNameAST
@@ -116,11 +128,14 @@ def statisticComment(fopInputJson,fopComment,fpLogComment,fopImport):
 
 
 fopDataPapers='../../../../dataPapers/'
+fopRootExternalDrive='/home/hungphd/media/dataPapersExternal/'
+createDirIfNotExist(fopRootExternalDrive)
 fopAlonCorpus=fopDataPapers+'java-large/'
 fopDataAPICalls=fopDataPapers+'apiCallPapers/'
+fopDataAPICallsExternal=fopRootExternalDrive+'apiCallPapers/'
 fopJsonData=fopDataAPICalls+'AlonJsonData/'
-fopCommentExtraction=fopDataAPICalls+'AlonCommentExtraction/'
-fopImpportExtraction=fopDataAPICalls+'AlonImportExtraction/'
+fopCommentExtraction=fopDataAPICallsExternal+'AlonCommentExtraction/'
+fopImpportExtraction=fopDataAPICallsExternal+'AlonImportExtraction/'
 createDirIfNotExist(fopJsonData)
 createDirIfNotExist(fopCommentExtraction)
 
