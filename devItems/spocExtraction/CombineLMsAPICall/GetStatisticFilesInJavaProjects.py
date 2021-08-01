@@ -12,19 +12,31 @@ import pylab,traceback
 from pyparsing import OneOrMore, nestedExpr
 from ExtractASTsFromJavaProjects import getJsonDict
 
-def logFileLocationForEachJavaProjects(fopItemAlonCorpus,fopItemJsonData,fpLogTotalProject,parser):
+def logFileLocationForEachJavaProjects(fopItemAlonCorpus,fopItemJsonData,fpLogTotalProject,parser,isCollectFromStart):
     createDirIfNotExist(fopItemAlonCorpus)
     createDirIfNotExist(fopItemJsonData)
     lstProjectNames=glob.glob(fopItemAlonCorpus+'*/')
     dictFilesPerProject={}
-    f1=open(fpLogTotalProject,'w')
-    f1.write('')
-    f1.close()
+    dictAlreadyDownloadProject={}
+    if isCollectFromStart:
+        f1=open(fpLogTotalProject,'w')
+        f1.write('')
+        f1.close()
+    else:
+        f1 = open(fpLogTotalProject, 'r')
+        arrAlready=f1.read().strip().split('\n')
+        f1.close()
+        for item in arrAlready:
+            arrTabs=item.split('\t')
+            if len(arrTabs)>=4 and int(arrTabs[1])>0:
+                dictAlreadyDownloadProject[arrTabs[0]]=1
     for i in range(0,len(lstProjectNames)):
         try:
             fopProjectItem=lstProjectNames[i]
             arrFopItem=fopProjectItem.split('/')
             projectFolderName=arrFopItem[len(arrFopItem)-2]
+            if projectFolderName in dictAlreadyDownloadProject.keys():
+                continue
             # print('folder name {}'.format(projectFolderName))
             fpItemDataAPICalls=fopItemJsonData+projectFolderName+'.txt'
             lstJavaFiles=glob.glob(fopProjectItem+'/**/*.java',recursive=True)
@@ -90,6 +102,7 @@ lstFolderNames=['training','test','validation']
 JAVA_LANGUAGE = Language(fpLanguageSo, 'java')
 parser = Parser()
 parser.set_language(JAVA_LANGUAGE)
+isCollectFromStart=False
 
 
 for i in range(0,len(lstFolderNames)):
@@ -101,7 +114,7 @@ for i in range(0,len(lstFolderNames)):
 
 for i in range(0,len(lstFolderNames)):
     logFileLocationForEachJavaProjects(lstFopAlonCorpus[i], lstFopJsonData[i],
-                                        lstFpLogAPICalls[i], parser)
+                                        lstFpLogAPICalls[i], parser,isCollectFromStart)
 
 
 
