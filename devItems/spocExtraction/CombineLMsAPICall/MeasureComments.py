@@ -14,7 +14,7 @@ import glob
 import ast
 from ExtractASTsFromJavaProjects import getTerminalValue,getPrefixId
 
-def lookUpCommentsInJsonObject(dictJson,lstComments,arrCodes):
+def lookUpCommentsInJsonObject(dictJson,lstComments,dictImports,arrCodes):
     if dictJson['type']=='comment':
         startLine=dictJson['startLine']
         startOffset=dictJson['startOffset']
@@ -23,21 +23,33 @@ def lookUpCommentsInJsonObject(dictJson,lstComments,arrCodes):
         strTerminal = getTerminalValue(startLine, startOffset, endLine, endOffset, arrCodes)
         tup=(getPrefixId(startLine,startOffset,endLine,endOffset),strTerminal)
         lstComments.append(tup)
+    elif dictJson['type']=='import_declaration':
+        startLine=dictJson['startLine']
+        startOffset=dictJson['startOffset']
+        endLine=dictJson['endLine']
+        endOffset=dictJson['endOffset']
+        strTerminal = getTerminalValue(startLine, startOffset, endLine, endOffset, arrCodes)
+        strImport=strTerminal.replace('import','').replace(';','').strip().replace('.','_DOT_').replace('*','_STAR_')
+        # tup=(getPrefixId(startLine,startOffset,endLine,endOffset),strTerminal)
+        # lstComments.append(tup)
+        if strImport not in dictJson.keys():
+            dictImports[strImport]=1
+        else:
+            dictImports[strImport]=dictImports[strImport]+1
     elif 'children' in dictJson.keys():
         lstChildren=dictJson['children']
         for child in lstChildren:
-            lookUpCommentsInJsonObject(child,lstComments,arrCodes)
+            lookUpCommentsInJsonObject(child,lstComments,dictImports,arrCodes)
 
-def statisticComment(fopInputJson,fopComment,fpLogComment):
+def statisticComment(fopInputJson,fopComment,fpLogComment,fopImport):
     createDirIfNotExist(fopInputJson)
     createDirIfNotExist(fopComment)
+    createDirIfNotExist(fopImport)
     lstProjectNames = glob.glob(fopInputJson + '*/')
 
     f1 = open(fpLogComment, 'w')
     f1.write('')
     f1.close()
-
-
 
     for i in range(0, len(lstProjectNames)):
         try:
@@ -56,7 +68,8 @@ def statisticComment(fopInputJson,fopComment,fpLogComment):
                 if (len(arrItem)>=2):
                     dictKeyAndJavaFiles[arrItem[0]]=arrItem[1]
             numRunOK = 0
-            print('begin {} {}'.format(i,projectFolderName))
+            print('begin {} {} {}'.format(i,projectFolderName,len(lstFpASTInfos)))
+            dictKeyAndImport={}
             for j in range(0,len(lstFpASTInfos)):
                 try:
                     fpItemASTInfo = lstFpASTInfos[j]
@@ -72,7 +85,7 @@ def statisticComment(fopInputJson,fopComment,fpLogComment):
                     f1.close()
                     jsonObject = ast.literal_eval(strJson)
                     lstComments =[]
-                    lookUpCommentsInJsonObject(jsonObject,lstComments,arrCodes)
+                    lookUpCommentsInJsonObject(jsonObject,lstComments,dictKeyAndImport,arrCodes)
                     lstStrComments=[]
                     for item in lstComments:
                         # print('comment {}'.format(item))
@@ -83,35 +96,48 @@ def statisticComment(fopInputJson,fopComment,fpLogComment):
                     numRunOK=numRunOK+len(lstComments)
                 except:
                     traceback.print_exc()
+            for keyImport in dictKeyAndImport.keys():
+                fpItemImport = fopImport + keyImport+'.txt'
+                if not os.path.exists(fpItemImport):
+                    f1=open(fpItemImport,'w')
+                    f1.write('{}\t{}\n'.format(projectFolderName,dictKeyAndImport[keyImport]))
+                    f1.close()
+                else:
+                    f1 = open(fpItemImport, 'a')
+                    f1.write('{}\t{}\n'.format(projectFolderName, dictKeyAndImport[keyImport]))
+                    f1.close()
             f1 = open(fpLogComment, 'a')
             f1.write('{}\t{}\t{}\n'.format(projectFolderName,numRunOK,len(lstFpASTInfos)))
             f1.close()
-            print('end {} {}'.format(i, projectFolderName))
+            print('end {} {} {}'.format(i, projectFolderName,len(lstFpASTInfos)))
         except:
             traceback.print_exc()
 
 
 fopDataPapers='../../../../dataPapers/'
 fopAlonCorpus=fopDataPapers+'java-large/'
-fopDataAPICalls=fopDataPapers+'apiCallPapers_v2/'
+fopDataAPICalls=fopDataPapers+'apiCallPapers/'
 fopJsonData=fopDataAPICalls+'AlonJsonData/'
 fopCommentExtraction=fopDataAPICalls+'AlonCommentExtraction/'
+fopImpportExtraction=fopDataAPICalls+'AlonImportExtraction/'
 createDirIfNotExist(fopJsonData)
 createDirIfNotExist(fopCommentExtraction)
 
 lstFopJsonData=[]
 lstFopComment=[]
 lstFpLogComment=[]
+lstFopImport=[]
 lstFolderNames=['training','validation','test']
 
 for i in range(0,len(lstFolderNames)):
     folderName=lstFolderNames[i]
     lstFopComment.append(fopCommentExtraction+folderName+'/')
     lstFpLogComment.append(fopCommentExtraction+'log_'+folderName+'.txt')
+    lstFopImport.append(fopImpportExtraction+folderName+'/')
     lstFopJsonData.append(fopJsonData+folderName+'/')
 
 for i in range(0,len(lstFolderNames)):
-    statisticComment(lstFopJsonData[i], lstFopComment[i], lstFpLogComment[i])
+    statisticComment(lstFopJsonData[i], lstFopComment[i], lstFpLogComment[i],lstFopImport[i])
 
 
 

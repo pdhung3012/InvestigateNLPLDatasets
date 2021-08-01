@@ -18,7 +18,7 @@ def logFileLocationForEachJavaProjects(fopItemAlonCorpus,fopItemJsonData,fpLogTo
     lstProjectNames=glob.glob(fopItemAlonCorpus+'*/')
     dictFilesPerProject={}
     dictAlreadyDownloadProject={}
-    if isCollectFromStart:
+    if isCollectFromStart or not(os.path.exists(fpLogTotalProject)):
         f1=open(fpLogTotalProject,'w')
         f1.write('')
         f1.close()
@@ -112,7 +112,7 @@ for i in range(0,len(lstFolderNames)):
     lstFpLogAPICalls.append(fopDataAPICalls+'log_projects_'+folderName+'.txt')
     # lstFopFilesPerProjectData.append(fopFilesPerProjectData+folderName+'/')
 
-for i in range(0,len(lstFolderNames)):
+for i in range(1,len(lstFolderNames)):
     logFileLocationForEachJavaProjects(lstFopAlonCorpus[i], lstFopJsonData[i],
                                         lstFpLogAPICalls[i], parser,isCollectFromStart)
 
