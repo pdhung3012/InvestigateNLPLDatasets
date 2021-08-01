@@ -29,7 +29,7 @@ def lookUpCommentsInJsonObject(dictJson,lstComments,dictImports,arrCodes):
         endLine=dictJson['endLine']
         endOffset=dictJson['endOffset']
         strTerminal = getTerminalValue(startLine, startOffset, endLine, endOffset, arrCodes)
-        strImport=strTerminal.replace('import','').replace(';','').strip().replace('.','_DOT_').replace('*','_STAR_')
+        strImport=strTerminal.replace('import','').replace(';','').strip().replace('*','_STAR_')
         # tup=(getPrefixId(startLine,startOffset,endLine,endOffset),strTerminal)
         # lstComments.append(tup)
         if strImport not in dictJson.keys():
