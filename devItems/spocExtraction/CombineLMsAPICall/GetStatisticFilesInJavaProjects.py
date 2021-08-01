@@ -41,23 +41,28 @@ def logFileLocationForEachJavaProjects(fopItemAlonCorpus,fopItemJsonData,fpLogTo
             f1=open(fpItemDataAPICalls,'w')
             f1.write('\n'.join(lstWriteToFiles))
             f1.close()
-            f1 = open(fpLogTotalProject, 'a')
-            f1.write('{}\t{}\n'.format(projectFolderName,dictFilesPerProject[projectFolderName]))
-            f1.close()
+
 
             print('{} Prepare get ast project {} with {} files'.format((i+1),fopProjectItem,len(lstJavaFiles)))
             fopASTItemFather=fopItemJsonData+projectFolderName+'/'
             createDirIfNotExist(fopASTItemFather)
+            numProjectRunOK=0
             for key in dictJavaFiles.keys():
-                fpItemJavaFiles=dictJavaFiles[key]
-                jsonObject=getJsonDict(fpItemJavaFiles,parser)
-                if(str(jsonObject)!='None'):
-                    fpJson=fopASTItemFather+str(key)+'_ast.txt'
-                    f1=open(fpJson,'w')
-                    f1.write(str(jsonObject))
-                    f1.close()
+                try:
+                    fpItemJavaFiles = dictJavaFiles[key]
+                    jsonObject = getJsonDict(fpItemJavaFiles, parser)
+                    if (jsonObject is not None):
+                        fpJson = fopASTItemFather + str(key) + '_ast.txt'
+                        f1 = open(fpJson, 'w')
+                        f1.write(str(jsonObject))
+                        f1.close()
+                        numProjectRunOK=numProjectRunOK+1
+                except:
+                    traceback.print_exc()
             print('{} End get ast project {} with {} files'.format((i+1),fopProjectItem, len(lstJavaFiles)))
-
+            f1 = open(fpLogTotalProject, 'a')
+            f1.write('{}\t{}\t{}\t{}\n'.format(projectFolderName,numProjectRunOK,len(dictJavaFiles.keys()),dictFilesPerProject[projectFolderName]))
+            f1.close()
         except:
             traceback.print_exc()
 
