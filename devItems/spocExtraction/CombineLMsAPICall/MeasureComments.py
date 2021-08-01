@@ -32,10 +32,11 @@ def lookUpCommentsInJsonObject(dictJson,lstComments,dictImports,arrCodes):
         strImport=strTerminal.replace('import','').replace(';','').strip().replace('*','_STAR_')
         # tup=(getPrefixId(startLine,startOffset,endLine,endOffset),strTerminal)
         # lstComments.append(tup)
-        if strImport not in dictJson.keys():
-            dictImports[strImport]=1
+        if strImport not in dictImports.keys():
+            dictImports[strImport] = 1
         else:
-            dictImports[strImport]=dictImports[strImport]+1
+            dictImports[strImport] = dictImports[strImport]+1
+            # print('go here')
     elif 'children' in dictJson.keys():
         lstChildren=dictJson['children']
         for child in lstChildren:
@@ -70,12 +71,13 @@ def statisticComment(fopInputJson,fopComment,fpLogComment,fopImport):
             numRunOK = 0
             print('begin {} {} {}'.format(i,projectFolderName,len(lstFpASTInfos)))
             dictKeyAndImport={}
+            createDirIfNotExist(fopComment+projectFolderName+'/')
             for j in range(0,len(lstFpASTInfos)):
                 try:
                     fpItemASTInfo = lstFpASTInfos[j]
                     itemNameAST = os.path.basename(fpItemASTInfo).replace('_ast.txt', '_comment.txt')
                     strKeyAST = os.path.basename(fpItemASTInfo).replace('_ast.txt', '')
-                    fpItemLogComment=fopComment+itemNameAST
+                    fpItemLogComment=fopComment+projectFolderName+'/'+itemNameAST
                     fpJavaFile=dictKeyAndJavaFiles[strKeyAST]
                     f1=open(fpJavaFile,'r')
                     arrCodes=f1.read().strip().split('\n')
@@ -96,16 +98,15 @@ def statisticComment(fopInputJson,fopComment,fpLogComment,fopImport):
                     numRunOK=numRunOK+len(lstComments)
                 except:
                     traceback.print_exc()
+            fpProjectLogImport=fopImport+projectFolderName+'.txt'
+            lstStrImport=[]
+            dictKeyAndImport=dict(sorted(dictKeyAndImport.items(), key=lambda item: item[1],reverse=True))
             for keyImport in dictKeyAndImport.keys():
                 fpItemImport = fopImport + keyImport+'.txt'
-                if not os.path.exists(fpItemImport):
-                    f1=open(fpItemImport,'w')
-                    f1.write('{}\t{}\n'.format(projectFolderName,dictKeyAndImport[keyImport]))
-                    f1.close()
-                else:
-                    f1 = open(fpItemImport, 'a')
-                    f1.write('{}\t{}\n'.format(projectFolderName, dictKeyAndImport[keyImport]))
-                    f1.close()
+                lstStrImport.append('{}\t{}'.format(keyImport, dictKeyAndImport[keyImport]))
+            f1=open(fpProjectLogImport,'w')
+            f1.write('\n'.join(lstStrImport))
+            f1.close()
             f1 = open(fpLogComment, 'a')
             f1.write('{}\t{}\t{}\n'.format(projectFolderName,numRunOK,len(lstFpASTInfos)))
             f1.close()
