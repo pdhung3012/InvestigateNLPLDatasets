@@ -21,14 +21,12 @@ def lookUpCommentsInJsonObject(dictJson,lstComments,arrCodes):
         endLine=dictJson['endLine']
         endOffset=dictJson['endOffset']
         strTerminal = getTerminalValue(startLine, startOffset, endLine, endOffset, arrCodes)
-        tup=(getPrefixId(startLine,startOffset,endLine,endOffset))
+        tup=(getPrefixId(startLine,startOffset,endLine,endOffset),strTerminal)
         lstComments.append(tup)
     elif 'children' in dictJson.keys():
         lstChildren=dictJson['children']
         for child in lstChildren:
-            lookUpCommentsInJsonObject(child,lstComments,lstComments,arrCodes)
-
-    return 'NONE','NONE',False
+            lookUpCommentsInJsonObject(child,lstComments,arrCodes)
 
 def statisticComment(fopInputJson,fopComment,fpLogComment):
     createDirIfNotExist(fopInputJson)
@@ -58,6 +56,7 @@ def statisticComment(fopInputJson,fopComment,fpLogComment):
                 if (len(arrItem)>=2):
                     dictKeyAndJavaFiles[arrItem[0]]=arrItem[1]
             numRunOK = 0
+            print('begin {} {}'.format(i,projectFolderName))
             for j in range(0,len(lstFpASTInfos)):
                 try:
                     fpItemASTInfo = lstFpASTInfos[j]
@@ -68,12 +67,16 @@ def statisticComment(fopInputJson,fopComment,fpLogComment):
                     f1=open(fpJavaFile,'r')
                     arrCodes=f1.read().strip().split('\n')
                     f1.close()
-                    jsonObject = ast.literal_eval(fpItemASTInfo)
+                    f1=open(fpItemASTInfo,'r')
+                    strJson=f1.read().strip()
+                    f1.close()
+                    jsonObject = ast.literal_eval(strJson)
                     lstComments =[]
                     lookUpCommentsInJsonObject(jsonObject,lstComments,arrCodes)
                     lstStrComments=[]
                     for item in lstComments:
-                        lstStrComments.append('{}\t{}'.format(item[0].item[1].replace('\n',' ENDLINE ')))
+                        # print('comment {}'.format(item))
+                        lstStrComments.append('{}\t{}'.format(item[0],item[1].replace('\n',' ENDLINE ')))
                     f1=open(fpItemLogComment,'w')
                     f1.write('\n'.join(lstStrComments))
                     f1.close()
@@ -83,6 +86,7 @@ def statisticComment(fopInputJson,fopComment,fpLogComment):
             f1 = open(fpLogComment, 'a')
             f1.write('{}\t{}\t{}\n'.format(projectFolderName,numRunOK,len(lstFpASTInfos)))
             f1.close()
+            print('end {} {}'.format(i, projectFolderName))
         except:
             traceback.print_exc()
 
@@ -106,6 +110,8 @@ for i in range(0,len(lstFolderNames)):
     lstFpLogComment.append(fopCommentExtraction+'log_'+folderName+'.txt')
     lstFopJsonData.append(fopJsonData+folderName+'/')
 
+for i in range(0,len(lstFolderNames)):
+    statisticComment(lstFopJsonData[i], lstFopComment[i], lstFpLogComment[i])
 
 
 
