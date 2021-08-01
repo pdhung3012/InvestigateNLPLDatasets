@@ -234,45 +234,45 @@ fpDotGraphImg=fopGithub+'dataPapers/temp_java.png'
 fpSimpleDotGraphText=fopGithub+'dataPapers/temp_java_simplify.dot'
 fpSimpleDotGraphImg=fopGithub+'dataPapers/temp_java_simplify.png'
 
-JAVA_LANGUAGE = Language(fpLanguageSo, 'java')
-fpTempCPPFile=fopGithub+'dataPapers/ScaledOut.java'
-parser = Parser()
-parser.set_language(JAVA_LANGUAGE)
+# JAVA_LANGUAGE = Language(fpLanguageSo, 'java')
+# fpTempCPPFile=fopGithub+'dataPapers/ScaledOut.java'
+# parser = Parser()
+# parser.set_language(JAVA_LANGUAGE)
+# #
+# f1=open(fpTempCPPFile,'r')
+# strCode=f1.read()
+# arrCodes=strCode.split('\n')
+# f1.close()
+# #
+# tree= parser.parse(bytes(strCode,'utf8'))
+# cursor = tree.walk()
+# node=cursor.node
+# print(type(tree))
+# print(str(node))
+# print(str(len(node.children)))
+# # for property, value in vars(cursor).items():
+# #     print(property, ":", value)
+# # print(vars(tree))
+# lstId=[]
+# dictJson=walkJavaTreeAndReturnJSonObject(node,arrCodes,lstId)
+# print(str(dictJson))
 #
-f1=open(fpTempCPPFile,'r')
-strCode=f1.read()
-arrCodes=strCode.split('\n')
-f1.close()
+# ind=1
+# graph=pgv.AGraph(directed=True)
+# dictLabel={}
+# dictFatherLabel={}
+# getDotGraph(dictJson,dictLabel,dictFatherLabel,graph)
+# graph.write(fpDotGraphText)
+# graph.layout(prog='dot')
+# graph.draw(fpDotGraphImg)
 #
-tree= parser.parse(bytes(strCode,'utf8'))
-cursor = tree.walk()
-node=cursor.node
-print(type(tree))
-print(str(node))
-print(str(len(node.children)))
-# for property, value in vars(cursor).items():
-#     print(property, ":", value)
-# print(vars(tree))
-lstId=[]
-dictJson=walkJavaTreeAndReturnJSonObject(node,arrCodes,lstId)
-print(str(dictJson))
-
-ind=1
-graph=pgv.AGraph(directed=True)
-dictLabel={}
-dictFatherLabel={}
-getDotGraph(dictJson,dictLabel,dictFatherLabel,graph)
-graph.write(fpDotGraphText)
-graph.layout(prog='dot')
-graph.draw(fpDotGraphImg)
-
-offsetLine=3
-commentIndexLine=49
-startLine=commentIndexLine-offsetLine
-endLine=commentIndexLine+offsetLine
-simpleGraph=copyGraphWithinLineIndex(graph,dictFatherLabel,startLine,endLine)
-simpleGraph.write(fpSimpleDotGraphText)
-simpleGraph.layout(prog='dot')
-simpleGraph.draw(fpSimpleDotGraphImg)
+# offsetLine=3
+# commentIndexLine=49
+# startLine=commentIndexLine-offsetLine
+# endLine=commentIndexLine+offsetLine
+# simpleGraph=copyGraphWithinLineIndex(graph,dictFatherLabel,startLine,endLine)
+# simpleGraph.write(fpSimpleDotGraphText)
+# simpleGraph.layout(prog='dot')
+# simpleGraph.draw(fpSimpleDotGraphImg)
 
 

@@ -28,7 +28,7 @@ def logFileLocationForEachJavaProjects(fopItemAlonCorpus,fopItemJsonData,fpLogTo
         f1.close()
         for item in arrAlready:
             arrTabs=item.split('\t')
-            if len(arrTabs)>=4 and int(arrTabs[1])>0:
+            if len(arrTabs)>=4:
                 dictAlreadyDownloadProject[arrTabs[0]]=1
     for i in range(0,len(lstProjectNames)):
         try:
