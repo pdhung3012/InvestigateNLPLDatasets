@@ -25,7 +25,7 @@ def getJsonData(fopInput,fopOutput):
             fpExtractex=fpJsonlGz.replace('.gz','')
             try:
                 partName=os.path.basename(fpJsonlGz)
-                nameWithoutExtension=partName.replace('jsonl.gz','')
+                nameWithoutExtension=partName.replace('.jsonl.gz','')
                 # fopItemPath=fopOutput+partName+'/'
                 # createDirIfNotExist(fopItemPath)
                 with gzip.open(fpJsonlGz, "r") as f:
@@ -87,7 +87,7 @@ def getJsonData(fopInput,fopOutput):
             f1=open(fpRepoDict,'w')
             f1.write('\n'.join(lstProjectNameAndSHA))
             f1.close()
-            print('end len json {}'.format(len(arrJsons)))
+            print('end len json {} total repos {}'.format(len(arrJsons),len(lstProjectNameAndSHA)))
     except:
         traceback.print_exc()
 
