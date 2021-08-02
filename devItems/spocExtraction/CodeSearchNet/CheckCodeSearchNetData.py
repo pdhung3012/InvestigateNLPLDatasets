@@ -16,6 +16,7 @@ import ast
 
 def getJsonData(fopInput,fopOutput):
     try:
+        createDirIfNotExist(fopOutput)
         lstFopJsonGz=sorted(glob.glob(fopInput+'*.jsonl.gz'))
         print('len {}'.format(len(lstFopJsonGz)))
         lstProjectNameAndSHA=[]
