@@ -46,7 +46,7 @@ def generateScript(fpDictRepo, fopMetadata,fopCommitMessage,fopRepoExtract,fopRe
                     strAuthor=arrItem[0].split('/')[0]
                     strRepo = arrItem[0].split('/')[1]
                     strSHA=arrItem[1]
-                    strZipDownload='https://github.com/{}/{}/tree/{}'.format(strAuthor,strRepo,strSHA)
+                    strZipDownload='https://github.com/{}/{}/archive/{}.zip'.format(strAuthor,strRepo,strSHA)
                     fopZipLocation=fopRepoZip+strAuthor+'/'+strRepo+'/'
                     createDirIfNotExist(fopZipLocation)
                     fpZipLocation=fopZipLocation+strSHA+'.zip'
@@ -109,6 +109,15 @@ lstFopGitMessage=[]
 lstFopGitRepoExtract=[]
 lstFopGitRepoZip=[]
 
+f1=open(fpTotalBashCommit,'w')
+f1.write('')
+f1.close()
+f1=open(fpTotalBashDownload,'w')
+f1.write('')
+f1.close()
+f1=open(fpTotalBashExtract,'w')
+f1.write('')
+f1.close()
 
 for i in range(0,len(lstLanguages)):
     for j in range(0,len(lstFolderNames)):
