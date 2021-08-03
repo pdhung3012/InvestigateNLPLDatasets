@@ -50,9 +50,11 @@ def generateScript(fpDictRepo, fopMetadata,fopCommitMessage,fopRepoExtract,fopRe
                     fopZipLocation=fopRepoZip+strAuthor+'/'+strRepo+'/'
                     createDirIfNotExist(fopZipLocation)
                     fpZipLocation=fopZipLocation+strSHA+'.zip'
+                    fopLocationToExtract=fopRepoExtract+strAuthor+'/'+strRepo+'/'
+                    createDirIfNotExist(fopLocationToExtract)
                     commandDownload='wget {} -O {}'.format(strZipDownload,fpZipLocation)
                     # print(fopRepoZip)
-                    commandExtract='unzip {} -d {}'.format(fpZipLocation,fopRepoExtract)
+                    commandExtract='unzip {} -d {}'.format(fpZipLocation,fopLocationToExtract)
 
                     createDirIfNotExist(fopMetadata+strAuthor+'/')
                     fopLocalMeta=fopMetadata+strAuthor+'/'+strRepo+'/'
