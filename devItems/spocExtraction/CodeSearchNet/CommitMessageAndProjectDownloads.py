@@ -104,6 +104,7 @@ fopGitRepoZip=fopCSNGithubProjects+'repoZip/'
 fopSubPath='/final/jsonl/'
 # lstLanguages=['java','python','go','php','javascript','ruby']
 lstLanguages=['python','javascript']
+# lstLanguages=['go','php','ruby']
 lstFolderNames=['train','valid','test']
 lstFpLogDict=[]
 lstFopMetadata=[]
