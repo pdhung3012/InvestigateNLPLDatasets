@@ -42,10 +42,16 @@ X_TestP = []
 key_TestP = []
 X_TestW = []
 key_TestW = []
+y_Train=[]
+y_TestP=[]
+y_TestW=[]
 lstAllText = []
 
 f1 = open(fpTrainText, 'r')
 arrItems = f1.read().strip().split('\n')
+f1.close()
+f1 = open(fpTrainLabel, 'r')
+arrLabels = f1.read().strip().split('\n')
 f1.close()
 
 
@@ -54,10 +60,14 @@ for i in range(0, len(arrItems)):
     arrTabs = item.split('\t')
     key_Train.append(arrTabs[0])
     X_Train.append(arrTabs[1])
+    y_Train.append(arrLabels[i])
     lstAllText.append(arrTabs[1])
 
 f1 = open(fpTestPText, 'r')
 arrItems = f1.read().strip().split('\n')
+f1.close()
+f1 = open(fpTestPLabel, 'r')
+arrLabels = f1.read().strip().split('\n')
 f1.close()
 
 for i in range(0, len(arrItems)):
@@ -65,10 +75,14 @@ for i in range(0, len(arrItems)):
     arrTabs = item.split('\t')
     key_TestP.append(arrTabs[0])
     X_TestP.append(arrTabs[1])
+    y_TestP.append(arrLabels[i])
     lstAllText.append(arrTabs[1])
 
 f1 = open(fpTestWText, 'r')
 arrItems = f1.read().strip().split('\n')
+f1.close()
+f1 = open(fpTestWLabel, 'r')
+arrLabels = f1.read().strip().split('\n')
 f1.close()
 
 for i in range(0, len(arrItems)):
@@ -76,32 +90,35 @@ for i in range(0, len(arrItems)):
     arrTabs = item.split('\t')
     key_TestW.append(arrTabs[0])
     X_TestW.append(arrTabs[1])
+    y_TestW.append(arrLabels[i])
     lstAllText.append(arrTabs[1])
 
-tagged_data = [TaggedDocument(words=word_tokenize(_d), tags=[str(i)]) for i, _d in enumerate(lstAllText)]
-max_epochs = 5
-vec_size = 100
-alpha = 0.025
 
-model = Doc2Vec(vector_size=vec_size,
-                alpha=alpha,
-                min_alpha=0.00025,
-                min_count=1,
-                dm=0)
-
-model.build_vocab(tagged_data)
-
-for epoch in range(max_epochs):
-    # print('iteration {0}'.format(epoch))
-    model.train(tagged_data,
-                total_examples=model.corpus_count,
-                epochs=model.epochs)
-    # decrease the learning rate
-    model.alpha -= 0.0002
-    # fix the learning rate, no decay
-    model.min_alpha = model.alpha
-    print('End epoch{}'.format(epoch))
-model.save(fpOutModel)
+# tagged_data = [TaggedDocument(words=word_tokenize(_d), tags=[str(i)]) for i, _d in enumerate(lstAllText)]
+# max_epochs = 5
+# vec_size = 100
+# alpha = 0.025
+#
+# model = Doc2Vec(vector_size=vec_size,
+#                 alpha=alpha,
+#                 min_alpha=0.00025,
+#                 min_count=1,
+#                 dm=0)
+#
+# model.build_vocab(tagged_data)
+#
+# for epoch in range(max_epochs):
+#     # print('iteration {0}'.format(epoch))
+#     model.train(tagged_data,
+#                 total_examples=model.corpus_count,
+#                 epochs=model.epochs)
+#     # decrease the learning rate
+#     model.alpha -= 0.0002
+#     # fix the learning rate, no decay
+#     model.min_alpha = model.alpha
+#     print('End epoch{}'.format(epoch))
+# model.save(fpOutModel)
+model = Doc2Vec.load(fpOutModel)
 
 d2v_all = []
 dictWords = {}
@@ -138,7 +155,7 @@ import numpy as np
 rf = RandomForestClassifier(n_estimators=150, max_depth=None, n_jobs=-1,random_state = 42)
 print('go here')
 start = time.time()
-rf_model = rf.fit(vec_train, key_Train)
+rf_model = rf.fit(vec_train, y_Train)
 # filename4 = fop+arrConfigs[idx]+ '_mlmodel.bin'
 end = time.time()
 fit_time = (end - start)
@@ -150,26 +167,26 @@ pred_time = (end - start)
 
 
 f1=open(fpOutResultDetail,'w')
-precision, recall, fscore, train_support = score(key_TestP, y_predP)
-accuracyP=np.round((y_predP==key_TestP).sum()/len(y_predP), 3)
+precision, recall, fscore, train_support = score(y_TestP, y_predP)
+accuracyP=np.round((y_predP==y_TestP).sum()/len(y_predP), 3)
 f1.write('TestP\nFit time: {} / Predict time: {} ---- Precision: {} / Recall: {} / Accuracy: {}\n'.format(
     np.round(fit_time, 3), np.round(pred_time, 3), np.round(precision, 3), np.round(recall, 3), accuracyP))
-f1.write('{}\n'.format(confusion_matrix(key_TestP, y_predP)))
-f1.write('{}\n'.format(classification_report(key_TestP, y_predP)))
-f1.write('Cohen Kappa{}\n\n\n'.format(cohen_kappa_score(key_TestP, y_predP, weights="quadratic")))
+f1.write('{}\n'.format(confusion_matrix(y_TestP, y_predP)))
+f1.write('{}\n'.format(classification_report(y_TestP, y_predP)))
+f1.write('Cohen Kappa{}\n\n\n'.format(cohen_kappa_score(y_TestP, y_predP, weights="quadratic")))
 
 start = time.time()
 y_predW = rf_model.predict(vec_testW)
 end = time.time()
 pred_time = (end - start)
 
-precision, recall, fscore, train_support = score(key_TestW, y_predW)
-accuracyW=np.round((y_predW==key_TestW).sum()/len(y_predW), 3)
+precision, recall, fscore, train_support = score(y_TestW, y_predW)
+accuracyW=np.round((y_predW==y_TestW).sum()/len(y_predW), 3)
 f1.write('TestW\nFit time: {} / Predict time: {} ---- Precision: {} / Recall: {} / Accuracy: {}\n'.format(
     np.round(fit_time, 3), np.round(pred_time, 3), np.round(precision, 3), np.round(recall, 3), accuracyW))
-f1.write('{}\n'.format(confusion_matrix(key_TestW, y_predW)))
-f1.write('{}\n'.format(classification_report(key_TestW, y_predW)))
-f1.write('Cohen Kappa{}\n\n\n'.format(cohen_kappa_score(key_TestW, y_predW, weights="quadratic")))
+f1.write('{}\n'.format(confusion_matrix(y_TestW, y_predW)))
+f1.write('{}\n'.format(classification_report(y_TestW, y_predW)))
+f1.write('Cohen Kappa{}\n\n\n'.format(cohen_kappa_score(y_TestW, y_predW, weights="quadratic")))
 f1.close()
 
 f1=open(fpOutResultSummary,'w')
