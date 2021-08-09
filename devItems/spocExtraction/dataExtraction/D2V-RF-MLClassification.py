@@ -60,7 +60,8 @@ for i in range(0, len(arrItems)):
     arrTabs = item.split('\t')
     key_Train.append(arrTabs[0])
     X_Train.append(arrTabs[1])
-    y_Train.append(arrLabels[i])
+    arrLabelTabs = arrLabels[i].split('\t')
+    y_Train.append(arrLabelTabs[1])
     lstAllText.append(arrTabs[1])
 
 f1 = open(fpTestPText, 'r')
@@ -75,7 +76,8 @@ for i in range(0, len(arrItems)):
     arrTabs = item.split('\t')
     key_TestP.append(arrTabs[0])
     X_TestP.append(arrTabs[1])
-    y_TestP.append(arrLabels[i])
+    arrLabelTabs = arrLabels[i].split('\t')
+    y_TestP.append(arrLabelTabs[1])
     lstAllText.append(arrTabs[1])
 
 f1 = open(fpTestWText, 'r')
@@ -90,7 +92,8 @@ for i in range(0, len(arrItems)):
     arrTabs = item.split('\t')
     key_TestW.append(arrTabs[0])
     X_TestW.append(arrTabs[1])
-    y_TestW.append(arrLabels[i])
+    arrLabelTabs = arrLabels[i].split('\t')
+    y_TestW.append(arrLabelTabs[1])
     lstAllText.append(arrTabs[1])
 
 
@@ -159,11 +162,12 @@ rf_model = rf.fit(vec_train, y_Train)
 # filename4 = fop+arrConfigs[idx]+ '_mlmodel.bin'
 end = time.time()
 fit_time = (end - start)
-
+print('end train {}'.format(fit_time))
 start = time.time()
 y_predP = rf_model.predict(vec_testP)
 end = time.time()
 pred_time = (end - start)
+print('end testP {}'.format(pred_time))
 
 
 f1=open(fpOutResultDetail,'w')
@@ -179,7 +183,7 @@ start = time.time()
 y_predW = rf_model.predict(vec_testW)
 end = time.time()
 pred_time = (end - start)
-
+print('end testW {}'.format(pred_time))
 precision, recall, fscore, train_support = score(y_TestW, y_predW)
 accuracyW=np.round((y_predW==y_TestW).sum()/len(y_predW), 3)
 f1.write('TestW\nFit time: {} / Predict time: {} ---- Precision: {} / Recall: {} / Accuracy: {}\n'.format(
