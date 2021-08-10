@@ -190,7 +190,7 @@ f1.write('TestW\nFit time: {} / Predict time: {} ---- Precision: {} / Recall: {}
     np.round(fit_time, 3), np.round(pred_time, 3), np.round(precision, 3), np.round(recall, 3), accuracyW))
 f1.write('{}\n'.format(confusion_matrix(y_TestW, y_predW)))
 f1.write('{}\n'.format(classification_report(y_TestW, y_predW)))
-f1.write('Cohen Kappa{}\n\n\n'.format(cohen_kappa_score(y_TestW, y_predW, weights="quadratic")))
+f1.write('Cohen Kappa {}\n\n\n'.format(cohen_kappa_score(y_TestW, y_predW, weights="quadratic")))
 f1.close()
 
 f1=open(fpOutResultSummary,'w')
