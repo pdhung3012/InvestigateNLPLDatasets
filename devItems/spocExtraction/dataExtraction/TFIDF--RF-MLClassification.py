@@ -19,7 +19,12 @@ from sklearn.metrics import cohen_kappa_score
 from langdetect import detect
 from sklearn.metrics import confusion_matrix
 import langid
-
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.metrics import precision_recall_fscore_support as score
+import time
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import PCA
 
 
 fopRoot='/home/hungphd/git/dataPapers/textInSPOC/mixCode_v2/step6/'
@@ -30,7 +35,7 @@ fpTrainLabel=fopRoot+'train.label.txt'
 fpTestPLabel=fopRoot+'testP.label.txt'
 fpTestWLabel=fopRoot+'testW.label.txt'
 
-fopD2VRF=fopRoot+'result-d2v-rf/'
+fopD2VRF=fopRoot+'result-tfidf-rf/'
 createDirIfNotExist(fopD2VRF)
 fpOutModel=fopD2VRF+'model.d2v'
 fpOutResultDetail=fopD2VRF+'resultDetail.txt'
@@ -96,64 +101,25 @@ for i in range(0, len(arrItems)):
     y_TestW.append(arrLabelTabs[1])
     lstAllText.append(arrTabs[1])
 
+vectorizer = TfidfVectorizer(ngram_range=(1, 1))
+model = vectorizer.fit(lstAllText)
+vec_total_all=model.transform(lstAllText).toarray()
+vec_train_all=model.transform(X_Train).toarray()
+vec_testP_all=model.transform(X_TestP).toarray()
+vec_testW_all=model.transform(X_TestW).toarray()
+pca = PCA(n_components=100)
+print('prepare to fit transform')
+# modelPCA = pca.fit(vec_total_all)
+# vec_train=modelPCA.transform(vec_train_all)
+# vec_testP=modelPCA.transform(vec_testP_all)
+# vec_testW=modelPCA.transform(vec_testW_all)
+vec_train=vec_train_all
+vec_testP=vec_testP_all
+vec_testW=vec_testW_all
 
-tagged_data = [TaggedDocument(words=word_tokenize(_d), tags=[str(i)]) for i, _d in enumerate(lstAllText)]
-max_epochs = 5
-vec_size = 100
-alpha = 0.025
+print('end fit transform')
 
-model = Doc2Vec(vector_size=vec_size,
-                alpha=alpha,
-                min_alpha=0.00025,
-                min_count=1,
-                dm=0)
 
-model.build_vocab(tagged_data)
-
-for epoch in range(max_epochs):
-    # print('iteration {0}'.format(epoch))
-    model.train(tagged_data,
-                total_examples=model.corpus_count,
-                epochs=model.epochs)
-    # decrease the learning rate
-    model.alpha -= 0.0002
-    # fix the learning rate, no decay
-    model.min_alpha = model.alpha
-    print('End epoch{}'.format(epoch))
-model.save(fpOutModel)
-# model = Doc2Vec.load(fpOutModel)
-
-d2v_all = []
-dictWords = {}
-# lstAllText=[]
-vec_train=[]
-vec_testP=[]
-vec_testW=[]
-for i in range(0, len(X_Train)):
-    # lstAllText.append(X_Train[i])
-    x_data = word_tokenize(X_Train[i])
-    v1 = model.infer_vector(x_data)
-    vec_train.append(v1)
-    # d2v_all.append('{}\t{}'.format(key_Train[i], ' '.join(map(str, v1))))
-
-for i in range(0, len(X_TestP)):
-    # lstAllText.append(X_TestP[i])
-    x_data = word_tokenize(X_TestP[i])
-    v1 = model.infer_vector(x_data)
-    vec_testP.append(v1)
-    # d2v_all.append('{}\t{}'.format(key_TestP[i], ' '.join(map(str, v1))))
-
-for i in range(0, len(X_TestW)):
-    # lstAllText.append(X_TestW[i])
-    x_data = word_tokenize(X_TestW[i])
-    v1 = model.infer_vector(x_data)
-    vec_testW.append(v1)
-    # d2v_all.append('{}\t{}'.format(key_TestW[i], ' '.join(map(str, v1))))
-
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.metrics import precision_recall_fscore_support as score
-import time
-import numpy as np
 
 rf = RandomForestClassifier(n_estimators=150, max_depth=None, n_jobs=-1,random_state = 42)
 print('go here')
@@ -194,6 +160,6 @@ f1.write('Cohen Kappa{}\n\n\n'.format(cohen_kappa_score(y_TestW, y_predW, weight
 f1.close()
 
 f1=open(fpOutResultSummary,'w')
-f1.write('D2v-RF\t{}\t{}'.format(accuracyP,accuracyW))
+f1.write('BOW-RF\t{}\t{}'.format(accuracyP,accuracyW))
 f1.close()
 
