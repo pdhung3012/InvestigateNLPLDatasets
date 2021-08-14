@@ -203,6 +203,7 @@ def copyGraphWithinLineIndex(graph,dictFatherLabel,startLineIndex,endLineIndex):
 
 def getJsonDict(fpTempCPPFile,parser):
     dictJson=None
+    arrCodes=None
     try:
         f1 = open(fpTempCPPFile, 'r')
         strCode = f1.read().strip()
@@ -223,7 +224,7 @@ def getJsonDict(fpTempCPPFile,parser):
         # print(str(dictJson))
     except:
         traceback.print_exc()
-    return dictJson
+    return dictJson,arrCodes
 
 fopData='/home/hungphd/'
 fopGithub='/home/hungphd/git/'
