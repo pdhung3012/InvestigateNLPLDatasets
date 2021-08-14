@@ -156,7 +156,7 @@ lstFolderNames=['train','test','valid']
 lstParsers=[]
 
 
-isCollectFromStart=True
+isCollectFromStart=False
 
 for i in range(0,len(lstLanguages)):
     languageItem=lstLanguages[i]
@@ -176,7 +176,7 @@ for i in range(0,len(lstLanguages)):
         lstParsers.append(parser)
         # lstFopFilesPerProjectData.append(fopFilesPerProjectData+folderName+'/')
 
-for i in range(1,len(lstFopCSNCorpus)):
+for i in range(0,len(lstFopCSNCorpus)):
     logFileLocationForEachProjects(lstFopCSNCorpus[i], lstFopJsonData[i],lstFopComments[i],
                                         lstFpLogAPICalls[i],lstFpExtensions[i], lstParsers[i],isCollectFromStart)
 
