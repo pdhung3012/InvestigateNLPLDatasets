@@ -43,7 +43,7 @@ try:
                 strText=arrTextItem[1]
 
                 if strText.startswith('//'):
-                    strAddItem='\n'.join(bufferStr).strip().replace('//',strSingleComment).replace('\n',strEndLine).replace('\t',strTabChar).strip()
+                    strAddItem='\n'.join(bufferStr).strip().replace('//',strSingleComment).strip()
                     lstBatches.append(strAddItem)
                     numSentence=numSentence+1
                     if (numSentence % batch_size == 0):
