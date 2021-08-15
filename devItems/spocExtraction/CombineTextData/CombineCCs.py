@@ -35,15 +35,15 @@ try:
             f1=open(fpItem,'r')
             arrTexts=f1.read().strip().split('\n')
             f1.close()
-            bufferStr=[]
             for j in range(0,len(arrTexts)):
                 arrTextItem=str(arrTexts[j]).strip().split('\t')
                 if(len(arrTextItem)<2):
                     continue
-                strText=arrTextItem[1]
-
+                strText=arrTextItem[1].strip()
+                # print(strText)
                 if strText.startswith('//'):
-                    strAddItem='\n'.join(bufferStr).strip().replace('//',strSingleComment).strip()
+                    # print(strText)
+                    strAddItem=strText
                     lstBatches.append(strAddItem)
                     numSentence=numSentence+1
                     if (numSentence % batch_size == 0):
@@ -55,8 +55,7 @@ try:
                         lstBatches = []
                         numSentence=0
                         print('end batch {}'.format(index))
-                else:
-                    bufferStr.append(strText)
+
 
 
         except:
