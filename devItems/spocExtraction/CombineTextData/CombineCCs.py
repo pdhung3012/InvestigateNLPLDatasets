@@ -32,6 +32,9 @@ try:
         try:
             fpItem=lstFiles[i]
             print('iiiii {}/{}'.format(i,len(lstFiles)))
+            # iiiii 1503518 / 2045781
+            if i <=1503518:
+                continue
             f1=open(fpItem,'r')
             arrTexts=f1.read().strip().split('\n')
             f1.close()
