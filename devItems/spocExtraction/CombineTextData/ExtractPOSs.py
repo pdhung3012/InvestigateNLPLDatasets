@@ -156,9 +156,16 @@ def getGraphDependencyFromText(strText,nlpObj):
     strJsonObj = 'Error'
     # dictTotal=None
     traceback.print_exc()
-  strTextAll=strSplitElement.join(lstTextAll).replace('\n',strEndLine)
-  strPOSAll = strSplitElement.join(lstPOSAll).replace('\n',strEndLine)
-  strTreeAll = strSplitElement.join(lstTreeAll).replace('\n',strEndLine)
+
+  if (len(lstTextAll)==len(lstPOSAll) and len(lstPOSAll)==len(lstTreeAll)):
+      strTextAll = strSplitElement.join(lstTextAll).replace('\n', strEndLine)
+      strPOSAll = strSplitElement.join(lstPOSAll).replace('\n', strEndLine)
+      strTreeAll = strSplitElement.join(lstTreeAll).replace('\n', strEndLine)
+  else:
+      strTextAll=''
+      strPOSAll=''
+      strTreeAll=''
+
   return strTextAll,strTreeAll,strPOSAll
   # return dictTotal
 
@@ -215,7 +222,7 @@ def extractPOSAndTree(fopTextCorpus,fopPOSCorpus,item,nlpObj):
                             f1 = open(fpTextPreprocess, 'a')
                             f1.write('\n'.join(lstProcessTextPerFile)+'\n')
                             f1.close()
-                            lstProcessTextPerFile=[]
+                            lstPOSPerFile=[]
                             lstTreePerFile=[]
                             lstProcessTextPerFile=[]
                             print('finish write at index {} of file {}'.format(i,lstTextFiles[j]))
