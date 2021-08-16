@@ -199,7 +199,7 @@ def extractPOSAndTree(fopTextCorpus,fopPOSCorpus,item,nlpObj):
                 for i in range(0, len(arrTexts)):
                     try:
                         strItem = arrTexts[i].replace(strEndLine, '\m').replace(strTabChar, '\t').replace('// ','')
-                        strPostText, strTree, strPOS = getGraphDependencyFromText(arrTexts[i], nlpObj)
+                        strPostText, strTree, strPOS = getGraphDependencyFromText(strItem, nlpObj)
                         if strPostText != '':
                             lstProcessTextPerFile.append(strPostText)
                             lstTreePerFile.append(strTree)
