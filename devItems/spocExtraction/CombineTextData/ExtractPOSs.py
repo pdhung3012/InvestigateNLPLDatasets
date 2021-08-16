@@ -174,7 +174,7 @@ def extractPOSAndTree(fopTextCorpus,fopPOSCorpus,item,nlpObj):
         lstTreePerFile = []
         lstProcessTextPerFile = []
 
-
+        # print('len {}'.format(len(lstTextFiles)))
         for j in range(0,len(lstTextFiles)):
             try:
                 start_time = time.time()
@@ -185,7 +185,7 @@ def extractPOSAndTree(fopTextCorpus,fopPOSCorpus,item,nlpObj):
                 fpPOS = fopItemPOSCorpus + indexName + '_pos.txt'
                 fpTree = fopItemPOSCorpus + indexName + '_tree.txt'
                 fpTextPreprocess = fopItemPOSCorpus + indexName + '_preprocess.txt'
-
+                # print('go here')
                 f1 = open(fpPOS, 'w')
                 f1.write('')
                 f1.close()
@@ -255,7 +255,8 @@ from multiprocessing.pool import ThreadPool as Pool
 from multiprocessing import Process
 lstThreads=[]
 for i in range(0,len(lstTypesOfSDs)):
-    nlpObj = StanfordCoreNLP('http://localhost:9000')
+    strServerPort='900'+str(i)
+    nlpObj = StanfordCoreNLP('http://localhost:'+strServerPort)
     print('start thread {}'.format(i))
     p1=Process(target=extractPOSAndTree,args=[fopTextCorpus,fopPOSCorpus,lstTypesOfSDs[i],nlpObj])
     p1.start()
