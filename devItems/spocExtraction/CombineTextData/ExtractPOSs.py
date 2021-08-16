@@ -174,6 +174,7 @@ def extractPOSAndTree(fopTextCorpus,fopPOSCorpus,item,nlpObj):
         lstTreePerFile = []
         lstProcessTextPerFile = []
 
+
         for j in range(0,len(lstTextFiles)):
             try:
                 start_time = time.time()
@@ -181,6 +182,20 @@ def extractPOSAndTree(fopTextCorpus,fopPOSCorpus,item,nlpObj):
                 arrTexts = f1.read().split('\n')
                 f1.close()
                 indexName = os.path.basename(lstTextFiles[j]).replace('.txt', '')
+                fpPOS = fopItemPOSCorpus + indexName + '_pos.txt'
+                fpTree = fopItemPOSCorpus + indexName + '_tree.txt'
+                fpTextPreprocess = fopItemPOSCorpus + indexName + '_preprocess.txt'
+
+                f1 = open(fpPOS, 'w')
+                f1.write('')
+                f1.close()
+                f1 = open(fpTree, 'w')
+                f1.write('')
+                f1.close()
+                f1 = open(fpTextPreprocess, 'w')
+                f1.write('')
+                f1.close()
+
                 for i in range(0, len(arrTexts)):
                     try:
                         strItem = arrTexts[i].replace(strEndLine, '\m').replace(strTabChar, '\t').replace('// ','')
@@ -189,22 +204,26 @@ def extractPOSAndTree(fopTextCorpus,fopPOSCorpus,item,nlpObj):
                             lstProcessTextPerFile.append(strPostText)
                             lstTreePerFile.append(strTree)
                             lstPOSPerFile.append(strPOS)
+
+                        if((len(lstProcessTextPerFile)>0) and (((i+1)==len(arrTexts)) or ((i+1)%1000==0))):
+                            f1 = open(fpPOS, 'a')
+                            f1.write('\n'.join(lstPOSPerFile)+'\n')
+                            f1.close()
+                            f1 = open(fpTree, 'a')
+                            f1.write('\n'.join(lstTreePerFile)+'\n')
+                            f1.close()
+                            f1 = open(fpTextPreprocess, 'a')
+                            f1.write('\n'.join(lstProcessTextPerFile)+'\n')
+                            f1.close()
+                            lstProcessTextPerFile=[]
+                            lstTreePerFile=[]
+                            lstProcessTextPerFile=[]
+                            print('finish write at index {} of file {}'.format(i,lstTextFiles[j]))
+
                         # if i==100:
                         #     break
                     except:
                         traceback.print_exc()
-                fpPOS = fopItemPOSCorpus + indexName + '_pos.txt'
-                fpTree = fopItemPOSCorpus + indexName + '_tree.txt'
-                fpTextPreprocess = fopItemPOSCorpus + indexName + '_preprocess.txt'
-                f1 = open(fpPOS, 'w')
-                f1.write('\n'.join(lstPOSPerFile))
-                f1.close()
-                f1 = open(fpTree, 'w')
-                f1.write('\n'.join(lstTreePerFile))
-                f1.close()
-                f1 = open(fpTextPreprocess, 'w')
-                f1.write('\n'.join(lstProcessTextPerFile))
-                f1.close()
                 duration=time.time() - start_time
                 print('index {}/{} duration {}'.format(i,len(lstTextFiles),duration))
             except:
