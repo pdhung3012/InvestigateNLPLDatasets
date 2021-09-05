@@ -13,13 +13,14 @@ from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText
 
 from tree_sitter import Language, Parser
 from LibForGraphExtractionFromMixCode import getJsonDict
+import ast
 
 def exportListOfLineTerminal(jsonObject,dictLine,arrCodes):
     try:
         if 'children' in jsonObject.keys():
             children=jsonObject['children']
             for i in range(0,len(children)):
-                exportListOfLineTerminal(children[i],dictLine)
+                exportListOfLineTerminal(children[i],dictLine,arrCodes)
         else:
             startLine=jsonObject['startLine']
             startOffset = jsonObject['startOffset']
@@ -27,7 +28,7 @@ def exportListOfLineTerminal(jsonObject,dictLine,arrCodes):
             endOffset = jsonObject['endOffset']
 
             if startLine==endLine:
-                strContent=arrCodes[startLine].substring(startOffset,endOffset)
+                strContent=arrCodes[startLine][startOffset:endOffset]
                 if startLine not in dictLine.keys():
                     dictLine[startLine]=[]
                 dictLine[startLine].append(strContent)
@@ -38,14 +39,14 @@ def exportListOfLineTerminal(jsonObject,dictLine,arrCodes):
                         strContent=strLine.substring(startOffset,len(strLine))
                     else:
                         strLine=arrCodes[i]
-                        strContent = strLine.substring(0, endOffset)
+                        strContent = strLine[0: endOffset]
                     if i not in dictLine.keys():
                         dictLine[i] = []
                     dictLine[i].append(strContent)
     except:
         traceback.print_exc()
 
-fopRoot='../../../dataPapers/textInSPOC/correctCodeJson/'
+fopRoot='../../../../dataPapers/textInSPOC/correctCodeJson/'
 fopCodeFile=fopRoot+'step2/'
 fopASTFile=fopRoot+'step3_treesitter/'
 fopTokASTFile=fopRoot+'step3_tokenize/'
@@ -55,10 +56,10 @@ f1 = open(fpLogSuccessAndFailed, 'w')
 f1.write('')
 f1.close()
 
-lstFpCodes=glob.glob(fopCodeFile+'/**/*_code.cpp',recursive=True)
+lstFpCodes=glob.glob(fopCodeFile+'**/*_code.cpp',recursive=True)
 for i in range(0,len(lstFpCodes)):
     fnItemCode=os.path.basename(lstFpCodes[i])
-    fopItemCode=os.path.dirname(lstFpCodes[i])
+    fopItemCode=os.path.dirname(lstFpCodes[i])+'/'
     fnItemAST=fnItemCode.replace('.cpp','_ast.txt')
     fopItemAST=fopItemCode.replace('step2','step3_treesitter')
     fpItemAST=fopItemAST+fnItemAST
@@ -66,23 +67,27 @@ for i in range(0,len(lstFpCodes)):
     createDirIfNotExist(fopItemTokASTFile)
     isRunOK = False
     try:
-        f1=open(fopItemCode,'r')
+        f1=open(lstFpCodes[i],'r')
         arrCodes=f1.read().strip().split('\n')
         f1.close()
         f1=open(fpItemAST,'r')
         arrLines=f1.read().strip().split('\n')
         f1.close()
         strJson=arrLines[1]
-        jsonObject=json.loads(strJson)
+        jsonObject=ast.literal_eval(strJson)
         dictLine={}
         exportListOfLineTerminal(jsonObject, dictLine, arrCodes)
-        lstLineIndexes=sorted(dictLine.keys())
+        # lstLineIndexes=sorted(dictLine.keys())
         lstDisappear=[]
         lstNewCodes=[]
         lstAddString = []
+        # print('dict line {}'.format(dictLine))
         for j in range(0,len(arrCodes)):
             strItemLine=arrCodes[j]
             numTabs=0
+            if j<33:
+                lstNewCodes.append(strItemLine)
+                continue
 
             for k in range(0,len(strItemLine)):
                 if strItemLine[k]=='t':
@@ -90,12 +95,12 @@ for i in range(0,len(lstFpCodes)):
                     lstAddString.append('\t')
                 else:
                     break
-        if j in dictLine.keys():
-            strCodeContent=' '.join(dictLine[j])
-            lstAddString.append(strCodeContent)
-        else:
-            lstDisappear.append(str(j))
-        lstNewCodes.append(''.join(lstAddString))
+            if j in dictLine.keys():
+                strCodeContent=' '.join(dictLine[j])
+                lstAddString.append(strCodeContent)
+            else:
+                lstDisappear.append(str(j))
+            lstNewCodes.append(''.join(lstAddString))
 
         strLineLog=''
         if len(lstDisappear)==0:
@@ -103,7 +108,7 @@ for i in range(0,len(lstFpCodes)):
         else:
             strLineLog='{}\t{}'.format('Fail',' '.join(lstDisappear))
 
-        print('{}\t{}\t{}'.format(i,fnItemAST,strLineLog))
+        print('{}\t{}\t{}\t{}'.format(i,fopItemAST,fnItemAST,strLineLog))
         f1=open(fopItemTokASTFile+fnItemAST,'w')
         f1.write('\n'.join(lstNewCodes))
         f1.close()
