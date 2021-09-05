@@ -67,25 +67,23 @@ def exportListOfLineTerminal(jsonObject,dictLine,arrCodes):
         traceback.print_exc()
 
 fopRoot='../../../../dataPapers/textInSPOC/correctCodeRaw/'
-fopCodeFile=fopRoot+'step2/'
-fopASTFile=fopRoot+'step3_treesitter/'
-fopTokASTFile=fopRoot+'step2_tokenize/'
-fpLogSuccessAndFailed=fopRoot+'log_step2_tok.txt'
-fpLogDictCodeTokens=fopRoot+'log_step2_codeTok.txt'
+fopCodeFile=fopRoot+'step2_pseudo/'
+fopASTFile=fopRoot+'step3_pseudo_treesitter/'
+fopTokASTFile=fopRoot+'step2_pseudo_tokenize/'
+fpLogSuccessAndFailed=fopRoot+'log_step2_pseudo_tok.txt'
 createDirIfNotExist(fopTokASTFile)
 f1 = open(fpLogSuccessAndFailed, 'w')
 f1.write('')
 f1.close()
 
-lstFpCodes=glob.glob(fopCodeFile+'**/*_code.cpp',recursive=True)
-dictCodeTokens={}
+lstFpCodes=glob.glob(fopCodeFile+'**/*_text.txt',recursive=True)
 for i in range(0,len(lstFpCodes)):
     fnItemCode=os.path.basename(lstFpCodes[i])
     fopItemCode=os.path.dirname(lstFpCodes[i])+'/'
-    fnItemAST=fnItemCode.replace('.cpp','_ast.txt')
-    fopItemAST=fopItemCode.replace('step2','step3_treesitter')
+    fnItemAST=fnItemCode
+    fopItemAST=fopItemCode.replace('step2_pseudo','step3_pseudo_treesitter')
     fpItemAST=fopItemAST+fnItemAST
-    fopItemTokASTFile=fopItemCode.replace('step2','step2_tokenize')
+    fopItemTokASTFile=fopItemCode.replace('step2_pseudo','step2_pseudo_tokenize')
     createDirIfNotExist(fopItemTokASTFile)
     isRunOK = False
     try:
@@ -108,9 +106,9 @@ for i in range(0,len(lstFpCodes)):
         for j in range(0,len(arrCodes)):
             strItemLine=arrCodes[j]
             numTabs=0
-            if j<33:
-                lstNewCodes.append(strItemLine)
-                continue
+            # if j<33:
+            #     lstNewCodes.append(strItemLine)
+            #     continue
             lstAddString = []
             for k in range(0,len(strItemLine)):
                 if strItemLine[k]=='\t':
@@ -124,14 +122,6 @@ for i in range(0,len(lstFpCodes)):
             else:
                 lstDisappear.append(str(j))
             strNewCodeContent=''.join(lstAddString)
-
-            arrCodeTokens=strNewCodeContent.split()
-            for k in range(0,len(arrCodeTokens)):
-                if arrCodeTokens[k] not in dictCodeTokens.keys():
-                    dictCodeTokens[arrCodeTokens[k]]=0
-                else:
-                    dictCodeTokens[arrCodeTokens[k]]=dictCodeTokens[arrCodeTokens[k]]+1
-
             strStripExpected=strItemLine.strip().replace(' ','').replace('\t','')
             strStripTok = strNewCodeContent.strip().replace(' ', '').replace('\t', '')
             if strStripTok != strStripExpected:
@@ -153,16 +143,11 @@ for i in range(0,len(lstFpCodes)):
         f1.close()
         if len(lstDisappear)==0 and len(lstAbnormalLine)==0:
             strLineLog=fopItemTokASTFile+'\t'+fnItemAST+'\tOK'
-        # else:
-        #     input('test ')
+        else:
+            input('test ')
     except:
         traceback.print_exc()
 
-lstStr=[]
-for key in sorted(dictCodeTokens.keys()):
-    lstStr.append('{}\t{}'.format(key,dictCodeTokens[key]))
-f1=open(fpLogDictCodeTokens,'w')
-f1.write('\n'.join(lstStr))
-f1.close()
+
 
 
