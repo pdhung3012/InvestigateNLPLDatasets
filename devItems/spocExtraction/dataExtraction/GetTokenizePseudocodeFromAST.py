@@ -66,15 +66,29 @@ def exportListOfLineTerminal(jsonObject,dictLine,arrCodes):
     except:
         traceback.print_exc()
 
+def preprocessText(strInput):
+    strOutput=strInput
+    try:
+        strOutput=strOutput.replace("isn '","insn't")
+    except:
+        traceback.print_exc()
+    return strOutput
+
 fopRoot='../../../../dataPapers/textInSPOC/correctCodeRaw/'
 fopCodeFile=fopRoot+'step2_pseudo/'
 fopASTFile=fopRoot+'step3_pseudo_treesitter/'
 fopTokASTFile=fopRoot+'step2_pseudo_tokenize/'
 fpLogSuccessAndFailed=fopRoot+'log_step2_pseudo_tok.txt'
+fpPseudoAll=fopRoot+'step2_pseudo_all.txt'
 createDirIfNotExist(fopTokASTFile)
 f1 = open(fpLogSuccessAndFailed, 'w')
 f1.write('')
 f1.close()
+
+f1 = open(fpPseudoAll, 'w')
+f1.write('')
+f1.close()
+
 
 lstFpCodes=glob.glob(fopCodeFile+'**/*_text.txt',recursive=True)
 for i in range(0,len(lstFpCodes)):
@@ -122,6 +136,7 @@ for i in range(0,len(lstFpCodes)):
             else:
                 lstDisappear.append(str(j))
             strNewCodeContent=''.join(lstAddString)
+            strNewCodeContent=preprocessText(strNewCodeContent)
             strStripExpected=strItemLine.strip().replace(' ','').replace('\t','')
             strStripTok = strNewCodeContent.strip().replace(' ', '').replace('\t', '')
             if strStripTok != strStripExpected:
@@ -135,16 +150,20 @@ for i in range(0,len(lstFpCodes)):
             strLineLog='{}\t{}\t{}\tDisappear: {}\tAbnormal: {}'.format(fopItemTokASTFile,fnItemCode,'Fail',' '.join(lstDisappear),' '.join(lstAbnormalLine))
 
         print('{}\t{}'.format(i,strLineLog))
+        strAllNewCode='\n'.join(lstNewCodes)
         f1=open(fopItemTokASTFile+fnItemCode,'w')
-        f1.write('\n'.join(lstNewCodes))
+        f1.write(strAllNewCode)
+        f1.close()
+        f1 = open(fpPseudoAll, 'a')
+        f1.write('{}\n{}\n\n\n'.format(fopItemTokASTFile+fnItemCode,strAllNewCode))
         f1.close()
         f1 = open(fpLogSuccessAndFailed, 'a')
         f1.write(strLineLog+'\n')
         f1.close()
-        if len(lstDisappear)==0 and len(lstAbnormalLine)==0:
-            strLineLog=fopItemTokASTFile+'\t'+fnItemAST+'\tOK'
-        else:
-            input('test ')
+        # if len(lstDisappear)==0 and len(lstAbnormalLine)==0:
+        #     strLineLog=fopItemTokASTFile+'\t'+fnItemAST+'\tOK'
+        # else:
+        #     input('test ')
     except:
         traceback.print_exc()
 
