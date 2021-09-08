@@ -180,10 +180,13 @@ def extractPOSAndTree(fopTextCorpus,fopPOSCorpus,item,nlpObj):
         lstPOSPerFile=[]
         lstTreePerFile = []
         lstProcessTextPerFile = []
-
+        numWordProcess = 0
+        totalTimeProcess = 0
         # print('len {}'.format(len(lstTextFiles)))
         for j in range(0,len(lstTextFiles)):
             try:
+                if j==1:
+                    break
                 start_time = time.time()
                 f1 = open(lstTextFiles[j], 'r')
                 arrTexts = f1.read().split('\n')
@@ -205,8 +208,13 @@ def extractPOSAndTree(fopTextCorpus,fopPOSCorpus,item,nlpObj):
 
                 for i in range(0, len(arrTexts)):
                     try:
-                        strItem = arrTexts[i].replace(strEndLine, '\m').replace(strTabChar, '\t').replace('// ','')
+                        strItem = arrTexts[i].replace(strEndLine, '\b').replace(strTabChar, '\t').replace('// ','')
+                        start_time = time.time()
                         strPostText, strTree, strPOS = getGraphDependencyFromText(strItem, nlpObj)
+                        numWordItem = len(strItem.split())
+                        numWordProcess = numWordProcess + numWordItem
+                        end_time = time.time()
+                        totalTimeProcess = totalTimeProcess + (end_time - start_time)
                         if strPostText != '':
                             lstProcessTextPerFile.append(strPostText)
                             lstTreePerFile.append(strTree)
@@ -227,14 +235,16 @@ def extractPOSAndTree(fopTextCorpus,fopPOSCorpus,item,nlpObj):
                             lstProcessTextPerFile=[]
                             print('finish write at index {} of file {}'.format(i,lstTextFiles[j]))
 
-                        # if i==100:
-                        #     break
+                        if i==100:
+                            break
                     except:
                         traceback.print_exc()
                 duration=time.time() - start_time
-                print('index {}/{} duration {}'.format(i,len(lstTextFiles),duration))
+                # print('index {}/{} duration {}'.format(i,len(lstTextFiles),duration))
             except:
                 traceback.print_exc()
+        avgTimePerWords = (totalTimeProcess * 1.0) / numWordProcess
+        print('total time and words and avg\t{}\t{}\t{}'.format(numWordProcess, totalTimeProcess, avgTimePerWords))
     except:
         traceback.print_exc()
 
@@ -247,7 +257,7 @@ strSingleComment=' SINGLECOMMENTCHAR '
 # fopCCContent='/home/hungphd/media/dataPapersExternal/apiCallPapers_v1/AlonCommentExtraction/'
 fopTextCorpus='/home/hungphd/media/dataPapersExternal/textCorpus/'
 # fopTextPostProcessCorpus='/home/hungphd/media/dataPapersExternal/textPostProcessCorpus/'
-fopPOSCorpus='/home/hungphd/media/dataPapersExternal/posCorpus/'
+fopPOSCorpus='/home/hungphd/media/dataPapersExternal/posCorpus_small/'
 # fopParseTreeCorpus='/home/hungphd/media/dataPapersExternal/treeCorpus/'
 createDirIfNotExist(fopPOSCorpus)
 lstTypesOfSDs=['ad','cs','cc','cm','qa','sr']
@@ -262,7 +272,8 @@ from multiprocessing.pool import ThreadPool as Pool
 from multiprocessing import Process
 lstThreads=[]
 for i in range(0,len(lstTypesOfSDs)):
-    strServerPort='900'+str(i)
+    # strServerPort='900'+str(i)
+    strServerPort = '9000'
     nlpObj = StanfordCoreNLP('http://localhost:'+strServerPort)
     print('start thread {}'.format(i))
     p1=Process(target=extractPOSAndTree,args=[fopTextCorpus,fopPOSCorpus,lstTypesOfSDs[i],nlpObj])

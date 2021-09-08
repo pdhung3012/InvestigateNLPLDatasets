@@ -70,9 +70,13 @@ def extractPOSAndTree(fopTextCorpus,fopPOSCorpus,item):
         lstProcessTextPerFile = []
 
         # print('len {}'.format(len(lstTextFiles)))
+        numWordProcess = 0
+        totalTimeProcess = 0
         for j in range(0,len(lstTextFiles)):
             try:
-                start_time = time.time()
+                if j==1:
+                    break
+                # start_time = time.time()
                 f1 = open(lstTextFiles[j], 'r')
                 arrTexts = f1.read().split('\n')
                 f1.close()
@@ -91,10 +95,16 @@ def extractPOSAndTree(fopTextCorpus,fopPOSCorpus,item):
                 f1.write('')
                 f1.close()
 
+
                 for i in range(0, len(arrTexts)):
                     try:
                         strItem = arrTexts[i].replace(strEndLine, '\m').replace(strTabChar, '\t').replace('// ','')
+                        start_time=time.time()
                         strPostText,  strPOS = getPOSAndTreeFromText(strItem)
+                        numWordItem=len(strItem.split())
+                        numWordProcess=numWordProcess+numWordItem
+                        end_time=time.time()
+                        totalTimeProcess=totalTimeProcess+ (end_time-start_time)
                         if strPostText != '':
                             lstProcessTextPerFile.append(strPostText)
                             # lstTreePerFile.append(strTree)
@@ -115,14 +125,17 @@ def extractPOSAndTree(fopTextCorpus,fopPOSCorpus,item):
                             lstProcessTextPerFile=[]
                             print('finish write at index {} of file {}'.format(i,lstTextFiles[j]))
 
-                        # if i==100:
-                        #     break
+                        if i==100:
+                            break
                     except:
                         traceback.print_exc()
-                duration=time.time() - start_time
-                print('index {}/{} duration {}'.format(i,len(lstTextFiles),duration))
+                # duration=time.time() - start_time
+                duration=0
+                # print('index {}/{} duration {}'.format(i,len(lstTextFiles),duration))
             except:
                 traceback.print_exc()
+        avgTimePerWords=(totalTimeProcess*1.0)/numWordProcess
+        print('total time and words and avg\t{}\t{}\t{}'.format(numWordProcess,totalTimeProcess,avgTimePerWords))
     except:
         traceback.print_exc()
 
@@ -135,7 +148,7 @@ strSingleComment=' SINGLECOMMENTCHAR '
 # fopCCContent='/home/hungphd/media/dataPapersExternal/apiCallPapers_v1/AlonCommentExtraction/'
 fopTextCorpus='/home/hungphd/media/dataPapersExternal/textCorpus/'
 # fopTextPostProcessCorpus='/home/hungphd/media/dataPapersExternal/textPostProcessCorpus/'
-fopPOSCorpus='/home/hungphd/media/dataPapersExternal/posCorpus/'
+fopPOSCorpus='/home/hungphd/media/dataPapersExternal/posCorpus_small/'
 # fopParseTreeCorpus='/home/hungphd/media/dataPapersExternal/treeCorpus/'
 createDirIfNotExist(fopPOSCorpus)
 lstTypesOfSDs=['ad','cs','cc','cm','qa','sr']

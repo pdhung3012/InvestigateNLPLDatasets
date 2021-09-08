@@ -39,7 +39,7 @@ def walkJsonAndGetIndent(jsonObject,dictLinesAndElements,indent):
             lstChildren=jsonObject['children']
             indentChild=indent+1
             for i in range(0,len(lstChildren)):
-                walkJsonAndGetIndent(lstChildren[i],indentChild)
+                walkJsonAndGetIndent(lstChildren[i],dictLinesAndElements,indentChild)
     except:
         traceback.print_exc()
 
@@ -155,9 +155,9 @@ for i in range(0,len(lstFpDictASTs)):
     fopItemAST=os.path.dirname(fpItemAST)
     fonameItemAST=os.path.basename(fopItemAST)
     try:
-        idCode=fnItemAST.replace('code_ast.txt','')
-        fpItemPseudo=fopPseudoFile+fonameItemAST+idCode+'_text.txt'
-        fpItemCode = fopPseudoFile + fonameItemAST + idCode + '_code.cpp'
+        idCode=fnItemAST.replace('_code_ast.txt','')
+        fpItemPseudo=fopPseudoFile+fonameItemAST+'/'+idCode+'_text.txt'
+        fpItemCode = fopCodeFile + fonameItemAST+'/' + idCode + '_code.cpp'
         f1=open(fpItemPseudo,'r')
         arrPseudos=f1.read().strip().split('\n')
         f1.close()
@@ -165,7 +165,7 @@ for i in range(0,len(lstFpDictASTs)):
         arrCodes = f1.read().strip().split('\n')
         f1.close()
         f1=open(fpItemAST,'r')
-        strASTContent=f1.read().strip().split('\t')[1]
+        strASTContent=f1.read().strip().split('\n')[1]
         jsonObject = ast.literal_eval(strASTContent)
         dictLinesAndElements={}
         indent=1
