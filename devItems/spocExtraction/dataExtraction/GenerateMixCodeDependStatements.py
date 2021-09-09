@@ -15,6 +15,8 @@ from LibForGraphExtractionFromRawCode import getJsonDict,getTerminalValue
 import ast
 import re
 
+strRegexCamelCases=r'[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))'
+
 strStmtSplit=' StmtSplit '
 strTabChar=' tabChar '
 strEndLineChar=' endLineChar '
@@ -44,6 +46,21 @@ def walkJsonAndGetIndent(jsonObject,dictLinesAndElements,indent):
                 walkJsonAndGetIndent(lstChildren[i],dictLinesAndElements,indentChild)
     except:
         traceback.print_exc()
+
+def walkAndFindErrorInsideObject(jsonObject):
+    isHavingError=False
+    try:
+        if jsonObject['type']=='ERROR':
+            isHavingError=True
+        elif 'children' in jsonObject.keys():
+            lstChildren=jsonObject['children']
+            for i in range(0,len(lstChildren)):
+                isHavingError=walkAndFindErrorInsideObject(lstChildren[i])
+                if isHavingError:
+                    break
+    except:
+        traceback.print_exc()
+    return isHavingError
 
 def findReplaceableStatements(dictLinesAndElements,lstTupFunctionDeclarations):
     try:
@@ -99,11 +116,16 @@ def findReplaceableStatements(dictLinesAndElements,lstTupFunctionDeclarations):
             lstPossibleStatements = dictLinesAndElements[item]['sortedElementsByIndents'][indentDeepest]
             # mainStmt = ''
             selectItem = lstPossibleStatements[0]
+            isHavingError=False
             if len(lstPossibleStatements) == 1:
                 selectItem['singleRoot']=True
+                isHavingError=walkAndFindErrorInsideObject(selectItem)
             else:
                 for j in range(1, len(lstPossibleStatements)):
                     candItem = lstPossibleStatements[j]
+                    isHavingError = walkAndFindErrorInsideObject(selectItem)
+                    if isHavingError:
+                        break
                     if candItem['startLine'] < selectItem['startLine'] and candItem['endLine'] > selectItem['endLine']:
                         selectItem = candItem
                     elif candItem['startLine'] == selectItem['startLine'] and candItem['endLine'] == selectItem[
@@ -118,8 +140,14 @@ def findReplaceableStatements(dictLinesAndElements,lstTupFunctionDeclarations):
             dictLinesAndElements[item]['mainStmt'] = selectItem
             selectItem['isReplaceable'] = True
 
-            if (selectItem['startLine']-selectedTup[0]<2) or (selectedTup[1] -selectItem['endLine']<2):
+            if isHavingError:
                 lstPopKeys.append(item)
+            elif (selectItem['startLine']-selectedTup[0]<2) or (selectedTup[1] -selectItem['endLine']<2):
+                lstPopKeys.append(item)
+            elif selectItem['startLine']==selectItem['endLine'] and (selectItem['endOffset']-selectItem['startOffset']<=3):
+                lstPopKeys.append(item)
+
+
 
         for key in lstPopKeys:
             dictLinesAndElements.pop(key, None)
@@ -154,7 +182,61 @@ def findReplaceableStatements(dictLinesAndElements,lstTupFunctionDeclarations):
     except:
         traceback.print_exc()
 
-def generateMixVersionsAndLabels(dictLinesAndElements,arrCodes,arrPseudos,fopCodeVersion,fonameItemAST,idCode):
+def checkAppearInImplementation(strPseudo,strCode):
+    strPseudoSplit=''
+    strCodeSplit=''
+    strTokSplit=''
+    strCodeTokSplit = ''
+    try:
+        # print('code {}'.format(strCode))
+        arrPseudos=strPseudo.split()
+        arrCodes=strCode.split()
+        lstTokCode=[]
+        for itemCode in arrCodes:
+            print('itemCode {}'.format(itemCode))
+            arrCodeSplit=re.findall(strRegexCamelCases, itemCode)
+            if len(arrCodeSplit)==0:
+                arrCodeSplit=[itemCode]
+            print('arr {}'.format(arrCodeSplit))
+            for item in arrCodeSplit:
+                print('abc {}'.format(item))
+                lstTokCode.append(item.lower())
+        setTokCode=set(lstTokCode)
+        lstTokPseudo=[]
+        numAppear=0
+        numDisappear=0
+        for itemPseudo in arrPseudos:
+            arrPseudoSplit = re.findall(strRegexCamelCases, itemPseudo)
+            if len(arrPseudoSplit)==0:
+                arrPseudoSplit=[itemPseudo]
+            isAppear=False
+            for item in arrPseudoSplit:
+                strItLower=item.lower()
+                if not strItLower in setTokCode:
+                    isAppear=False
+                    break
+                else:
+                    isAppear=True
+            if isAppear:
+                numAppear=numAppear+1
+                lstTokPseudo.append(itemPseudo+'#1')
+            else:
+                numDisappear=numDisappear+1
+                lstTokPseudo.append(itemPseudo + '#0')
+        strPseudoSplit=' '.join(arrPseudos)
+        strCodeSplit=' '.join(arrCodes)
+        strTokSplit=' '.join(lstTokPseudo)
+        strCodeTokSplit=' '.join(lstTokCode)
+    except:
+        traceback.print_exc()
+    percent=0
+    if (numAppear+numDisappear)!=0:
+        percent=numAppear*1.0/(numAppear+numDisappear)
+    else:
+        percent=0
+    return strCodeSplit,strCodeTokSplit,strPseudoSplit,strTokSplit,numAppear,numDisappear,percent
+
+def generateMixVersionsAndLabels(dictLinesAndElements,dictLabelStatistics,arrCodes,arrPseudos,fopCodeVersion,fonameItemAST,idCode):
     try:
         isOK=False
         indexVersion=0
@@ -178,10 +260,14 @@ def generateMixVersionsAndLabels(dictLinesAndElements,arrCodes,arrPseudos,fopCod
 
             lstPseudoLines=range(startLineMainStmt-distanceHeader,endLineMainStmt-distanceHeader+1)
             lstStrPseudoLines=[]
+            lstStrCodeLines = []
             for it in lstPseudoLines:
                 lstStrPseudoLines.append(arrPseudos[it])
+                lstStrCodeLines.append(arrCodes[it+distanceHeader])
 
             strTotalComment='// '+' , then '.join(lstStrPseudoLines)
+            strTotalCode=' '.join(lstStrCodeLines)
+            strCodeSplit,strCodeTokSplit,strPseudoSplit,strTokSplit,numAppear,numDisappear,percent=checkAppearInImplementation(strTotalComment,strTotalCode)
 
             lstMixCodes = []
             for i in range(0,len(arrCodes)):
@@ -197,7 +283,7 @@ def generateMixVersionsAndLabels(dictLinesAndElements,arrCodes,arrPseudos,fopCod
                         if numTabs == len(itemLine):
                             break
                     if i == startLineMainStmt:
-                        strLineAdd='{}{}'.format(lstStrs,strTotalComment)
+                        strLineAdd='{}{}'.format(''.join(lstStrs),strTotalComment)
                     else:
                         strLineAdd = '{}{}'.format(lstStrs, '//')
                 lstMixCodes.append(strLineAdd)
@@ -230,8 +316,19 @@ def generateMixVersionsAndLabels(dictLinesAndElements,arrCodes,arrPseudos,fopCod
                 strDictToString =strSplitJson.join(map(str,lstPossibleStatements))
             strBelowStatements=strStmtSplit.join(lstListOfBelowStatements)
 
+            if strMainStatement not in dictLabelStatistics['mainStmt'].keys():
+                dictLabelStatistics['mainStmt'][strMainStatement]=1
+            else:
+                dictLabelStatistics['mainStmt'][strMainStatement] =dictLabelStatistics['mainStmt'][strMainStatement] + 1
+
+            if numOfStatements not in dictLabelStatistics['numOfStatements'].keys():
+                dictLabelStatistics['numOfStatements'][numOfStatements]=1
+            else:
+                dictLabelStatistics['numOfStatements'][numOfStatements] =dictLabelStatistics['numOfStatements'][numOfStatements] + 1
+
+
             f1=open(fpItemVersionLabel,'w')
-            strLbl='{}\n{}\n{}\n{}\n{}\n{}'.format(strMainStatement,strPosition,numOfLine,numOfStatements,strBelowStatements,strDictToString)
+            strLbl='{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\t{}\t{}'.format(strMainStatement,strPosition,numOfLine,numOfStatements,strBelowStatements,strDictToString, strCodeSplit,strCodeTokSplit,strPseudoSplit,strTokSplit,numAppear,numDisappear,percent)
             f1.write(strLbl)
             f1.close()
     except:
@@ -249,6 +346,9 @@ createDirIfNotExist(fopMixVersion)
 lstFpDictASTs=glob.glob(fopTreeSitterFile+'**/*_code_ast.txt',recursive=True)
 distanceHeader=33
 
+dictLabelStatistics={}
+dictLabelStatistics['mainStmt']={}
+dictLabelStatistics['numOfStatements']={}
 if os.path.isdir(fopMixVersion):
     shutil.rmtree(fopMixVersion)
 
@@ -285,12 +385,32 @@ for i in range(0,len(lstFpDictASTs)):
         print('dict before {}'.format(len(dictLinesAndElements.keys())))
         findReplaceableStatements(dictLinesAndElements, lstTupFunctionDeclarations)
         print('dict after {}'.format(len(dictLinesAndElements.keys())))
-        print('dict final content\n{}'.format(dictLinesAndElements))
-        generateMixVersionsAndLabels(dictLinesAndElements,arrCodes,arrPseudos,fopCodeVersion,fonameItemAST,idCode)
+        # print('dict final content\n{}'.format(dictLinesAndElements))
+        generateMixVersionsAndLabels(dictLinesAndElements,dictLabelStatistics,arrCodes,arrPseudos,fopCodeVersion,fonameItemAST,idCode)
 
         sys.stdout.close()
         sys.stdout = sys.__stdout__
         print('end {}/{} {}'.format(i,len(lstFpDictASTs),fpCodeLogOutput))
-
+        if i==2000:
+            break
     except:
         traceback.print_exc()
+
+fpDictLblMainStmt=fopMixVersion+ 'labels_mainStmt.txt'
+fpDictLblNumOfStatement=fopMixVersion+ 'labels_numOfStatement.txt'
+
+dictSorted=dict(sorted(dictLabelStatistics['mainStmt'].items(), key=operator.itemgetter(1), reverse=True))
+lstStr=[]
+for key in dictSorted.keys():
+    lstStr.append('{}\t{}'.format(key,dictSorted[key]))
+f1=open(fpDictLblMainStmt,'w')
+f1.write('\n'.join(lstStr))
+f1.close()
+
+dictSorted=dict(sorted(dictLabelStatistics['numOfStatements'].items(), key=operator.itemgetter(1), reverse=True))
+lstStr=[]
+for key in dictSorted.keys():
+    lstStr.append('{}\t{}'.format(key,dictSorted[key]))
+f1=open(fpDictLblNumOfStatement,'w')
+f1.write('\n'.join(lstStr))
+f1.close()
