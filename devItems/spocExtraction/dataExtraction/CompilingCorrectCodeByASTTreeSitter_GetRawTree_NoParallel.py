@@ -30,9 +30,16 @@ def checkAndGenerateAST(i, lstCFilesStep1, fopStep2,fopASTInfo,fopStep4GraphAll,
         fpDotGraphAllImage = fopStep4GraphAll + nameWithoutExtension + '_all.png'
         fpDotGraphSimplifyText = fopStep4GraphSimplify + nameWithoutExtension + '_simplify.dot'
         fpDotGraphSimplifyImage = fopStep4GraphSimplify + nameWithoutExtension + '_simplify.png'
+
+        f1=open(fpMixFileCPP,'r')
+        strItem=f1.read()
+        f1.close()
+        start_time = time.time()
         jsonObject = getJsonDict(fpMixFileCPP,fpDotGraphAllText, fpDotGraphAllImage, fpDotGraphSimplifyText, fpDotGraphSimplifyImage,parser,nlpObj,offsetContext,isSaveGraph)
         # strASTOfFile=walker.getRepresentASTFromFile(fpCodeFileCPP,indexTu)
-
+        end_time = time.time()
+        numWordItem = len(strItem.split())
+        itemTimeProcess = (end_time - start_time)
         if str(jsonObject) != 'Error' or str(jsonObject) != 'None':
             # arrContentOfFile=strContentOfFile.split('\n')
             strContentAppend = '\n'.join([nameOfFile, str(jsonObject), '\n\n\n'])
@@ -58,7 +65,7 @@ def checkAndGenerateAST(i, lstCFilesStep1, fopStep2,fopASTInfo,fopStep4GraphAll,
         print("-" * 60)
         print('Error: {} {}'.format(i, fpMixFileCPP))
         print('Error {}/{} {}'.format(i, len(lstCFilesStep1), fpMixFileCPP))
-    return i
+    return i,numWordItem,itemTimeProcess
 
 
 def compileMixCCodeAndSave(fopStep1,fopStep2,fopASTInfo,fopStep4GraphAll,fopStep4GraphSimplify,fpLog,nlpObj,offsetContext,isSaveGraph):
@@ -70,7 +77,8 @@ def compileMixCCodeAndSave(fopStep1,fopStep2,fopASTInfo,fopStep4GraphAll,fopStep
     f1 = open(fpLog, 'w')
     f1.write('')
     f1.close()
-
+    numWordProcess = 0
+    totalTimeProcess = 0
     lstCFilesStep1=glob.glob(fopStep1+'*.cpp')
 
     # t = time.time()
@@ -78,9 +86,13 @@ def compileMixCCodeAndSave(fopStep1,fopStep2,fopASTInfo,fopStep4GraphAll,fopStep
     for i in range(0, len(lstCFilesStep1)):
         # if i!=2:
         #     continue
-        checkAndGenerateAST(i, lstCFilesStep1, fopStep2, fopASTInfo,fopStep4GraphAll,fopStep4GraphSimplify,fpLog,nlpObj,offsetContext,isSaveGraph)
-
+        ii,itemNumWord,itemNumTime=checkAndGenerateAST(i, lstCFilesStep1, fopStep2, fopASTInfo,fopStep4GraphAll,fopStep4GraphSimplify,fpLog,nlpObj,offsetContext,isSaveGraph)
+        numWordProcess=numWordProcess+itemNumWord
+        totalTimeProcess=totalTimeProcess+itemNumTime
         # break
+    avgTimePerWords = (totalTimeProcess * 1.0) / numWordProcess
+    # print('total time and words and avg\t{}\t{}\t{}'.format(numWordProcess, totalTimeProcess, avgTimePerWords))
+    # input('write some words')
     # print(time.time() - t)
 
     # for i in range(0,len(lstCFilesStep1)):
@@ -90,7 +102,7 @@ def compileMixCCodeAndSave(fopStep1,fopStep2,fopASTInfo,fopStep4GraphAll,fopStep
 fopData='../../../../dataPapers/textInSPOC/correctCodeRaw/'
 
 fopCorrectFiles= fopData + 'step1/'
-fopASTFiles=fopData+'step3_treesitter/'
+fopASTFiles=fopData+'step3_treesitter_temp/'
 fopCompiledFiles=fopData+'step2/'
 fopStep4GraphAll=fopData+'step4_graphAll/'
 fopStep4GraphSimplify=fopData+'step4_graphSimplify/'
