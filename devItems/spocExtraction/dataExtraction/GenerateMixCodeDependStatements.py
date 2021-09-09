@@ -231,7 +231,8 @@ def generateMixVersionsAndLabels(dictLinesAndElements,arrCodes,arrPseudos,fopCod
             strBelowStatements=strStmtSplit.join(lstListOfBelowStatements)
 
             f1=open(fpItemVersionLabel,'w')
-            strLbl='{}\n{}\n{}\n{}\n{}\{}'.format(strMainStatement,strPosition,numOfLine,numOfStatements,strBelowStatements,strDictToString)
+            strLbl='{}\n{}\n{}\n{}\n{}\n{}'.format(strMainStatement,strPosition,numOfLine,numOfStatements,strBelowStatements,strDictToString)
+            f1.write(strLbl)
             f1.close()
     except:
         traceback.print_exc()
