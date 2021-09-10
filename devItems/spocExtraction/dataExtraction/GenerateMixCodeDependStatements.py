@@ -182,7 +182,7 @@ def findReplaceableStatements(dictLinesAndElements,lstTupFunctionDeclarations):
     except:
         traceback.print_exc()
 
-def checkAppearInImplementation(strPseudo,strCode):
+def checkAppearInImplementation(dictLiterals,strPseudo,strCode):
     strPseudoSplit=''
     strCodeSplit=''
     strTokSplit=''
@@ -206,17 +206,28 @@ def checkAppearInImplementation(strPseudo,strCode):
         numAppear=0
         numDisappear=0
         for itemPseudo in arrPseudos:
-            arrPseudoSplit = re.findall(strRegexCamelCases, itemPseudo)
-            if len(arrPseudoSplit)==0:
-                arrPseudoSplit=[itemPseudo]
-            isAppear=False
-            for item in arrPseudoSplit:
-                strItLower=item.lower()
-                if not strItLower in setTokCode:
-                    isAppear=False
-                    break
-                else:
+            isAppear = False
+            if itemPseudo.startswith('SpecialLiteral_'):
+                # print('itemPseudo {}'.format(itemPseudo))
+                # input('I love')
+                valItem=dictLiterals[itemPseudo]
+                # print('val {}\nstr {}'.format(valItem,strCode))
+                if valItem in strCode:
                     isAppear=True
+                else:
+                    isAppear=False
+            else:
+                arrPseudoSplit = re.findall(strRegexCamelCases, itemPseudo)
+                if len(arrPseudoSplit)==0:
+                    arrPseudoSplit=[itemPseudo]
+                isAppear=False
+                for item in arrPseudoSplit:
+                    strItLower=item.lower()
+                    if not strItLower in setTokCode:
+                        isAppear=False
+                        break
+                    else:
+                        isAppear=True
             if isAppear:
                 numAppear=numAppear+1
                 lstTokPseudo.append(itemPseudo+'#1')
@@ -236,7 +247,7 @@ def checkAppearInImplementation(strPseudo,strCode):
         percent=0
     return strCodeSplit,strCodeTokSplit,strPseudoSplit,strTokSplit,numAppear,numDisappear,percent
 
-def generateMixVersionsAndLabels(dictLinesAndElements,dictLabelStatistics,arrCodes,arrPseudos,fopCodeVersion,fonameItemAST,idCode,fopAllocateByMainStmt,fopAllocateByNumOfStmts):
+def generateMixVersionsAndLabels(dictLinesAndElements,dictLabelStatistics,dictLiterals,arrCodes,arrPseudos,fopCodeVersion,fonameItemAST,idCode,fopAllocateByMainStmt,fopAllocateByNumOfStmts):
     try:
         isOK=False
         indexVersion=0
@@ -252,8 +263,9 @@ def generateMixVersionsAndLabels(dictLinesAndElements,dictLabelStatistics,arrCod
         for keyItem in dictLinesAndElements.keys():
             valItem=dictLinesAndElements[keyItem]
             indexVersion=indexVersion+1
-            fpItemVersionCode=fopCodeVersion+'v_{}'.format(indexVersion)+'_mix.cpp'
-            fpItemVersionLabel = fopCodeVersion + 'v_{}'.format(indexVersion) + '_label.txt'
+            fnIndexVersion='v_{}'.format(indexVersion)
+            fpItemVersionCode=fopCodeVersion+fnIndexVersion+'_mix.cpp'
+            fpItemVersionLabel = fopCodeVersion + fnIndexVersion + '_label.txt'
             mainStmt = valItem['mainStmt']
             startLineMainStmt=mainStmt['startLine']
             endLineMainStmt = mainStmt['endLine']
@@ -267,7 +279,7 @@ def generateMixVersionsAndLabels(dictLinesAndElements,dictLabelStatistics,arrCod
 
             strTotalComment='// '+' , then '.join(lstStrPseudoLines)
             strTotalCode=' '.join(lstStrCodeLines)
-            strCodeSplit,strCodeTokSplit,strPseudoSplit,strTokSplit,numAppear,numDisappear,percent=checkAppearInImplementation(strTotalComment,strTotalCode)
+            strCodeSplit,strCodeTokSplit,strPseudoSplit,strTokSplit,numAppear,numDisappear,percent=checkAppearInImplementation(dictLiterals,strTotalComment,strTotalCode)
 
             lstMixCodes = []
             for i in range(0,len(arrCodes)):
@@ -285,7 +297,7 @@ def generateMixVersionsAndLabels(dictLinesAndElements,dictLabelStatistics,arrCod
                     if i == startLineMainStmt:
                         strLineAdd='{}{}'.format(''.join(lstStrs),strTotalComment)
                     else:
-                        strLineAdd = '{}{}'.format(lstStrs, '//')
+                        strLineAdd = '{}{}'.format(''.join(lstStrs), '//')
                 lstMixCodes.append(strLineAdd)
             f1=open(fpItemVersionCode,'w')
             f1.write('\n'.join(lstMixCodes))
@@ -336,12 +348,14 @@ def generateMixVersionsAndLabels(dictLinesAndElements,dictLabelStatistics,arrCod
             createDirIfNotExist(fopItemAllMainStmt)
             fopItemAllNumOfStmts = fopAllocateByNumOfStmts + str(numOfStatements) + '/' + fonameItemAST + '/' + idCode + '/'
             createDirIfNotExist(fopItemAllNumOfStmts)
-            if os.path.isdir(fopItemAllMainStmt):
-                shutil.rmtree(fopItemAllMainStmt)
-            if os.path.isdir(fopItemAllNumOfStmts):
-                shutil.rmtree(fopItemAllNumOfStmts)
-            shutil.copytree(fopCodeVersion, fopItemAllMainStmt, copy_function=shutil.copy)
-            shutil.copytree(fopCodeVersion, fopItemAllNumOfStmts, copy_function=shutil.copy)
+            # if os.path.isdir(fopItemAllMainStmt):
+            #     shutil.rmtree(fopItemAllMainStmt)
+            # if os.path.isdir(fopItemAllNumOfStmts):
+            #     shutil.rmtree(fopItemAllNumOfStmts)
+            shutil.copy(fopCodeVersion+fnIndexVersion+'_mix.cpp', fopItemAllMainStmt+fnIndexVersion+'_mix.cpp')
+            shutil.copy(fopCodeVersion+fnIndexVersion+ '_label.txt', fopItemAllMainStmt+fnIndexVersion+ '_label.txt')
+            shutil.copy(fopCodeVersion+fnIndexVersion+'_mix.cpp', fopItemAllNumOfStmts+fnIndexVersion+'_mix.cpp')
+            shutil.copy(fopCodeVersion + fnIndexVersion + '_label.txt',fopItemAllNumOfStmts + fnIndexVersion + '_label.txt')
 
     except:
         traceback.print_exc()
@@ -355,9 +369,24 @@ fopTreeSitterFile=fopRoot+'step3_treesitter_tokenize/'
 fopMixVersion=fopRoot+'step4_mixCode/'
 fopAllocateByMainStmt=fopRoot+'step4_mainStmt/'
 fopAllocateByNumOfStmts=fopRoot+'step4_numOfStatements/'
+fpDictLiterals=fopRoot+'step2_dictLiterals_all.txt'
 createDirIfNotExist(fopMixVersion)
 createDirIfNotExist(fopAllocateByMainStmt)
 createDirIfNotExist(fopAllocateByNumOfStmts)
+
+f1=open(fpDictLiterals,'r')
+arrLits=f1.read().strip().split('\n')
+f1.close()
+dictLiterals={}
+for item in arrLits:
+    arrTabs=item.split('\t')
+    if len(arrTabs)>=2:
+        strContent='\t'.join(arrTabs[1:])
+        dictLiterals[arrTabs[0]]=strContent
+
+# print('len dict {}'.format(len(dictLiterals.keys())))
+# input('abc ')
+
 
 lstFpDictASTs=glob.glob(fopTreeSitterFile+'**/*_code_ast.txt',recursive=True)
 distanceHeader=33
@@ -383,6 +412,7 @@ for i in range(0,len(lstFpDictASTs)):
         createDirIfNotExist(fopCodeVersion)
         fnLogOutput='a_logPrint.txt'
         fpCodeLogOutput=fopCodeVersion+fnLogOutput
+        fpCodeJsonOutput = fopCodeVersion + 'a_json.txt'
 
         sys.stdout = open(fpCodeLogOutput, 'w')
         f1=open(fpItemPseudo,'r')
@@ -393,7 +423,11 @@ for i in range(0,len(lstFpDictASTs)):
         f1.close()
         f1=open(fpItemAST,'r')
         strASTContent=f1.read().strip().split('\n')[1]
+        f1.close()
         jsonObject = ast.literal_eval(strASTContent)
+        f1=open(fpCodeJsonOutput,'w')
+        f1.write(str(jsonObject))
+        f1.close()
         dictLinesAndElements={}
         indent=1
         lstTupFunctionDeclarations=[]
@@ -402,13 +436,13 @@ for i in range(0,len(lstFpDictASTs)):
         findReplaceableStatements(dictLinesAndElements, lstTupFunctionDeclarations)
         print('dict after {}'.format(len(dictLinesAndElements.keys())))
         # print('dict final content\n{}'.format(dictLinesAndElements))
-        generateMixVersionsAndLabels(dictLinesAndElements,dictLabelStatistics,arrCodes,arrPseudos,fopCodeVersion,fonameItemAST,idCode,fopAllocateByMainStmt,fopAllocateByNumOfStmts)
+        generateMixVersionsAndLabels(dictLinesAndElements,dictLabelStatistics,dictLiterals,arrCodes,arrPseudos,fopCodeVersion,fonameItemAST,idCode,fopAllocateByMainStmt,fopAllocateByNumOfStmts)
 
         sys.stdout.close()
         sys.stdout = sys.__stdout__
         print('end {}/{} {}'.format(i,len(lstFpDictASTs),fpCodeLogOutput))
-        # if i==2000:
-        #     break
+        if i==2000:
+            break
     except:
         traceback.print_exc()
 
