@@ -161,17 +161,17 @@ pred_time = (end - start)
 lstTups=[]
 for i in range(0,len(y_TestP)):
     dist=abs(dictSortedLbls[y_TestP[i]]-dictSortedLbls[y_predP[i]])
-    tup=(dist,y_TestP[i],y_predP,l_TestP[i])
+    tup=(dist,y_TestP[i],y_predP[i],l_TestP[i])
     lstTups.append(tup)
 lstTups.sort(reverse=True)
 
 lstStrTup=[]
-for tup in lstStrTup:
+for tup in lstTups:
     strItem='{}\t{}\t{}\t{}'.format(tup[0],tup[1],tup[2],tup[3])
     lstStrTup.append(strItem)
-f1=open(fpOutResultTestP,'w')
-f1.write('\n'.join(lstStrTup))
-f1.close()
+f2=open(fpOutResultTestP,'w')
+f2.write('\n'.join(lstStrTup))
+f2.close()
 
 
 print('end testP {}'.format(pred_time))
@@ -195,17 +195,17 @@ pred_time = (end - start)
 lstTups=[]
 for i in range(0,len(y_TestW)):
     dist=abs(dictSortedLbls[y_TestW[i]]-dictSortedLbls[y_predW[i]])
-    tup=(dist,y_TestW[i],y_predW,l_TestW[i])
+    tup=(dist,y_TestW[i],y_predW[i],l_TestW[i])
     lstTups.append(tup)
 lstTups.sort(reverse=True)
 
 lstStrTup=[]
-for tup in lstStrTup:
+for tup in lstTups:
     strItem='{}\t{}\t{}\t{}'.format(tup[0],tup[1],tup[2],tup[3])
     lstStrTup.append(strItem)
-f1=open(fpOutResultTestW,'w')
-f1.write('\n'.join(lstStrTup))
-f1.close()
+f2=open(fpOutResultTestW,'w')
+f2.write('\n'.join(lstStrTup))
+f2.close()
 
 print('end testW {}'.format(pred_time))
 precision, recall, fscore, train_support = score(y_TestW, y_predW)
