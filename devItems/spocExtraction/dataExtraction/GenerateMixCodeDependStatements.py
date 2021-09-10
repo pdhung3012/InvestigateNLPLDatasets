@@ -441,8 +441,8 @@ for i in range(0,len(lstFpDictASTs)):
         sys.stdout.close()
         sys.stdout = sys.__stdout__
         print('end {}/{} {}'.format(i,len(lstFpDictASTs),fpCodeLogOutput))
-        if i==2000:
-            break
+        # if i==2000:
+        #     break
     except:
         traceback.print_exc()
 
