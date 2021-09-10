@@ -31,6 +31,9 @@ fopRoot='../../../../dataPapers/textInSPOC/correctCodeRaw/'
 fopMixDataAndLabel=fopRoot+'step5_data_mixCode/'
 fopResultMLs=fopRoot+'step6_resultMLs/'
 
+fpTrainLocation=fopMixDataAndLabel+'train.location.txt'
+fpTestPLocation=fopMixDataAndLabel+'testP.location.txt'
+fpTestWLocation=fopMixDataAndLabel+'testW.location.txt'
 fpTrainText=fopMixDataAndLabel+'train.input.pseudo.txt'
 fpTestPText=fopMixDataAndLabel+'testP.input.pseudo.txt'
 fpTestWText=fopMixDataAndLabel+'testW.input.pseudo.txt'
@@ -43,6 +46,8 @@ createDirIfNotExist(fopD2VRF)
 # fpOutModel=fopD2VRF+'model.d2v'
 fpOutResultDetail=fopD2VRF+'resultDetail.txt'
 fpOutResultSummary=fopD2VRF+'resultSummary.txt'
+fpOutResultTestP=fopD2VRF+'resultTestP.txt'
+fpOutResultTestW=fopD2VRF+'resultTestW.txt'
 
 X_Train = []
 key_Train = []
@@ -53,6 +58,9 @@ key_TestW = []
 y_Train=[]
 y_TestP=[]
 y_TestW=[]
+l_Train=[]
+l_TestP=[]
+l_TestW=[]
 lstAllText = []
 
 f1 = open(fpTrainText, 'r')
@@ -61,12 +69,16 @@ f1.close()
 f1 = open(fpTrainLabel, 'r')
 arrLabels = f1.read().strip().split('\n')
 f1.close()
+f1 = open(fpTrainLocation, 'r')
+arrLocations = f1.read().strip().split('\n')
+f1.close()
 
 
 for i in range(0, len(arrItems)):
     item = arrItems[i]
     X_Train.append(item)
     y_Train.append(arrLabels[i])
+    l_Train.append(arrLocations[i])
     lstAllText.append(item)
 
 f1 = open(fpTestPText, 'r')
@@ -75,11 +87,15 @@ f1.close()
 f1 = open(fpTestPLabel, 'r')
 arrLabels = f1.read().strip().split('\n')
 f1.close()
+f1 = open(fpTestPLocation, 'r')
+arrLocations = f1.read().strip().split('\n')
+f1.close()
 
 for i in range(0, len(arrItems)):
     item = arrItems[i]
     X_TestP.append(item)
     y_TestP.append(arrLabels[i])
+    l_TestP.append(arrLocations[i])
     lstAllText.append(item)
 
 f1 = open(fpTestWText, 'r')
@@ -88,21 +104,26 @@ f1.close()
 f1 = open(fpTestWLabel, 'r')
 arrLabels = f1.read().strip().split('\n')
 f1.close()
+f1 = open(fpTestWLocation, 'r')
+arrLocations = f1.read().strip().split('\n')
+f1.close()
+
 
 for i in range(0, len(arrItems)):
     item = arrItems[i]
     X_TestW.append(item)
     y_TestW.append(arrLabels[i])
+    l_TestW.append(arrLocations[i])
     lstAllText.append(item)
 
 
-vectorizer = TfidfVectorizer(ngram_range=(1, 1))
+vectorizer = TfidfVectorizer(ngram_range=(1, 1),max_features=1000)
 model = vectorizer.fit(lstAllText)
 vec_total_all=model.transform(lstAllText).toarray()
 vec_train_all=model.transform(X_Train).toarray()
 vec_testP_all=model.transform(X_TestP).toarray()
 vec_testW_all=model.transform(X_TestW).toarray()
-pca = PCA(n_components=100)
+#pca = PCA(n_components=100)
 print('prepare to fit transform')
 # modelPCA = pca.fit(vec_total_all)
 # vec_train=modelPCA.transform(vec_train_all)
@@ -114,9 +135,17 @@ vec_testW=vec_testW_all
 
 print('end fit transform')
 
+y_all=y_Train+y_TestP+y_TestW
+lstSortedLabels=sorted(set(y_all))
+dictSortedLbls={}
+for i in range(0,len(lstSortedLabels)):
+    dictSortedLbls[lstSortedLabels[i]]=i+1
 
 
-rf = RandomForestClassifier(n_estimators=150, max_depth=None, n_jobs=-1,random_state = 42)
+
+# rf = RandomForestClassifier(n_estimators=150, max_depth=None, n_jobs=-1,random_state = 42)
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+rf=LinearDiscriminantAnalysis()
 print('go here')
 start = time.time()
 rf_model = rf.fit(vec_train, y_Train)
@@ -128,7 +157,25 @@ start = time.time()
 y_predP = rf_model.predict(vec_testP)
 end = time.time()
 pred_time = (end - start)
+
+lstTups=[]
+for i in range(0,len(y_TestP)):
+    dist=abs(dictSortedLbls[y_TestP[i]]-dictSortedLbls[y_predP[i]])
+    tup=(dist,y_TestP[i],y_predP,l_TestP[i])
+    lstTups.append(tup)
+lstTups.sort(reverse=True)
+
+lstStrTup=[]
+for tup in lstStrTup:
+    strItem='{}\t{}\t{}\t{}'.format(tup[0],tup[1],tup[2],tup[3])
+    lstStrTup.append(strItem)
+f1=open(fpOutResultTestP,'w')
+f1.write('\n'.join(lstStrTup))
+f1.close()
+
+
 print('end testP {}'.format(pred_time))
+
 
 
 f1=open(fpOutResultDetail,'w')
@@ -144,6 +191,22 @@ start = time.time()
 y_predW = rf_model.predict(vec_testW)
 end = time.time()
 pred_time = (end - start)
+
+lstTups=[]
+for i in range(0,len(y_TestW)):
+    dist=abs(dictSortedLbls[y_TestW[i]]-dictSortedLbls[y_predW[i]])
+    tup=(dist,y_TestW[i],y_predW,l_TestW[i])
+    lstTups.append(tup)
+lstTups.sort(reverse=True)
+
+lstStrTup=[]
+for tup in lstStrTup:
+    strItem='{}\t{}\t{}\t{}'.format(tup[0],tup[1],tup[2],tup[3])
+    lstStrTup.append(strItem)
+f1=open(fpOutResultTestW,'w')
+f1.write('\n'.join(lstStrTup))
+f1.close()
+
 print('end testW {}'.format(pred_time))
 precision, recall, fscore, train_support = score(y_TestW, y_predW)
 accuracyW=np.round((y_predW==y_TestW).sum()/len(y_predW), 3)
