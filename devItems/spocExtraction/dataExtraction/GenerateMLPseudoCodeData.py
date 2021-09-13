@@ -20,6 +20,30 @@ fopMixVersion=fopRoot+'step4_mixCode/'
 fopMixDataAndLabel=fopRoot+'step5_data_mixCode/'
 createDirIfNotExist(fopMixDataAndLabel)
 lstSubFolder=glob.glob(fopMixVersion+'*/')
+
+def scoreName(percentage):
+    scoreLevel='1'
+    if percentage <=10:
+        scoreLevel='1'
+    elif percentage>10 and percentage<=20:
+        scoreLevel='2'
+    elif percentage>20 and percentage<=30:
+        scoreLevel='3'
+    elif percentage>30 and percentage<=40:
+        scoreLevel='4'
+    elif percentage>40 and percentage<=50:
+        scoreLevel='5'
+    elif percentage>50 and percentage<=60:
+        scoreLevel='6'
+    elif percentage>60 and percentage<=70:
+        scoreLevel='7'
+    elif percentage>70 and percentage<=80:
+        scoreLevel='8'
+    elif percentage>80 and percentage<=90:
+        scoreLevel='9'
+    else:
+        scoreLevel='10'
+    return scoreLevel
 for fopTrain2Test in lstSubFolder:
     arrTemps=fopTrain2Test.split('/')
     fonTrain2Test=arrTemps[len(arrTemps)-2]
@@ -27,6 +51,7 @@ for fopTrain2Test in lstSubFolder:
     fnLocation=fonTrain2Test+'.location.txt'
     fnLabelCodeClass = fonTrain2Test + '.label.codeClass.txt'
     fnLabelNumStmts = fonTrain2Test + '.label.numStmt.txt'
+    fnLabelPercentageAppear = fonTrain2Test + '.label.percentAppear.txt'
     fnDetailsNumStmts = fonTrain2Test + '.label.numStmtDetails.txt'
     fnInputPseudo = fonTrain2Test + '.input.pseudo.txt'
     fnInputPrefix = fonTrain2Test + '.input.prefix.txt'
@@ -36,15 +61,18 @@ for fopTrain2Test in lstSubFolder:
     fpLocation=fopMixDataAndLabel+fnLocation
     fpLabelCodeClass = fopMixDataAndLabel+fnLabelCodeClass
     fpLabelNumStmts = fopMixDataAndLabel + fnLabelNumStmts
+    fpLabelPercentageAppear = fopMixDataAndLabel + fnLabelPercentageAppear
     fpDetailsNumStmts = fopMixDataAndLabel + fnDetailsNumStmts
     fpInputPseudo = fopMixDataAndLabel + fnInputPseudo
     fpInputPrefix = fopMixDataAndLabel + fnInputPrefix
     fpInputPostfix = fopMixDataAndLabel + fnInputPostfix
     fpOutputAppearInCode = fopMixDataAndLabel + fnOutputAppearInCode
 
+
     lstLocation=[]
     lstLabelCodeClass = []
     lstLabelNumStmts = []
+    lstLabelPercentAppear = []
     lstDetailsNumStmts = []
     lstInputPseudo = []
     lstInputPrefix = []
@@ -77,6 +105,8 @@ for fopTrain2Test in lstSubFolder:
                     lstInputPostfix.append(arrCodes[endLineMainStmt+1])
                     lstOutputAppearInCode.append(arrLblLine[9])
                     lstInputPseudo.append(arrLblLine[8])
+                    arrLastLines=arrLblLine[10].split('\t')
+                    lstLabelPercentAppear.append(scoreName(float(arrLastLines[2])*100))
                     strItemLoc = '{}\t{}'.format(idCode, itemVersionName)
                     lstLocation.append(strItemLoc)
                     # print('len {}'.format(len(lstLocation)))
@@ -108,5 +138,8 @@ for fopTrain2Test in lstSubFolder:
     f1.close()
     f1=open(fpOutputAppearInCode,'w')
     f1.write('\n'.join(lstOutputAppearInCode))
+    f1.close()
+    f1=open(fpLabelPercentageAppear,'w')
+    f1.write('\n'.join(lstLabelPercentAppear))
     f1.close()
     print('end {}'.format(fopTrain2Test))
