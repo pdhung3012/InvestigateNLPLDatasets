@@ -37,11 +37,17 @@ fpTestWLocation=fopMixDataAndLabel+'testW.location.txt'
 fpTrainText=fopMixDataAndLabel+'train.input.pseudo.txt'
 fpTestPText=fopMixDataAndLabel+'testP.input.pseudo.txt'
 fpTestWText=fopMixDataAndLabel+'testW.input.pseudo.txt'
+fpTrainPrefix=fopMixDataAndLabel+'train.input.prefix.txt'
+fpTestPPrefix=fopMixDataAndLabel+'testP.input.prefix.txt'
+fpTestWPrefix=fopMixDataAndLabel+'testW.input.prefix.txt'
+fpTrainPostfix=fopMixDataAndLabel+'train.input.postfix.txt'
+fpTestPPostfix=fopMixDataAndLabel+'testP.input.postfix.txt'
+fpTestWPostfix=fopMixDataAndLabel+'testW.input.postfix.txt'
 fpTrainLabel=fopMixDataAndLabel+'train.label.codeClass.txt'
 fpTestPLabel=fopMixDataAndLabel+'testP.label.codeClass.txt'
 fpTestWLabel=fopMixDataAndLabel+'testW.label.codeClass.txt'
 
-fopD2VRF=fopResultMLs+'pseudo-tfidf-lda/'
+fopD2VRF=fopResultMLs+'pseudoAndContext-tfidf-lda/'
 createDirIfNotExist(fopD2VRF)
 # fpOutModel=fopD2VRF+'model.d2v'
 fpOutResultDetail=fopD2VRF+'resultDetail.txt'
@@ -66,6 +72,12 @@ lstAllText = []
 f1 = open(fpTrainText, 'r')
 arrItems = f1.read().strip().split('\n')
 f1.close()
+f1 = open(fpTrainPrefix, 'r')
+arrTrainPrefixes = f1.read().strip().split('\n')
+f1.close()
+f1 = open(fpTrainPostfix, 'r')
+arrTrainPostfixes = f1.read().strip().split('\n')
+f1.close()
 f1 = open(fpTrainLabel, 'r')
 arrLabels = f1.read().strip().split('\n')
 f1.close()
@@ -84,6 +96,12 @@ for i in range(0, len(arrItems)):
 f1 = open(fpTestPText, 'r')
 arrItems = f1.read().strip().split('\n')
 f1.close()
+f1 = open(fpTestPPrefix, 'r')
+arrTestPPrefixes = f1.read().strip().split('\n')
+f1.close()
+f1 = open(fpTestPPostfix, 'r')
+arrTestPPostfixes = f1.read().strip().split('\n')
+f1.close()
 f1 = open(fpTestPLabel, 'r')
 arrLabels = f1.read().strip().split('\n')
 f1.close()
@@ -101,6 +119,12 @@ for i in range(0, len(arrItems)):
 f1 = open(fpTestWText, 'r')
 arrItems = f1.read().strip().split('\n')
 f1.close()
+f1 = open(fpTestWPrefix, 'r')
+arrTestWPrefixes = f1.read().strip().split('\n')
+f1.close()
+f1 = open(fpTestWPostfix, 'r')
+arrTestWPostfixes = f1.read().strip().split('\n')
+f1.close()
 f1 = open(fpTestWLabel, 'r')
 arrLabels = f1.read().strip().split('\n')
 f1.close()
@@ -116,22 +140,39 @@ for i in range(0, len(arrItems)):
     l_TestW.append(arrLocations[i])
     lstAllText.append(item)
 
-
 vectorizer = TfidfVectorizer(ngram_range=(1, 4),max_features=1000)
 model = vectorizer.fit(lstAllText)
-vec_total_all=model.transform(lstAllText).toarray()
+# vec_total_all=model.transform(lstAllText).toarray()
 vec_train_all=model.transform(X_Train).toarray()
 vec_testP_all=model.transform(X_TestP).toarray()
 vec_testW_all=model.transform(X_TestW).toarray()
+
+arr_pre_all=arrTrainPrefixes+arrTestPPrefixes+arrTestWPrefixes
+vectorizer = TfidfVectorizer(ngram_range=(1, 4),max_features=1000)
+model = vectorizer.fit(arr_pre_all)
+# vec_total_all=model.transform(lstAllText).toarray()
+vec_train_pre=model.transform(arrTrainPrefixes).toarray()
+vec_testP_pre=model.transform(arrTestPPrefixes).toarray()
+vec_testW_pre=model.transform(arrTestWPrefixes).toarray()
+
+arr_post_all=arrTrainPostfixes+arrTestPPostfixes+arrTestWPostfixes
+vectorizer = TfidfVectorizer(ngram_range=(1, 4),max_features=1000)
+model = vectorizer.fit(arr_post_all)
+# vec_total_all=model.transform(lstAllText).toarray()
+vec_train_post=model.transform(arrTrainPostfixes).toarray()
+vec_testP_post=model.transform(arrTestPPostfixes).toarray()
+vec_testW_post=model.transform(arrTestWPostfixes).toarray()
+
+
 #pca = PCA(n_components=100)
 print('prepare to fit transform')
-# modelPCA = pca.fit(vec_total_all)
-# vec_train=modelPCA.transform(vec_train_all)
-# vec_testP=modelPCA.transform(vec_testP_all)
-# vec_testW=modelPCA.transform(vec_testW_all)
-vec_train=vec_train_all
-vec_testP=vec_testP_all
-vec_testW=vec_testW_all
+# vec_train=vec_train_all
+# vec_testP=vec_testP_all
+# vec_testW=vec_testW_all
+import numpy as np
+vec_train= np.concatenate([vec_train_all,vec_train_pre,vec_train_post],axis=1)
+vec_testP=np.concatenate([vec_testP_all,vec_testP_pre,vec_testP_post],axis=1)
+vec_testW=np.concatenate([vec_testW_all,vec_testW_pre,vec_testW_post],axis=1)
 
 print('end fit transform')
 

@@ -69,7 +69,7 @@ for fopTrain2Test in lstSubFolder:
                     arrLblLine = f1.read().strip().split('\n')
                     f1.close()
                     lstLabelCodeClass.append(arrLblLine[0])
-                    lstLabelNumStmts.append(arrLblLine[3])
+                    lstLabelNumStmts.append(arrLblLine[2])
                     lstDetailsNumStmts.append(arrLblLine[4])
                     startLineMainStmt = int(arrLblLine[1].split('-')[0])
                     endLineMainStmt = int(arrLblLine[1].split('-')[2])
