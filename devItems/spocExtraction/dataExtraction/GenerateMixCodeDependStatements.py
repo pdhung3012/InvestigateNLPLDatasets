@@ -121,19 +121,20 @@ def findReplaceableStatements(dictLinesAndElements,lstTupFunctionDeclarations):
                 selectItem['singleRoot']=True
                 isHavingError=walkAndFindErrorInsideObject(selectItem)
             else:
-                for j in range(1, len(lstPossibleStatements)):
-                    candItem = lstPossibleStatements[j]
-                    isHavingError = walkAndFindErrorInsideObject(selectItem)
-                    if isHavingError:
-                        break
-                    if candItem['startLine'] < selectItem['startLine'] and candItem['endLine'] > selectItem['endLine']:
-                        selectItem = candItem
-                    elif candItem['startLine'] == selectItem['startLine'] and candItem['endLine'] == selectItem[
-                        'endLine']:
-                        if (candItem['endOffset'] - candItem['startOffset']) > (
-                                selectItem['endOffset'] - selectItem['startOffset']):
-                            selectItem = candItem
-                selectItem['singleRoot'] = False
+                # for j in range(1, len(lstPossibleStatements)):
+                #     candItem = lstPossibleStatements[j]
+                #     isHavingError = walkAndFindErrorInsideObject(selectItem)
+                #     if isHavingError:
+                #         break
+                #     if candItem['startLine'] < selectItem['startLine'] and candItem['endLine'] > selectItem['endLine']:
+                #         selectItem = candItem
+                #     elif candItem['startLine'] == selectItem['startLine'] and candItem['endLine'] == selectItem[
+                #         'endLine']:
+                #         if (candItem['endOffset'] - candItem['startOffset']) > (
+                #                 selectItem['endOffset'] - selectItem['startOffset']):
+                #             selectItem = candItem
+                # selectItem['singleRoot'] = False
+                lstPopKeys.append(item)
 
             # mainStmt = '{}-{}-{}-{}-{}'.format(selectItem['type'], selectItem['startLine'], selectItem['startOffset'],
             #                                    selectItem['endLine'], selectItem['endOffset'])
