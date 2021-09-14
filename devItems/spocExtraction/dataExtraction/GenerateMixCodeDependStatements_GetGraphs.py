@@ -300,17 +300,18 @@ def generateMixVersionsAndLabels(jsonObject,dictLinesAndElements,dictLabelStatis
         f1=open(fpItemCode,'w')
         f1.write('\n'.join(arrCodes))
         f1.close()
-        graph = pgv.AGraph(directed=True)
-        isBlueColor = True
-        idChange = '-1'
-        generateGraph(jsonObject,'',arrCodes, idChange, isBlueColor, graph)
-        graph.write(fpItemGraphText)
-        # graph.layout()
-        # graph.draw(fpItemGraphPng)
-        # (graphPydot,) = pydot.graph_from_dot_file(fpItemGraphText)
-        # graphPydot.write_png(fpItemGraphPng)
-        # check_call(['dot', '-Tpng', fpItemGraphText, '-o', fpItemGraphPng])
-        # render('dot', 'png', fpItemGraphText)
+        if 'testP' in fopCodeVersion:
+            graph = pgv.AGraph(directed=True)
+            isBlueColor = True
+            idChange = '-1'
+            generateGraph(jsonObject,'',arrCodes, idChange, isBlueColor, graph)
+            graph.write(fpItemGraphText)
+            # graph.layout()
+            # graph.draw(fpItemGraphPng)
+            # (graphPydot,) = pydot.graph_from_dot_file(fpItemGraphText)
+            # graphPydot.write_png(fpItemGraphPng)
+            # check_call(['dot', '-Tpng', fpItemGraphText, '-o', fpItemGraphPng])
+            # render('dot', 'png', fpItemGraphText)
 
         for keyItem in dictLinesAndElements.keys():
             valItem=dictLinesAndElements[keyItem]
@@ -397,14 +398,14 @@ def generateMixVersionsAndLabels(jsonObject,dictLinesAndElements,dictLabelStatis
             f1.close()
 
 
-            # if 'test' in fopCodeVersion:
-            graph = pgv.AGraph(directed=True)
-            isBlueColor = True
-            idChange = str(mainStmt['id'])
-            generateGraph(jsonObject,'',arrCodes, idChange, isBlueColor, graph)
-            graph.write(fopCodeVersion+fnIndexVersion+'_graph.dot')
-            # graph.layout(prog='dot')
-            # graph.draw(fopCodeVersion+fnIndexVersion+'_graph.png')
+            if 'testP' in fopCodeVersion:
+                graph = pgv.AGraph(directed=True)
+                isBlueColor = True
+                idChange = str(mainStmt['id'])
+                generateGraph(jsonObject,'',arrCodes, idChange, isBlueColor, graph)
+                graph.write(fopCodeVersion+fnIndexVersion+'_graph.dot')
+                # graph.layout(prog='dot')
+                # graph.draw(fopCodeVersion+fnIndexVersion+'_graph.png')
 
 
             fopItemAllMainStmt=fopAllocateByMainStmt+strMainStatement+'/'+fonameItemAST+'/'+idCode+'/'
@@ -419,9 +420,9 @@ def generateMixVersionsAndLabels(jsonObject,dictLinesAndElements,dictLabelStatis
             shutil.copy(fopCodeVersion+fnIndexVersion+ '_label.txt', fopItemAllMainStmt+fnIndexVersion+ '_label.txt')
             shutil.copy(fopCodeVersion+fnIndexVersion+'_mix.cpp', fopItemAllNumOfStmts+fnIndexVersion+'_mix.cpp')
             shutil.copy(fopCodeVersion + fnIndexVersion + '_label.txt',fopItemAllNumOfStmts + fnIndexVersion + '_label.txt')
-            # if 'test' in fopCodeVersion:
-            shutil.copy(fopCodeVersion + fnIndexVersion + '_graph.dot',
-                        fopItemAllNumOfStmts + fnIndexVersion + '_graph.dot')
+            if 'testP' in fopCodeVersion:
+                shutil.copy(fopCodeVersion + fnIndexVersion + '_graph.dot',
+                            fopItemAllNumOfStmts + fnIndexVersion + '_graph.dot')
             #     shutil.copy(fopCodeVersion + fnIndexVersion + '_graph.png',
             #                 fopItemAllNumOfStmts + fnIndexVersion + '_graph.png')
     except:
@@ -480,6 +481,9 @@ for i in range(0,len(lstFpDictASTs)):
         fnLogOutput='a_logPrint.txt'
         fpCodeLogOutput=fopCodeVersion+fnLogOutput
         fpCodeJsonOutput = fopCodeVersion + 'a_json.txt'
+
+        if 'train' in fopCodeVersion:
+            continue
 
         sys.stdout = open(fpCodeLogOutput, 'w')
         f1=open(fpItemPseudo,'r')
