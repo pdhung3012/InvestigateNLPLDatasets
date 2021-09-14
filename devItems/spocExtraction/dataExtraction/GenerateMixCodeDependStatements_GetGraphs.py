@@ -15,7 +15,9 @@ from LibForGraphExtractionFromRawCode import getJsonDict,getTerminalValue
 import ast
 import re
 import pygraphviz as pgv
-
+import pydot
+from subprocess import check_call
+from graphviz import render
 
 strRegexCamelCases=r'[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))'
 
@@ -24,6 +26,39 @@ strTabChar=' tabChar '
 strEndLineChar=' endLineChar '
 strSplitIndent=' IndentSplit '
 strSplitJson=' JsonSplit '
+
+def generateGraph(jsonObject,strFatherLabel,arrCodes,idChange,isBlueColor,graph):
+    startLine=jsonObject['startLine']
+    startOffset=jsonObject['startOffset']
+    endLine=jsonObject['endLine']
+    endOffset=jsonObject['endOffset']
+    strPosition='{}-{}-{}-{}'.format(startLine,startOffset,endLine,endOffset)
+    strId=str(jsonObject['id'])
+    strLabel='{}\n{}\n{}'.format(strId,strPosition,jsonObject['type'])
+    # strLabel = '{}\n{}'.format(strId, jsonObject['type'])
+
+    if isBlueColor and strId!=idChange:
+        graph.add_node(strLabel, color='blue')
+    else:
+        graph.add_node(strLabel, color='red')
+
+    if 'children' in jsonObject.keys():
+        lstChildren=jsonObject['children']
+        for i in range(0,len(lstChildren)):
+            if strId == idChange:
+                # print('id and idchange {} {}'.format(strId, idChange))
+                isBlueColor = False
+            strChildLabel=generateGraph(lstChildren[i],strLabel,arrCodes,idChange, isBlueColor, graph)
+            if strLabel!=strChildLabel:
+                graph.add_edge(strLabel,strChildLabel,color='black')
+    else:
+        strTerminalLabel='-2\n{}\n{}'.format(strPosition,getTerminalValue(startLine,startOffset,endLine,endOffset,arrCodes))
+        graph.add_node(strTerminalLabel, color='yellow')
+        graph.add_edge(strLabel, strTerminalLabel, color='black')
+
+    return strLabel
+
+
 
 def walkJsonAndGetIndent(jsonObject,dictLinesAndElements,indent):
     try:
@@ -152,6 +187,7 @@ def findReplaceableStatements(dictLinesAndElements,lstTupFunctionDeclarations):
 
 
 
+
         for key in lstPopKeys:
             dictLinesAndElements.pop(key, None)
         lstPopKeys=[]
@@ -250,18 +286,31 @@ def checkAppearInImplementation(dictLiterals,strPseudo,strCode):
         percent=0
     return strCodeSplit,strCodeTokSplit,strPseudoSplit,strTokSplit,numAppear,numDisappear,percent
 
-def generateMixVersionsAndLabels(dictLinesAndElements,dictLabelStatistics,dictLiterals,arrCodes,arrPseudos,fopCodeVersion,fonameItemAST,idCode,fopAllocateByMainStmt,fopAllocateByNumOfStmts):
+def generateMixVersionsAndLabels(jsonObject,dictLinesAndElements,dictLabelStatistics,dictLiterals,arrCodes,arrPseudos,fopCodeVersion,fonameItemAST,idCode,fopAllocateByMainStmt,fopAllocateByNumOfStmts):
     try:
         isOK=False
         indexVersion=0
         fpItemPseudo=fopCodeVersion+'_a_pseudo.txt'
         fpItemCode=fopCodeVersion+'_a_code.cpp'
+        fpItemGraphText = fopCodeVersion + '_a_graph.dot'
+        fpItemGraphPng = fopCodeVersion + '_a_graph.png'
         f1=open(fpItemPseudo,'w')
         f1.write('\n'.join(arrPseudos))
         f1.close()
         f1=open(fpItemCode,'w')
         f1.write('\n'.join(arrCodes))
         f1.close()
+        graph = pgv.AGraph(directed=True)
+        isBlueColor = True
+        idChange = '-1'
+        generateGraph(jsonObject,'',arrCodes, idChange, isBlueColor, graph)
+        graph.write(fpItemGraphText)
+        # graph.layout()
+        # graph.draw(fpItemGraphPng)
+        # (graphPydot,) = pydot.graph_from_dot_file(fpItemGraphText)
+        # graphPydot.write_png(fpItemGraphPng)
+        # check_call(['dot', '-Tpng', fpItemGraphText, '-o', fpItemGraphPng])
+        # render('dot', 'png', fpItemGraphText)
 
         for keyItem in dictLinesAndElements.keys():
             valItem=dictLinesAndElements[keyItem]
@@ -347,13 +396,21 @@ def generateMixVersionsAndLabels(dictLinesAndElements,dictLabelStatistics,dictLi
             f1.write(strLbl)
             f1.close()
 
+
+            # if 'test' in fopCodeVersion:
+            graph = pgv.AGraph(directed=True)
+            isBlueColor = True
+            idChange = str(mainStmt['id'])
+            generateGraph(jsonObject,'',arrCodes, idChange, isBlueColor, graph)
+            graph.write(fopCodeVersion+fnIndexVersion+'_graph.dot')
+            # graph.layout(prog='dot')
+            # graph.draw(fopCodeVersion+fnIndexVersion+'_graph.png')
+
+
             fopItemAllMainStmt=fopAllocateByMainStmt+strMainStatement+'/'+fonameItemAST+'/'+idCode+'/'
             createDirIfNotExist(fopItemAllMainStmt)
             fopItemAllNumOfStmts = fopAllocateByNumOfStmts + str(numOfStatements) + '/' + fonameItemAST + '/' + idCode + '/'
             createDirIfNotExist(fopItemAllNumOfStmts)
-
-
-
             # if os.path.isdir(fopItemAllMainStmt):
             #     shutil.rmtree(fopItemAllMainStmt)
             # if os.path.isdir(fopItemAllNumOfStmts):
@@ -362,7 +419,11 @@ def generateMixVersionsAndLabels(dictLinesAndElements,dictLabelStatistics,dictLi
             shutil.copy(fopCodeVersion+fnIndexVersion+ '_label.txt', fopItemAllMainStmt+fnIndexVersion+ '_label.txt')
             shutil.copy(fopCodeVersion+fnIndexVersion+'_mix.cpp', fopItemAllNumOfStmts+fnIndexVersion+'_mix.cpp')
             shutil.copy(fopCodeVersion + fnIndexVersion + '_label.txt',fopItemAllNumOfStmts + fnIndexVersion + '_label.txt')
-
+            # if 'test' in fopCodeVersion:
+            shutil.copy(fopCodeVersion + fnIndexVersion + '_graph.dot',
+                        fopItemAllNumOfStmts + fnIndexVersion + '_graph.dot')
+            #     shutil.copy(fopCodeVersion + fnIndexVersion + '_graph.png',
+            #                 fopItemAllNumOfStmts + fnIndexVersion + '_graph.png')
     except:
         traceback.print_exc()
 
@@ -442,7 +503,7 @@ for i in range(0,len(lstFpDictASTs)):
         findReplaceableStatements(dictLinesAndElements, lstTupFunctionDeclarations)
         print('dict after {}'.format(len(dictLinesAndElements.keys())))
         # print('dict final content\n{}'.format(dictLinesAndElements))
-        generateMixVersionsAndLabels(dictLinesAndElements,dictLabelStatistics,dictLiterals,arrCodes,arrPseudos,fopCodeVersion,fonameItemAST,idCode,fopAllocateByMainStmt,fopAllocateByNumOfStmts)
+        generateMixVersionsAndLabels(jsonObject,dictLinesAndElements,dictLabelStatistics,dictLiterals,arrCodes,arrPseudos,fopCodeVersion,fonameItemAST,idCode,fopAllocateByMainStmt,fopAllocateByNumOfStmts)
 
         sys.stdout.close()
         sys.stdout = sys.__stdout__
