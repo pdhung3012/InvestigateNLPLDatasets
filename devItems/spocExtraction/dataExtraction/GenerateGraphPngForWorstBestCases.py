@@ -25,17 +25,26 @@ fopResultMLs=fopRoot+'step6_resultMLs/'
 lstMLResultsFolders=glob.glob(fopResultMLs+'*/')
 numTests=100
 
+dictGraphVisit={}
 for fopResultItem in lstMLResultsFolders:
     fpItemTestP=fopResultItem+'resultTestP.txt'
     fpItemTestW = fopResultItem + 'resultTestW.txt'
     f1=open(fpItemTestP,'r')
     arrTestLines=f1.read().strip().split('\n')
     f1.close()
+    print('begin {}'.format(fopResultItem))
     for i in range(0,numTests):
         arrTabs=arrTestLines[i].split('\t')
+        keyG=arrTabs[3]+arrTabs[4]
+        if keyG not in dictGraphVisit.keys():
+            dictGraphVisit[keyG]=1
+        else:
+            continue
         try:
             fpDot=arrTabs[3]+'/'+arrTabs[4]+'_graph.dot'
             fpPng = arrTabs[3] + '/' + arrTabs[4] + '_graph.png'
+            if os.path.exists(fpPng):
+                continue
             (graphPydot,) = pydot.graph_from_dot_file(fpDot)
             graphPydot.write_png(fpPng)
         except:
@@ -43,9 +52,16 @@ for fopResultItem in lstMLResultsFolders:
         print('end {} {}'.format(i,arrTestLines[i]))
     for i in range(len(arrTestLines)-1-numTests,len(arrTestLines)):
         arrTabs=arrTestLines[i].split('\t')
+        keyG = arrTabs[3] + arrTabs[4]
+        if keyG not in dictGraphVisit.keys():
+            dictGraphVisit[keyG] = 1
+        else:
+            continue
         try:
             fpDot=arrTabs[3]+'/'+arrTabs[4]+'_graph.dot'
             fpPng = arrTabs[3] + '/' + arrTabs[4] + '_graph.png'
+            if os.path.exists(fpPng):
+                continue
             (graphPydot,) = pydot.graph_from_dot_file(fpDot)
             graphPydot.write_png(fpPng)
         except:
@@ -57,9 +73,16 @@ for fopResultItem in lstMLResultsFolders:
     f1.close()
     for i in range(0,numTests):
         arrTabs=arrTestLines[i].split('\t')
+        keyG = arrTabs[3] + arrTabs[4]
+        if keyG not in dictGraphVisit.keys():
+            dictGraphVisit[keyG] = 1
+        else:
+            continue
         try:
             fpDot=arrTabs[3]+'/'+arrTabs[4]+'_graph.dot'
             fpPng = arrTabs[3] + '/' + arrTabs[4] + '_graph.png'
+            if os.path.exists(fpPng):
+                continue
             (graphPydot,) = pydot.graph_from_dot_file(fpDot)
             graphPydot.write_png(fpPng)
         except:
@@ -67,9 +90,16 @@ for fopResultItem in lstMLResultsFolders:
         print('end {} {}'.format(i,arrTestLines[i]))
     for i in range(len(arrTestLines)-1-numTests,len(arrTestLines)):
         arrTabs=arrTestLines[i].split('\t')
+        keyG = arrTabs[3] + arrTabs[4]
+        if keyG not in dictGraphVisit.keys():
+            dictGraphVisit[keyG] = 1
+        else:
+            continue
         try:
             fpDot=arrTabs[3]+'/'+arrTabs[4]+'_graph.dot'
             fpPng = arrTabs[3] + '/' + arrTabs[4] + '_graph.png'
+            if os.path.exists(fpPng):
+                continue
             (graphPydot,) = pydot.graph_from_dot_file(fpDot)
             graphPydot.write_png(fpPng)
         except:

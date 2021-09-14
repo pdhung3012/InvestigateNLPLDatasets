@@ -300,7 +300,7 @@ def generateMixVersionsAndLabels(jsonObject,dictLinesAndElements,dictLabelStatis
         f1=open(fpItemCode,'w')
         f1.write('\n'.join(arrCodes))
         f1.close()
-        if 'testP' in fopCodeVersion:
+        if 'test' in fopCodeVersion:
             graph = pgv.AGraph(directed=True)
             isBlueColor = True
             idChange = '-1'
@@ -398,7 +398,7 @@ def generateMixVersionsAndLabels(jsonObject,dictLinesAndElements,dictLabelStatis
             f1.close()
 
 
-            if 'testP' in fopCodeVersion:
+            if 'test' in fopCodeVersion:
                 graph = pgv.AGraph(directed=True)
                 isBlueColor = True
                 idChange = str(mainStmt['id'])
@@ -420,7 +420,7 @@ def generateMixVersionsAndLabels(jsonObject,dictLinesAndElements,dictLabelStatis
             shutil.copy(fopCodeVersion+fnIndexVersion+ '_label.txt', fopItemAllMainStmt+fnIndexVersion+ '_label.txt')
             shutil.copy(fopCodeVersion+fnIndexVersion+'_mix.cpp', fopItemAllNumOfStmts+fnIndexVersion+'_mix.cpp')
             shutil.copy(fopCodeVersion + fnIndexVersion + '_label.txt',fopItemAllNumOfStmts + fnIndexVersion + '_label.txt')
-            if 'testP' in fopCodeVersion:
+            if 'test' in fopCodeVersion:
                 shutil.copy(fopCodeVersion + fnIndexVersion + '_graph.dot',
                             fopItemAllNumOfStmts + fnIndexVersion + '_graph.dot')
             #     shutil.copy(fopCodeVersion + fnIndexVersion + '_graph.png',
@@ -462,8 +462,8 @@ distanceHeader=33
 dictLabelStatistics={}
 dictLabelStatistics['mainStmt']={}
 dictLabelStatistics['numOfStatements']={}
-if os.path.isdir(fopMixVersion):
-    shutil.rmtree(fopMixVersion)
+# if os.path.isdir(fopMixVersion):
+#     shutil.rmtree(fopMixVersion)
 
 for i in range(0,len(lstFpDictASTs)):
     fpItemAST=lstFpDictASTs[i]
@@ -475,15 +475,15 @@ for i in range(0,len(lstFpDictASTs)):
         fpItemPseudo=fopPseudoFile+fonameItemAST+'/'+idCode+'_text.txt'
         fpItemCode = fopCodeFile + fonameItemAST+'/' + idCode + '_code.cpp'
         fopCodeVersion=fopMixVersion+fonameItemAST+'/'+idCode+'/'
-        if os.path.isdir(fopCodeVersion):
-            shutil.rmtree(fopCodeVersion)
+        # if os.path.isdir(fopCodeVersion):
+        #     shutil.rmtree(fopCodeVersion)
         createDirIfNotExist(fopCodeVersion)
         fnLogOutput='a_logPrint.txt'
         fpCodeLogOutput=fopCodeVersion+fnLogOutput
         fpCodeJsonOutput = fopCodeVersion + 'a_json.txt'
 
-        if 'train' in fopCodeVersion:
-            continue
+        # if 'train' not in fopCodeVersion:
+        #     continue
 
         sys.stdout = open(fpCodeLogOutput, 'w')
         f1=open(fpItemPseudo,'r')
