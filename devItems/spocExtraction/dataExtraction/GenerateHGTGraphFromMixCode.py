@@ -101,7 +101,7 @@ def walkJsonAndGetIndent(jsonObject,dictLinesAndElements,indent):
     except:
         traceback.print_exc()
 
-def generateGraphForMixCode(jsonObject,arrCodes,strRootProgramId,strRootLabel,isInNLNodes,graph):
+def generateGraphForMixCode(jsonObject,arrCodes,strRootProgramId,strRootLabel,isInNLNodes,graph,dictGraphIndexContext,dictAcceptableIdsForVersions):
     strValue=''
     isAbstract = False
     strType='ASTNode'
@@ -148,9 +148,18 @@ def generateGraphForMixCode(jsonObject,arrCodes,strRootProgramId,strRootLabel,is
     strLabel = '{}\n{}\n{}\n{}\n{}'.format(isAbstract, strType,strValue, strLabelInClassification)
 
     if isInNLNodes:
-        graph.add_node(strLabel, color='blue')
-    else:
         graph.add_node(strLabel, color='red')
+        for numContext in dictGraphIndexContext.keys():
+            graphId=dictGraphIndexContext[numContext]
+            graphId.add_node(strLabel, color='red')
+    else:
+        graph.add_node(strLabel, color='blue')
+        for numContext in dictGraphIndexContext.keys():
+            if strId in dictAcceptableIdsForVersions[numContext]:
+                graphId=dictGraphIndexContext[numContext]
+                graphId.add_node(strLabel, color='red')
+
+
 
     if 'children' in jsonObject.keys():
         lstChildren = jsonObject['children']
@@ -158,6 +167,19 @@ def generateGraphForMixCode(jsonObject,arrCodes,strRootProgramId,strRootLabel,is
             strChildLabel = generateGraphForMixCode(lstChildren[i],arrCodes,strRootProgramId,strRootLabel,isInNLNodes,graph)
             if strLabel != strChildLabel:
                 graph.add_edge(strLabel, strChildLabel, color='black')
+            if not isInNLNodes:
+                strChildId=lstChildren[i]['id']
+                for numContext in dictGraphIndexContext.keys():
+                    if strId in dictAcceptableIdsForVersions[numContext] and strChildId in dictAcceptableIdsForVersions[numContext]:
+                        graphId = dictGraphIndexContext[numContext]
+                        graphId.add_edge(strLabel, strChildLabel, color='black')
+            else:
+                for numContext in dictGraphIndexContext.keys():
+                    graphId = dictGraphIndexContext[numContext]
+                    graph.add_edge(strLabel, strChildLabel, color='black')
+
+
+
     # else:
     #     strTerminalLabel = '\n{}\n{}'.format(strPosition,
     #                                            getTerminalValue(startLine, startOffset, endLine, endOffset,
@@ -166,6 +188,51 @@ def generateGraphForMixCode(jsonObject,arrCodes,strRootProgramId,strRootLabel,is
     #     graph.add_edge(strLabel, strTerminalLabel, color='black')
 
     return strLabel
+
+def getFatherRelationship(jsonAll,dictOfFatherIdMainAST):
+    strId=''
+    if 'id' in jsonAll.keys():
+        strId=jsonAll['id']
+
+    if 'children' in jsonAll.keys() and 'isNLNode' not in jsonAll.keys():
+        lstChildren=jsonAll['children']
+        for i in range(0,len(lstChildren)):
+            itemChild=lstChildren[i]
+            dictOfFatherIdMainAST[itemChild['id']]=strId
+            getFatherRelationship(itemChild,dictOfFatherIdMainAST)
+
+def findAddableIdsForContext(jsonAll,dictOfFatherIdMainAST,dictAcceptableIdsForVersions,mixStartLine,mixEndLine,dictAncestorToRoot):
+    strId=''
+    if 'id' in jsonAll.keys():
+        strId=jsonAll['id']
+    curStartLine=jsonAll['startLine']
+    curEndLine=jsonAll['endLine']
+
+    for numContext in dictAcceptableIdsForVersions.keys():
+        originStart=mixStartLine-numContext
+        originEnd=mixEndLine+numContext
+        if curStartLine>=originStart and curEndLine<=originEnd:
+            if strId not in dictAncestorToRoot.keys():
+                indexId = strId
+                lstAncestorIds = []
+                lstAncestorIds.append(indexId)
+                while (indexId in dictOfFatherIdMainAST.keys()):
+                    indexId = dictOfFatherIdMainAST[indexId]
+                    lstAncestorIds.append(indexId)
+                dictAncestorToRoot[indexId] = lstAncestorIds
+            lstAncestorIds=dictAncestorToRoot[strId]
+            dictAcceptableIdsForVersions[numContext].append(strId)
+            for ancestorId in lstAncestorIds:
+                dictAcceptableIdsForVersions[numContext].append(ancestorId)
+
+    if 'children' in jsonAll.keys() and 'isNLNode' not in jsonAll.keys():
+        lstChildren=jsonAll['children']
+        for i in range(0,len(lstChildren)):
+            itemChild=lstChildren[i]
+            findAddableIdsForContext(itemChild, dictOfFatherIdMainAST, dictAcceptableIdsForVersions, mixStartLine,
+                                     mixEndLine, dictAncestorToRoot)
+
+
 
 
 fopRoot='../../../../dataPapers/textInSPOC/correctCodeRaw/'
@@ -219,6 +286,8 @@ for i in range(0,len(lstFpJsonFiles)):
         arrJsonAST = f1.read().strip().split('\n')
         f1.close()
         jsonAll = arrJsonAST[0]
+        dictOfFatherIdMainAST = {}
+        getFatherRelationship(jsonAll,dictOfFatherIdMainAST)
 
         lstFpVersionLabel=glob.glob(fopItemProgram+'v_*_label.txt')
         for j in range(0,len(lstFpVersionLabel)):
@@ -236,20 +305,46 @@ for i in range(0,len(lstFpJsonFiles)):
             jsonMixClone=copy.deepcopy(jsonAll)
             getMixJsonDict(jsonMixClone,jsonPartAST,jsonPartPseudo)
             fpItemMixCodeJson=fopItemVersionGraph+'jsonMix.txt'
+            fpItemGraphText=fopItemVersionGraph+'g_all.dot'
+            fpItemGraphPng=fopItemVersionGraph+'g_all.png'
             f1=open(fpItemMixCodeJson,'w')
             f1.write(str(jsonMixClone))
             f1.close()
-            graph = pgv.AGraph(directed=True)
+            graphAll = pgv.AGraph(directed=True)
+            strRootProgramId=fonameItemProgram=+'-'+fnVersionName
+            strRootLabel=''
+            strCodeType=arrVerLabel[0]
+            strLOC=arrVerLabel[2]
+            arrItemTab=arrVerLabel[10].split('\t')
+            numInImpl=int(arrItemTab[0])
+            numOutImpl=int(arrItemTab[1])
+            strAppearPercent=(((numInImpl*100.0)/(numInImpl+numOutImpl))//10)+1
+            if strAppearPercent==11:
+                strAppearPercent=10
+            strRootLabel='{}\t{}\t{}'.format(strCodeType,strLOC,strAppearPercent)
+            isInNLNode=False
+            dictGraphIndexContext={}
+            dictAcceptableIdsForVersions={}
+            for idxLine in lstNumContexts:
+                dictAcceptableIdsForVersions[idxLine]=[]
+                graphIt = pgv.AGraph(directed=True)
+                dictGraphIndexContext[idxLine]=graphIt
+            mixStartLine=jsonPartAST['startLine']
+            mixEndLine = jsonPartAST['endLine']
+            dictAncestorToRoot={}
+            findAddableIdsForContext(jsonAll, dictOfFatherIdMainAST, dictAcceptableIdsForVersions, mixStartLine,
+                                     mixEndLine, dictAncestorToRoot)
+
+            for idxLine in lstNumContexts:
+                dictAcceptableIdsForVersions[idxLine]=sorted(set(dictAcceptableIdsForVersions[idxLine]))
+
+            generateGraphForMixCode(jsonMixClone, arrFinalCodes, strRootProgramId, strRootLabel, isInNLNode, graphAll,dictGraphIndexContext,dictAcceptableIdsForVersions)
+            graphAll.write(fpItemGraphText)
+            if i<20:
+                graphAll.layout()
+                graphAll.draw(fpItemGraphPng)
 
 
-            for idxContext in lstNumContexts:
-                try:
-
-
-
-
-                except:
-                    traceback.print_exc()
 
 
 
