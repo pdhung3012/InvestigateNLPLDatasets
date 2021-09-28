@@ -16,6 +16,7 @@ fopStanfordCoreNLP='../../../dataPapers/stanford-corenlp-4.2.2/'
 strParseResultsType="<class 'pyparsing.ParseResults'>"
 strStrType="<class 'str'>"
 
+
 def getPrefixId(startPointLine,startPointOffset,endPointLine,endPointOffset):
     strId='{}--{}--{}--{}'.format(startPointLine,startPointOffset,endPointLine,endPointOffset)
     return strId

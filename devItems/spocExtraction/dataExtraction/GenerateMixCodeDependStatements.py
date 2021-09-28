@@ -15,7 +15,15 @@ from LibForGraphExtractionFromRawCode import getJsonDict,getTerminalValue
 import ast
 import re
 import pygraphviz as pgv
+from pyparsing import OneOrMore, nestedExpr
+import nltk
+from nltk.data import find
+from bllipparser import RerankingParser
 
+nltk.download('bllip_wsj_no_aux')
+
+strParseResultsType="<class 'pyparsing.ParseResults'>"
+strStrType="<class 'str'>"
 
 strRegexCamelCases=r'[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))'
 
@@ -24,6 +32,83 @@ strTabChar=' tabChar '
 strEndLineChar=' endLineChar '
 strSplitIndent=' IndentSplit '
 strSplitJson=' JsonSplit '
+# fopStanfordCoreNLP='../../../dataPapers/stanford-corenlp-4.2.2/'
+# nlpObj = StanfordCoreNLP('http://localhost:9000')
+model_dir = find('models/bllip_wsj_no_aux').path
+parser = RerankingParser.from_unified_model_dir(model_dir)
+
+
+def walkAndGetPOSJson(dataParseResult,indexSentence,lstNonTerminals,lstTerminals):
+  dictJson={}
+  if str(type(dataParseResult))==strParseResultsType and len(dataParseResult)==2:
+    # print( str(type(dataParseResult[0])))
+    if str(type(dataParseResult[0]))==strStrType:
+      if  str(type(dataParseResult[1]))==strStrType:
+        # print('ok1')
+        dictJson['tag']=str(dataParseResult[0])
+        dictJson['value'] = str(dataParseResult[1])
+        dictJson['isTerminal'] = True
+        # dictJson['children'] = []
+
+        newId = len(lstTerminals) + 1
+        # strValue=dictJson['value']
+        # strTag=dictJson['tag']
+        strPosition='Sent_'+str(indexSentence) +'_Terminal_'+str(newId)
+        # strLabel ='Sent'+str(indexSentence) +'_Terminal'+str(newId)
+        dictJson['position'] = strPosition
+        lstTerminals.append(strPosition)
+        # dictJson['label'] = strLabel
+      elif str(type(dataParseResult[1]))==strParseResultsType:
+        # print('ok 2')
+        dictJson['tag'] = str(dataParseResult[0])
+        dictJson['children']=[]
+        dictJson['children'].append( walkAndGetPOSJson(dataParseResult[1],indexSentence,lstNonTerminals,lstTerminals))
+        dictJson['isTerminal'] = False
+        dictJson['value'] = ''
+        newId = len(lstNonTerminals) + 1
+        # strTag = dictJson['tag']
+        strPosition = 'Sent_' + str(indexSentence) + '_NonTerminal_' + str(newId)
+        dictJson['position'] = strPosition
+        lstNonTerminals.append(strPosition)
+        # dictJson['label'] = strLabel
+
+  elif str(type(dataParseResult))==strParseResultsType and len(dataParseResult)==1:
+    # print('go to branch here')
+    dictJson=walkAndGetPOSJson(dataParseResult[0],indexSentence,lstNonTerminals,lstTerminals)
+  elif str(type(dataParseResult))==strParseResultsType and len(dataParseResult)>2:
+    if str(type(dataParseResult[0])) == strStrType:
+      strTag =str(dataParseResult[0])
+      dictJson['tag']=strTag
+      dictJson['value'] = ''
+      dictJson['isTerminal'] = False
+      dictJson['children'] = []
+      newId = len(lstNonTerminals) + 1
+      strPosition = 'Sent_' + str(indexSentence) + '_NonTerminal_' + str(newId)
+      dictJson['position']=strPosition
+      lstNonTerminals.append(strPosition)
+
+      for i in range(1,len(dataParseResult)):
+        dictChildI=walkAndGetPOSJson(dataParseResult[i],indexSentence,lstNonTerminals,lstTerminals)
+        dictJson['children'].append(dictChildI)
+  return dictJson
+
+
+def getGraphDependencyFromTextUsingNLTK(strText,parser):
+  dictTotal={}
+  try:
+      best = parser.parse("The old oak tree from India fell down. I love you. ")
+      strParseContent = str(best.get_parser_best().ptb_parse)
+      data = OneOrMore(nestedExpr()).parseString(strParseContent)
+      lstNonTerminals = []
+      lstTerminals = []
+      indexSentence = 1
+      dictWords = {}
+      dictTotal = walkAndGetPOSJson(data, indexSentence, lstNonTerminals, lstTerminals)
+  except:
+    strJsonObj = '{}'
+    dictTotal={}
+    traceback.print_exc()
+  return dictTotal
 
 def walkJsonAndGetIndent(jsonObject,dictLinesAndElements,indent):
     try:
@@ -250,7 +335,7 @@ def checkAppearInImplementation(dictLiterals,strPseudo,strCode):
         percent=0
     return strCodeSplit,strCodeTokSplit,strPseudoSplit,strTokSplit,numAppear,numDisappear,percent
 
-def generateMixVersionsAndLabels(dictLinesAndElements,dictLabelStatistics,dictLiterals,arrCodes,arrPseudos,fopCodeVersion,fonameItemAST,idCode,fopAllocateByMainStmt,fopAllocateByNumOfStmts):
+def generateMixVersionsAndLabels(dictLinesAndElements,dictLabelStatistics,dictLiterals,arrCodes,arrPseudos,fopCodeVersion,fonameItemAST,idCode,fopAllocateByMainStmt,fopAllocateByNumOfStmts,parser):
     try:
         isOK=False
         indexVersion=0
@@ -280,7 +365,10 @@ def generateMixVersionsAndLabels(dictLinesAndElements,dictLabelStatistics,dictLi
                 lstStrPseudoLines.append(arrPseudos[it])
                 lstStrCodeLines.append(arrCodes[it+distanceHeader])
 
-            strTotalComment='// '+' , then '.join(lstStrPseudoLines)
+            strPOSComment=' , then '.join(lstStrPseudoLines)
+            strTotalComment = '// ' + strPOSComment
+            dictPOSJson={}
+            dictPOSJson = getGraphDependencyFromTextUsingNLTK(strPOSComment, parser)
             strTotalCode=' '.join(lstStrCodeLines)
             strCodeSplit,strCodeTokSplit,strPseudoSplit,strTokSplit,numAppear,numDisappear,percent=checkAppearInImplementation(dictLiterals,strTotalComment,strTotalCode)
 
@@ -343,7 +431,7 @@ def generateMixVersionsAndLabels(dictLinesAndElements,dictLabelStatistics,dictLi
 
 
             f1=open(fpItemVersionLabel,'w')
-            strLbl='{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\t{}\t{}'.format(strMainStatement,strPosition,numOfLine,numOfStatements,strBelowStatements,strDictToString, strCodeSplit,strCodeTokSplit,strPseudoSplit,strTokSplit,numAppear,numDisappear,percent)
+            strLbl='{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\t{}\t{}\n{}'.format(strMainStatement,strPosition,numOfLine,numOfStatements,strBelowStatements,strDictToString, strCodeSplit,strCodeTokSplit,strPseudoSplit,strTokSplit,numAppear,numDisappear,percent,str(dictPOSJson))
             f1.write(strLbl)
             f1.close()
 
@@ -442,7 +530,7 @@ for i in range(0,len(lstFpDictASTs)):
         findReplaceableStatements(dictLinesAndElements, lstTupFunctionDeclarations)
         print('dict after {}'.format(len(dictLinesAndElements.keys())))
         # print('dict final content\n{}'.format(dictLinesAndElements))
-        generateMixVersionsAndLabels(dictLinesAndElements,dictLabelStatistics,dictLiterals,arrCodes,arrPseudos,fopCodeVersion,fonameItemAST,idCode,fopAllocateByMainStmt,fopAllocateByNumOfStmts)
+        generateMixVersionsAndLabels(dictLinesAndElements,dictLabelStatistics,dictLiterals,arrCodes,arrPseudos,fopCodeVersion,fonameItemAST,idCode,fopAllocateByMainStmt,fopAllocateByNumOfStmts,parser)
 
         sys.stdout.close()
         sys.stdout = sys.__stdout__
