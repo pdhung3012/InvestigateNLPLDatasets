@@ -165,7 +165,7 @@ parser = RerankingParser.from_unified_model_dir(model_dir)
 # print(model_dir)
 # input('aaa')
 totalNumLineProcess=0
-num_threads=6
+num_threads=2
 # lstParsers=[]
 # for i in range(0,num_threads):
 #     parser = RerankingParser.from_unified_model_dir(lstFopPOSs[i])
