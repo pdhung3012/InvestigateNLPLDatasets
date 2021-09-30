@@ -114,19 +114,20 @@ def getGraphDependencyFromTextUsingNLTKArr(arrText,parser):
       dictItem={}
       traceback.print_exc()
   try:
-    dictTotal=lstDicts[0]
-    if 'tag' not in dictTotal.keys():
-      dictTotal['tag']='S1'
-    else:
-      lenDicts=len(lstDicts)
-      for i in range(1,lenDicts):
-        lstChildren=lstDicts[i]['children']
-        for child in lstChildren:
-          dictTotal['children'].append(child)
-        # append ,
-        if i<(lenDicts-1):
-          dictCommaCopy=copy.deepcopy(dictCommaItem)
-          dictTotal['children'].append(dictCommaCopy)
+    if len(lstDicts)>0:
+      dictTotal=lstDicts[0]
+      if 'tag' not in dictTotal.keys():
+        dictTotal['tag']='S1'
+      else:
+        lenDicts=len(lstDicts)
+        for i in range(1,lenDicts):
+          lstChildren=lstDicts[i]['children']
+          for child in lstChildren:
+            dictTotal['children'].append(child)
+          # append ,
+          if i<(lenDicts-1):
+            dictCommaCopy=copy.deepcopy(dictCommaItem)
+            dictTotal['children'].append(dictCommaCopy)
   except:
     dictTotal={}
     traceback.print_exc()
@@ -227,10 +228,11 @@ for i in range(0,len(arrBeforeLines)):
   itemPOS=str(getGraphDependencyFromTextUsingNLTKArr(arrItemStr,parser))
   # itemPOS = str(getGraphDependencyFromTextUsingNLTK(itemStr, parser))
   # itemPOS = str(getGraphDependencyFromText(itemStr, nlp))
-  lstStrPOS.append(itemPOS)
+  itemToFile='{}\t{}'.format(i,itemPOS)
+  lstStrPOS.append(itemToFile)
   # dictStringPOS[itemStr]='aaa'
   # print('end {}'.format((i+1)))
-  if (i+1)%1000==0 or (i+1)==len(arrBeforeLines):
+  if (i+1)%100==0 or (i+1)==len(arrBeforeLines):
     f1 = open(fpPseudocodeAfterPOS, 'a')
     f1.write('\n'.join(lstStrPOS)+'\n')
     f1.close()
