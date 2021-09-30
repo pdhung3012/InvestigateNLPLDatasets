@@ -113,6 +113,7 @@ def getGraphDependencyFromTextUsingNLTK(strText,parser):
 fopRoot='/home/hungphd/media/dataPapersExternal/mixCodeRaw/'
 fopMixVersion=fopRoot+'step4_mixCode/'
 fpDictLiterals=fopRoot+'step2_dictLiterals_all.txt'
+fpPseudocodeBeforePOS=fopRoot+'pseudocode_before_pos.txt'
 createDirIfNotExist(fopMixVersion)
 
 model_dir = find('models/bllip_wsj_no_aux').path
@@ -134,24 +135,27 @@ for fop1 in lstFop1:
 print('after {} '.format(len(lstFpJsonFiles)))
 distanceHeader=33
 totalNumLineProcess=0
-
+lstStrPseudos=[]
 for i in range(0,len(lstFpJsonFiles)):
     fpItemLabel=lstFpJsonFiles[i]
     try:
         f1=open(fpItemLabel,'r')
         arrItLabels=f1.read().strip().split('\n')
         f1.close()
-        if len(arrItLabels)>=12 and not ('oak' in arrItLabels[11] and 'India' in arrItLabels[11]):
-            totalNumLineProcess = totalNumLineProcess + 1
-            print('skip {}/{} {} total {}'.format(i, len(lstFpJsonFiles), fpItemLabel,totalNumLineProcess))
-            continue
-        strText=arrItLabels[8].replace('// ','',1).strip()
-        strNewPOS=getGraphDependencyFromTextUsingNLTK(strText,parser)
-        arrItLabels[11]=str(strNewPOS)
-        f1 = open(fpItemLabel, 'w')
-        f1.write('\n'.join(arrItLabels))
-        f1.close()
-        totalNumLineProcess = totalNumLineProcess + 1
+        if len(arrItLabels) >= 9:
+            strText = arrItLabels[8].replace('// ', '', 1).strip()
+            lstStrPseudos.append(strText)
+        # if len(arrItLabels)>=12 and not ('oak' in arrItLabels[11] and 'India' in arrItLabels[11]):
+        #     totalNumLineProcess = totalNumLineProcess + 1
+        #     print('skip {}/{} {} total {}'.format(i, len(lstFpJsonFiles), fpItemLabel,totalNumLineProcess))
+        #     continue
+        # strText=arrItLabels[8].replace('// ','',1).strip()
+        # strNewPOS=getGraphDependencyFromTextUsingNLTK(strText,parser)
+        # arrItLabels[11]=str(strNewPOS)
+        # f1 = open(fpItemLabel, 'w')
+        # f1.write('\n'.join(arrItLabels))
+        # f1.close()
+        # totalNumLineProcess = totalNumLineProcess + 1
         print('end {}/{} {} total {}'.format(i,len(lstFpJsonFiles),fpItemLabel,totalNumLineProcess))
 
     except:
@@ -165,3 +169,6 @@ for i in range(0,len(lstFpJsonFiles)):
             f1.close()
         traceback.print_exc()
 
+f1=open(fpPseudocodeBeforePOS,'r')
+f1.write('\n'.join(lstStrPseudos))
+f1.close()
