@@ -133,7 +133,7 @@ for fop1 in lstFop1:
 # sorted(glob.glob(fopMixVersion+'**/**/a_json.txt'))
 print('after {} '.format(len(lstFpJsonFiles)))
 distanceHeader=33
-
+totalNumLineProcess=0
 
 for i in range(0,len(lstFpJsonFiles)):
     fpItemLabel=lstFpJsonFiles[i]
@@ -141,13 +141,18 @@ for i in range(0,len(lstFpJsonFiles)):
         f1=open(fpItemLabel,'r')
         arrItLabels=f1.read().strip().split('\n')
         f1.close()
+        if len(arrItLabels)>=12 and not ('oak' in arrItLabels[11] and 'India' in arrItLabels[11]):
+            totalNumLineProcess = totalNumLineProcess + 1
+            print('skip {}/{} {} total {}'.format(i, len(lstFpJsonFiles), fpItemLabel,totalNumLineProcess))
+            continue
         strText=arrItLabels[8].replace('// ','',1).strip()
         strNewPOS=getGraphDependencyFromTextUsingNLTK(strText,parser)
         arrItLabels[11]=str(strNewPOS)
         f1 = open(fpItemLabel, 'w')
         f1.write('\n'.join(arrItLabels))
         f1.close()
-        print('end {}/{} {}'.format(i,len(lstFpJsonFiles),fpItemLabel))
+        totalNumLineProcess = totalNumLineProcess + 1
+        print('end {}/{} {} total {}'.format(i,len(lstFpJsonFiles),fpItemLabel,totalNumLineProcess))
 
     except:
         f1 = open(fpItemLabel, 'r')

@@ -111,13 +111,19 @@ def getGraphDependencyFromTextUsingNLTK(strText,parser):
 
 
 import multiprocessing
+totalNumLineProcess=0
 def fixLabel(lstFpJsonFiles,startRange,endRange,parser):
     for i in range(startRange,endRange):
         try:
+            global totalNumLineProcess
             fpItemLabel=lstFpJsonFiles[i]
             f1=open(fpItemLabel,'r')
             arrItLabels=f1.read().strip().split('\n')
             f1.close()
+            if len(arrItLabels)>=12 and not ('oak' in arrItLabels[11] and 'India' in arrItLabels[11]):
+                totalNumLineProcess = totalNumLineProcess + 1
+                print('skip {}/{} {} total {}'.format(i, len(lstFpJsonFiles), fpItemLabel,totalNumLineProcess))
+                continue
             strText=arrItLabels[8].replace('// ','',1).strip()
             # curr_proc = multiprocessing.current_process()
             # idProc=curr_proc._identity[0]-1
@@ -126,7 +132,8 @@ def fixLabel(lstFpJsonFiles,startRange,endRange,parser):
             f1 = open(fpItemLabel, 'w')
             f1.write('\n'.join(arrItLabels))
             f1.close()
-            print('end {}/{} {}'.format(i,len(lstFpJsonFiles),fpItemLabel))
+            totalNumLineProcess = totalNumLineProcess + 1
+            print('end {}/{} {} total {}'.format(i,len(lstFpJsonFiles),fpItemLabel,totalNumLineProcess))
         except:
             f1 = open(fpItemLabel, 'r')
             arrItLabels = f1.read().strip().split('\n')
@@ -137,6 +144,8 @@ def fixLabel(lstFpJsonFiles,startRange,endRange,parser):
                 f1.write('\n'.join(arrItLabels))
                 f1.close()
             traceback.print_exc()
+
+
 
 def partition(lst, n):
     division = len(lst) / n
@@ -155,7 +164,8 @@ model_dir = find('models/bllip_wsj_no_aux').path
 parser = RerankingParser.from_unified_model_dir(model_dir)
 # print(model_dir)
 # input('aaa')
-num_threads=10
+totalNumLineProcess=0
+num_threads=6
 # lstParsers=[]
 # for i in range(0,num_threads):
 #     parser = RerankingParser.from_unified_model_dir(lstFopPOSs[i])
