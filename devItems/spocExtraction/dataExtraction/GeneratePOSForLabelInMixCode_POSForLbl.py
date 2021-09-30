@@ -24,6 +24,7 @@ import copy
 import nltk
 from nltk.data import find
 from bllipparser import RerankingParser
+import time
 
 
 strRegexCamelCases=r'[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))'
@@ -92,6 +93,46 @@ def walkAndGetPOSJson(dataParseResult,indexSentence,lstNonTerminals,lstTerminals
   return dictJson
 
 objParsed=OneOrMore(nestedExpr())
+dictCommaItem={'tag': ',', 'value': ',', 'isTerminal': True, 'position': 'Sent_1_Terminal_X'}
+def getGraphDependencyFromTextUsingNLTKArr(arrText,parser):
+  dictTotal={}
+  lstDicts=[]
+  lstNonTerminals = []
+  lstTerminals = []
+  for strText in arrText:
+    try:
+      best = parser.parse(strText)
+      strParseContent = str(best.get_parser_best().ptb_parse)
+      # dictTotal=strParseContent
+      data = objParsed.parseString(strParseContent)
+      indexSentence = 1
+      dictWords = {}
+      dictItem = walkAndGetPOSJson(data, indexSentence, lstNonTerminals, lstTerminals)
+      lstDicts.append(dictItem)
+    except:
+      # strJsonObj = '{}'
+      dictItem={}
+      traceback.print_exc()
+  try:
+    dictTotal=lstDicts[0]
+    if 'tag' not in dictTotal.keys():
+      dictTotal['tag']='S1'
+    else:
+      lenDicts=len(lstDicts)
+      for i in range(1,lenDicts):
+        lstChildren=lstDicts[i]['children']
+        for child in lstChildren:
+          dictTotal['children'].append(child)
+        # append ,
+        if i<(lenDicts-1):
+          dictCommaCopy=copy.deepcopy(dictCommaItem)
+          dictTotal['children'].append(dictCommaCopy)
+  except:
+    dictTotal={}
+    traceback.print_exc()
+
+  return dictTotal
+
 def getGraphDependencyFromTextUsingNLTK(strText,parser):
   dictTotal={}
   try:
@@ -110,83 +151,96 @@ def getGraphDependencyFromTextUsingNLTK(strText,parser):
   return dictTotal
 
 
+def getGraphDependencyFromText(strText,nlpObj):
+  lstDeps = []
+  lstNodes=[]
+  lstEdges=[]
+
+  try:
+    output = nlpObj.annotate(strText, properties={
+      'annotators': 'parse',
+      'outputFormat': 'json'
+    })
+    jsonTemp = output
+    # strJsonObj = jsonTemp
+    arrSentences=jsonTemp['sentences']
+    dictTotal={}
+    dictTotal['tag'] = 'Paragraph'
+    dictTotal['label'] = 'Paragraph'
+    dictTotal['value'] = ''
+    dictTotal['isTerminal'] = False
+    dictTotal['children'] = []
+    indexSentence=0
+    # print(strText)
+    for sentence in arrSentences:
+      jsonDependency = sentence['basicDependencies']
+      strParseContent=sentence['parse']
+      lstNonTerminals = []
+      lstTerminals = []
+      indexSentence=indexSentence+1
+      data = objParsed.parseString(strParseContent)
+      dictWords = {}
+      jsonPOS=walkAndGetPOSJson(data,indexSentence,lstNonTerminals,lstTerminals)
+      # print('POS {}'.format(jsonPOS))
+
+      # for dep in jsonDependency:
+      #   strDep=dep['dep']
+      #   if strDep=='ROOT':
+      #       continue
+      #   # print('dep : {}'.format(dep))
+      #   indexSource=dep['governor']
+      #   indexTarget=dep['dependent']
+      #   itemTuple=(indexSource,indexTarget,strDep,lstTerminals[indexSource-1],lstTerminals[indexTarget-1])
+      #   lstEdges.append(itemTuple)
+      # jsonPOS['dependencies']=lstEdges
+      dictTotal['children'].append(jsonPOS)
+  except:
+    strJsonObj = 'Error'
+    dictTotal=None
+    traceback.print_exc()
+  return dictTotal
+
 fopRoot='/home/hungphd/media/dataPapersExternal/mixCodeRaw/'
-fopMixVersion=fopRoot+'step4_mixCode/'
-fpDictLiterals=fopRoot+'step2_dictLiterals_all.txt'
 fpPseudocodeBeforePOS=fopRoot+'pseudocode_before_pos.txt'
-fpCachedFilePath=fopRoot+'cachedFilePaths.txt'
-createDirIfNotExist(fopMixVersion)
+fpPseudocodeAfterPOS=fopRoot+'pseudocode_after_pos.txt'
 
 model_dir = find('models/bllip_wsj_no_aux').path
 parser = RerankingParser.from_unified_model_dir(model_dir)
 
+from pycorenlp import StanfordCoreNLP
+nlp = StanfordCoreNLP('http://localhost:9000')
 
-print('before traverse')
-lstFpJsonFiles=[]
-if not os.path.isfile(fpCachedFilePath):
-    lstFop1=sorted(glob.glob(fopMixVersion+'*/'))
-    for fop1 in lstFop1:
-        lstFop2=sorted(glob.glob(fop1+'*/'))
-        for fop2 in lstFop2:
-            lstFop3=sorted(glob.glob(fop2+'v_*_label.txt'))
-            # print(fp3)
-            for fp3 in lstFop3:
-                lstFpJsonFiles.append(fp3)
-        print('end {}'.format(fop1))
-    # sorted(glob.glob(fopMixVersion+'**/**/a_json.txt'))
-    print('after {} '.format(len(lstFpJsonFiles)))
-    f1=open(fpCachedFilePath,'w')
-    f1.write('\n'.join(lstFpJsonFiles))
+f1=open(fpPseudocodeBeforePOS,'r')
+arrBeforeLines=f1.read().split('\n')
+f1.close()
+lstStrPOS=[]
+f1=open(fpPseudocodeAfterPOS,'w')
+f1.write('')
+f1.close()
+dictStringPOS={}
+start_time = time.time()
+for i in range(0,len(arrBeforeLines)):
+  itemStr=arrBeforeLines[i]
+  # itemStr='Hello it is me ( here )'
+  arrItemStr=itemStr.split(' , ')
+  # itemStr=arrItemStr[0]
+  itemPOS=str(getGraphDependencyFromTextUsingNLTKArr(arrItemStr,parser))
+  # itemPOS = str(getGraphDependencyFromTextUsingNLTK(itemStr, parser))
+  # itemPOS = str(getGraphDependencyFromText(itemStr, nlp))
+  lstStrPOS.append(itemPOS)
+  # dictStringPOS[itemStr]='aaa'
+  # print('end {}'.format((i+1)))
+  if (i+1)%1000==0 or (i+1)==len(arrBeforeLines):
+    f1 = open(fpPseudocodeAfterPOS, 'a')
+    f1.write('\n'.join(lstStrPOS)+'\n')
     f1.close()
-else:
-    f1=open(fpCachedFilePath,'r')
-    lstFpJsonFiles=f1.read().split('\n')
-    f1.close()
-distanceHeader=33
-totalNumLineProcess=0
-# f1=open(fpPseudocodeBeforePOS,'w')
-# f1.write('')
-# f1.close()
-lstStrPseudos=[]
-for i in range(0,len(lstFpJsonFiles)):
-    fpItemLabel=lstFpJsonFiles[i]
-    try:
-        if(i+1)< 108937:
-            continue
-        f1=open(fpItemLabel,'r')
-        arrItLabels=f1.read().strip().split('\n')
-        f1.close()
-        if len(arrItLabels) >= 9:
-            strText = arrItLabels[8].replace('// ', '', 1).strip()
-            lstStrPseudos.append(strText)
-        # if len(arrItLabels)>=12 and not ('oak' in arrItLabels[11] and 'India' in arrItLabels[11]):
-        #     totalNumLineProcess = totalNumLineProcess + 1
-        #     print('skip {}/{} {} total {}'.format(i, len(lstFpJsonFiles), fpItemLabel,totalNumLineProcess))
-        #     continue
-        # strText=arrItLabels[8].replace('// ','',1).strip()
-        # strNewPOS=getGraphDependencyFromTextUsingNLTK(strText,parser)
-        # arrItLabels[11]=str(strNewPOS)
-        # f1 = open(fpItemLabel, 'w')
-        # f1.write('\n'.join(arrItLabels))
-        # f1.close()
-        # totalNumLineProcess = totalNumLineProcess + 1
-        if ((i+1)%1000==0) or ((i+1)==len(lstFpJsonFiles)):
-            print('end {}/{} total {}'.format(i,len(lstFpJsonFiles),totalNumLineProcess))
-            if len(lstStrPseudos)>0:
-                f1 = open(fpPseudocodeBeforePOS, 'a')
-                f1.write('\n'.join(lstStrPseudos)+'\n')
-                f1.close()
-                lstStrPseudos=[]
-
-    except:
-        f1 = open(fpItemLabel, 'r')
-        arrItLabels = f1.read().strip().split('\n')
-        f1.close()
-        if len(arrItLabels)>=12:
-            arrItLabels[11] = '{}'
-            f1 = open(fpItemLabel, 'w')
-            f1.write('\n'.join(arrItLabels))
-            f1.close()
-        traceback.print_exc()
+    lstStrPOS = []
+    end_time=time.time()
+    duration = (end_time - start_time)
+    print('until {} withduration {}'.format((i+1),duration))
+    start_time=end_time
+  # if (i+1)==10:
+  #   break
+duration= (time.time() - start_time)
 
 
