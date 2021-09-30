@@ -96,7 +96,7 @@ def walkAndGetPOSJson(dataParseResult,indexSentence,lstNonTerminals,lstTerminals
 def getGraphDependencyFromTextUsingNLTK(strText,parser):
   dictTotal={}
   try:
-      best = parser.parse("The old oak tree from India fell down. I love you. ")
+      best = parser.parse(strText)
       strParseContent = str(best.get_parser_best().ptb_parse)
       data = OneOrMore(nestedExpr()).parseString(strParseContent)
       lstNonTerminals = []
@@ -453,13 +453,13 @@ def generateMixVersionsAndLabels(dictLinesAndElements,dictLabelStatistics,dictLi
 
     except:
         traceback.print_exc()
-
-fopRoot='../../../../dataPapers/textInSPOC/correctCodeRaw/'
-fopCodeFile=fopRoot+'step2_tokenize/'
-fopPseudoFile=fopRoot+'step2_pseudo_tokenize/'
-fopTreeSitterFile=fopRoot+'step3_treesitter_tokenize/'
-fopLabels=fopRoot+'step2_pseudo_tokenize/'
-fopTreeSitterFile=fopRoot+'step3_treesitter_tokenize/'
+fopLocalRoot='../../../../dataPapers/textInSPOC/correctCodeRaw/'
+fopRoot='/home/hungphd/media/dataPapersExternal/mixCodeRaw/'
+fopCodeFile=fopLocalRoot+'step2_tokenize/'
+fopPseudoFile=fopLocalRoot+'step2_pseudo_tokenize/'
+fopTreeSitterFile=fopLocalRoot+'step3_treesitter_tokenize/'
+# fopLabels=fopRoot+'step2_pseudo_tokenize/'
+# fopTreeSitterFile=fopRoot+'step3_treesitter_tokenize/'
 fopMixVersion=fopRoot+'step4_mixCode/'
 fopAllocateByMainStmt=fopRoot+'step4_mainStmt/'
 fopAllocateByNumOfStmts=fopRoot+'step4_numOfStatements/'

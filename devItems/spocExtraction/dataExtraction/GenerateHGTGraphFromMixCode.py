@@ -244,8 +244,8 @@ def findAddableIdsForContext(jsonAll,dictOfFatherIdMainAST,dictAcceptableIdsForV
 
 
 
-fopRoot='../../../../dataPapers/textInSPOC/correctCodeRaw/'
-fopMixVersion=fopRoot+'step4_mixCode_v/'
+fopRoot='/home/hungphd/media/dataPapersExternal/mixCodeRaw/'
+fopMixVersion=fopRoot+'step4_mixCode/'
 fpDictLiterals=fopRoot+'step2_dictLiterals_all.txt'
 createDirIfNotExist(fopMixVersion)
 
@@ -262,8 +262,18 @@ for item in arrLits:
 # print('len dict {}'.format(len(dictLiterals.keys())))
 # input('abc ')
 
-
-lstFpJsonFiles=sorted(glob.glob(fopMixVersion+'**/a_json.txt',recursive=True))
+print('before traverse')
+lstFpJsonFiles=[]
+lstFop1=sorted(glob.glob(fopMixVersion+'*/'))
+for fop1 in lstFop1:
+    lstFop2=sorted(glob.glob(fop1+'*/'))
+    for fop2 in lstFop2:
+        fp3=fop2+'a_json.txt'
+        # print(fp3)
+        lstFpJsonFiles.append(fp3)
+    print('end {}'.format(fop1))
+# sorted(glob.glob(fopMixVersion+'**/**/a_json.txt'))
+print('after {} '.format(len(lstFpJsonFiles)))
 distanceHeader=33
 
 # if os.path.isdir(fopMixVersion):
@@ -282,6 +292,13 @@ for i in range(0,len(lstFpJsonFiles)):
     # print('item program {} aa {}'.format(fonameItemProgram,fopItemProgram))
 
     try:
+
+        lstFopItemGraphFolders=glob.glob(fopItemProgram+'v_*_graphs/')
+        # print('len {}/{} {} {}'.format(i,len(lstFpJsonFiles),fpItemAST),len(lstFopItemGraphFolders))
+        if len(lstFopItemGraphFolders)>0:
+            print('skip {}/{} {}'.format(i,len(lstFpJsonFiles),fpItemAST))
+            continue
+
         fpCodeLogOutput=fopItemProgram+'a_logPrint.txt'
         sys.stdout = open(fpCodeLogOutput, 'w')
 
