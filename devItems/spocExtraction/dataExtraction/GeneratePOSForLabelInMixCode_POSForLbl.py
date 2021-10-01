@@ -122,12 +122,13 @@ def getGraphDependencyFromTextUsingNLTKArr(arrText,parser):
         lenDicts=len(lstDicts)
         for i in range(1,lenDicts):
           lstChildren=lstDicts[i]['children']
+
+          # append ,
+          dictCommaCopy = copy.deepcopy(dictCommaItem)
+          dictTotal['children'].append(dictCommaCopy)
           for child in lstChildren:
             dictTotal['children'].append(child)
-          # append ,
-          if i<(lenDicts-1):
-            dictCommaCopy=copy.deepcopy(dictCommaItem)
-            dictTotal['children'].append(dictCommaCopy)
+
   except:
     dictTotal={}
     traceback.print_exc()
