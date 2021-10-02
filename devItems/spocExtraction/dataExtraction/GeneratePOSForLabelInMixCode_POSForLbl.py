@@ -221,16 +221,22 @@ f1.write('')
 f1.close()
 dictStringPOS={}
 start_time = time.time()
-for i in range(79900,len(arrBeforeLines)):
+for i in range(0,len(arrBeforeLines)):
+  if i<79900:
+    continue
+
   itemStr=arrBeforeLines[i]
-  # itemStr='Hello it is me ( here )'
-  arrItemStr=itemStr.split(' , ')
-  # itemStr=arrItemStr[0]
-  itemPOS=str(getGraphDependencyFromTextUsingNLTKArr(arrItemStr,parser))
-  # itemPOS = str(getGraphDependencyFromTextUsingNLTK(itemStr, parser))
-  # itemPOS = str(getGraphDependencyFromText(itemStr, nlp))
-  itemToFile='{}\t{}'.format(i,itemPOS)
-  lstStrPOS.append(itemToFile)
+  if itemStr=='':
+    lstStrPOS.append('{}\t{}'.format(i,'{}'))
+  else:
+    # itemStr='Hello it is me ( here )'
+    arrItemStr=itemStr.split(' , ')
+    # itemStr=arrItemStr[0]
+    itemPOS=str(getGraphDependencyFromTextUsingNLTKArr(arrItemStr,parser))
+    # itemPOS = str(getGraphDependencyFromTextUsingNLTK(itemStr, parser))
+    # itemPOS = str(getGraphDependencyFromText(itemStr, nlp))
+    itemToFile='{}\t{}'.format(i,itemPOS)
+    lstStrPOS.append(itemToFile)
   # dictStringPOS[itemStr]='aaa'
   # print('end {}'.format((i+1)))
   if (i+1)%100==0 or (i+1)==len(arrBeforeLines):
