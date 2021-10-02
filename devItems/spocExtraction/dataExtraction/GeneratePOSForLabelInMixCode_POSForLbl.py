@@ -221,7 +221,7 @@ f1.write('')
 f1.close()
 dictStringPOS={}
 start_time = time.time()
-for i in range(0,len(arrBeforeLines)):
+for i in range(79900,len(arrBeforeLines)):
   itemStr=arrBeforeLines[i]
   # itemStr='Hello it is me ( here )'
   arrItemStr=itemStr.split(' , ')
