@@ -216,9 +216,9 @@ f1=open(fpPseudocodeBeforePOS,'r')
 arrBeforeLines=f1.read().split('\n')
 f1.close()
 lstStrPOS=[]
-f1=open(fpPseudocodeAfterPOS,'w')
-f1.write('')
-f1.close()
+# f1=open(fpPseudocodeAfterPOS,'w')
+# f1.write('')
+# f1.close()
 dictStringPOS={}
 start_time = time.time()
 for i in range(0,len(arrBeforeLines)):
