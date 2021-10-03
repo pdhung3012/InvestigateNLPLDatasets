@@ -4,14 +4,11 @@ import operator,traceback
 import shutil
 import json
 sys.path.append(os.path.abspath(os.path.join('..')))
-from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText,runASTGenAndSeeResult
 import asyncio
 import time
 from joblib import Parallel,delayed
-from UtilFunctions import createDirIfNotExist,getPOSInfo,writeDictToFileText
+from UtilFunctions_RTX3090 import createDirIfNotExist,getPOSInfo,writeDictToFileText
 
-from tree_sitter import Language, Parser
-from LibForGraphExtractionFromRawCode import getJsonDict,getTerminalValue
 import ast
 import re
 import pygraphviz as pgv
@@ -19,7 +16,6 @@ import pydot
 from subprocess import check_call
 from graphviz import render
 import copy
-import ast
 
 def walkASTJson(jsonAST,lstStrASTs):
     if 'type' in jsonAST.keys():
@@ -41,8 +37,8 @@ def walkPOSJson(jsonPOS,lstStrPOSs):
 
 fopRoot='/home/hungphd/media/dataPapersExternal/mixCodeRaw/'
 fopPOSModel=fopRoot+'embeddingModels/d2v/'
-fopDictLiterals=fopRoot+'step2_dictLiterals_all.txt'
-fopStep4=fopRoot+'step4_mixCode/'
+fpDictLiterals=fopRoot+'step2_dictLiterals_all.txt'
+fopMixVersion=fopRoot+'step4_mixCode/'
 fpPOSJson=fopRoot+''
 fpFileCachedPseudocode=fopRoot+'cached_fp_pseudocode.txt'
 fpFileCachedCode=fopRoot+'cached_fp_code.txt'
@@ -63,7 +59,7 @@ for item in arrLits:
     arrTabs=item.split('\t')
     if len(arrTabs)>=2:
         strContent='\t'.join(arrTabs[1:])
-        dictLiteralsToValue[arrTabs[0]]=strContent
+        dictLiteralsToValues[arrTabs[0]]=strContent
         dictValuesToLiterals[strContent]=arrTabs[0]
 
 
