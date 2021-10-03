@@ -8,6 +8,8 @@ import asyncio
 import time
 from joblib import Parallel,delayed
 from UtilFunctions_RTX3090 import createDirIfNotExist,getPOSInfo,writeDictToFileText
+from gensim.models.doc2vec import Doc2Vec, TaggedDocument
+from nltk.tokenize import word_tokenize
 
 import ast
 import re
@@ -105,13 +107,16 @@ f1=open(fpCachedPseudocode,'w')
 f1.write('')
 f1.close()
 for i in range(0,len(lstFpPseudocode)):
-    fpItemI=lstFpPseudocode[i]
-    f1=open(fpItemI,'r')
-    arrItems=f1.read().strip().split('\n')
-    f1.close()
-    f1 = open(fpCachedPseudocode, 'a')
-    f1.write('\n'.join(arrItems)+'\n')
-    f1.close()
+    try:
+        fpItemI=lstFpPseudocode[i]
+        f1=open(fpItemI,'r')
+        arrItems=f1.read().strip().split('\n')
+        f1.close()
+        f1 = open(fpCachedPseudocode, 'a')
+        f1.write('\n'.join(arrItems)+'\n')
+        f1.close()
+    except:
+        traceback.print_exc()
 
 
 f1=open(fpCachedCode,'w')
@@ -119,41 +124,44 @@ f1.write('')
 f1.close()
 lstDictLiteralKey=sorted(dictValuesToLiterals,reverse=True)
 for i in range(0,len(lstFpCode)):
-    fpItemI=lstFpCode[i]
-    f1=open(fpItemI,'r')
-    arrItems=f1.read().strip().split('\n')
-    f1.close()
-    f1 = open(fpCachedCode, 'a')
-    f1.write('\n'.join(arrItems)+'\n')
-    f1.close()
-    lstStrItemCode=[]
-    for j in range(33,len(arrItems)):
-        item=arrItems[j]
-        for key in lstDictLiteralKey:
-            if key in item:
-                valKey=dictValuesToLiterals[key]
-                item=item.replace(key,valKey)
-        lstStrItemCode.append(item)
-    f1 = open(fpCachedPseudocode, 'a')
-    f1.write('\n'.join(lstStrItemCode) + '\n')
-    f1.close()
+    try:
+        fpItemI=lstFpCode[i]
+        f1=open(fpItemI,'r')
+        arrItems=f1.read().strip().split('\n')
+        f1.close()
+        lstStrItemCode=[]
+        for j in range(33,len(arrItems)):
+            item=arrItems[j]
+            for key in lstDictLiteralKey:
+                if key in item:
+                    valKey=dictValuesToLiterals[key]
+                    item=item.replace(key,valKey)
+            lstStrItemCode.append(item)
+        f1 = open(fpCachedCode, 'a')
+        f1.write('\n'.join(lstStrItemCode) + '\n')
+        f1.close()
+    except:
+        traceback.print_exc()
 
 f1=open(fpCachedAST,'w')
 f1.write('')
 f1.close()
 # lstDictLiteralKey=sorted(dictValuesToLiterals,reverse=True)
 for i in range(0,len(lstFpAST)):
-    fpItemI=lstFpAST[i]
-    f1=open(fpItemI,'r')
-    strJsonAST=f1.read().strip().split('\n')[0]
-    f1.close()
-    jsonAST=ast.literal_eval(strJsonAST)
-    lstStrASTs=[]
-    walkASTJson(jsonAST,lstStrASTs)
-    strASTsLine=' '.join(lstStrASTs)
-    f1 = open(fpCachedAST, 'a')
-    f1.write(strASTsLine+'\n')
-    f1.close()
+    try:
+        fpItemI = lstFpAST[i]
+        f1 = open(fpItemI, 'r')
+        strJsonAST = f1.read().strip().split('\n')[0]
+        f1.close()
+        jsonAST = ast.literal_eval(strJsonAST)
+        lstStrASTs = []
+        walkASTJson(jsonAST, lstStrASTs)
+        strASTsLine = ' '.join(lstStrASTs)
+        f1 = open(fpCachedAST, 'a')
+        f1.write(strASTsLine + '\n')
+        f1.close()
+    except:
+        traceback.print_exc()
 
 f1=open(fpPOSJson,'r')
 arrPOSJson=fpPOSJson.read().split('\n')
@@ -164,16 +172,19 @@ f1.write('')
 f1.close()
 # lstDictLiteralKey=sorted(dictValuesToLiterals,reverse=True)
 for i in range(0,len(arrPOSJson)):
-    strItemI=arrPOSJson[i]
-    strJsonPOS=strItemI.split('\t')[1]
-    f1.close()
-    jsonPOS=ast.literal_eval(strJsonPOS)
-    lstStrPOSs=[]
-    walkPOSJson(jsonPOS,lstStrPOSs)
-    strPOSsLine=' '.join(lstStrPOSs)
-    f1 = open(fpCachePOS, 'a')
-    f1.write(strPOSsLine+'\n')
-    f1.close()
+    try:
+        strItemI=arrPOSJson[i]
+        strJsonPOS=strItemI.split('\t')[1]
+        f1.close()
+        jsonPOS=ast.literal_eval(strJsonPOS)
+        lstStrPOSs=[]
+        walkPOSJson(jsonPOS,lstStrPOSs)
+        strPOSsLine=' '.join(lstStrPOSs)
+        f1 = open(fpCachedPOS, 'a')
+        f1.write(strPOSsLine+'\n')
+        f1.close()
+    except:
+        traceback.print_exc()
 
 print('prepare for the Doc2VecTraining')
 f1=open(fpCachedPseudocode,'r')
