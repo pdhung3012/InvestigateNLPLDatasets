@@ -178,14 +178,14 @@ if not os.path.isdir(fopTokenEmb):
         arrWordsInLines=lstAllInputTexts[i].split()
         for j in range(0,len(arrWordsInLines)):
             itemWord=arrWordsInLines[j]
-            if not itemWord in lstWordText:
+            if not itemWord in lstWordText.keys():
                 vectorItem = modelD2v.infer_vector(word_tokenize(itemWord))
                 strVector=' '.join(map(str,vectorItem))
                 strAddLine='{}\t{}'.format(itemWord,strVector)
                 lstWordEmbds.append(strAddLine)
                 lstWordText[itemWord]=''
-        if len(lstWordEmbds)%10000==0 or (i+1)==len(arrWordsInLines):
-            fpTokenEmb=fopTokenEmb++"{:04d}.txt".format((indexWords+1))
+        if len(lstWordEmbds)>0 and (len(lstWordEmbds)%10000==0 or (i+1)==len(lstAllInputTexts)):
+            fpTokenEmb=fopTokenEmb+"{:04d}.txt".format((indexWords+1))
             f1=open(fpTokenEmb,'w')
             f1.write('\n'.join(lstWordEmbds))
             f1.close()
@@ -197,7 +197,7 @@ if not os.path.isdir(fopTokenEmb):
     f1=open(fpTokenText,'w')
     f1.write('\n'.join(lstWordText))
     f1.close()
-    print('len all text {}'.format(len(lstAllInputTexts)))
+    print('len all text {}'.format(len(lstWordText)))
 
 
 
