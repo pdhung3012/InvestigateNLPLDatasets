@@ -18,6 +18,8 @@ import pydot
 from subprocess import check_call
 from graphviz import render
 import copy
+import nltk
+nltk.download('punkt')
 
 def walkASTJson(jsonAST,lstStrASTs):
     if 'type' in jsonAST.keys():
@@ -41,7 +43,6 @@ fopRoot='/home/hungphd/media/dataPapersExternal/mixCodeRaw/'
 fopPOSModel=fopRoot+'embeddingModels/d2v/'
 fpDictLiterals=fopRoot+'step2_dictLiterals_all.txt'
 fopMixVersion=fopRoot+'step4_mixCode/'
-fpPOSJson=fopRoot+''
 fpFileCachedPseudocode=fopRoot+'cached_fp_pseudocode.txt'
 fpFileCachedCode=fopRoot+'cached_fp_code.txt'
 fpFileCachedAST=fopRoot+'cached_fp_ast.txt'
@@ -102,89 +103,91 @@ else:
     f1=open(fpFileCachedAST,'r')
     lstFpAST=f1.read().split('\n')
     f1.close()
+if not os.path.isfile(fpCachedPseudocode):
+    f1=open(fpCachedPseudocode,'w')
+    f1.write('')
+    f1.close()
+    for i in range(0,len(lstFpPseudocode)):
+        try:
+            fpItemI=lstFpPseudocode[i]
+            f1=open(fpItemI,'r')
+            arrItems=f1.read().strip().split('\n')
+            f1.close()
+            f1 = open(fpCachedPseudocode, 'a')
+            f1.write('\n'.join(arrItems)+'\n')
+            f1.close()
+        except:
+            traceback.print_exc()
 
-f1=open(fpCachedPseudocode,'w')
-f1.write('')
-f1.close()
-for i in range(0,len(lstFpPseudocode)):
-    try:
-        fpItemI=lstFpPseudocode[i]
-        f1=open(fpItemI,'r')
-        arrItems=f1.read().strip().split('\n')
-        f1.close()
-        f1 = open(fpCachedPseudocode, 'a')
-        f1.write('\n'.join(arrItems)+'\n')
-        f1.close()
-    except:
-        traceback.print_exc()
+if not os.path.isfile(fpCachedCode):
+    f1=open(fpCachedCode,'w')
+    f1.write('')
+    f1.close()
+    lstDictLiteralKey=sorted(dictValuesToLiterals,reverse=True)
+    for i in range(0,len(lstFpCode)):
+        try:
+            fpItemI=lstFpCode[i]
+            f1=open(fpItemI,'r')
+            arrItems=f1.read().strip().split('\n')
+            f1.close()
+            lstStrItemCode=[]
+            for j in range(33,len(arrItems)):
+                item=arrItems[j]
+                for key in lstDictLiteralKey:
+                    if key in item:
+                        valKey=dictValuesToLiterals[key]
+                        item=item.replace(key,valKey)
+                lstStrItemCode.append(item)
+            f1 = open(fpCachedCode, 'a')
+            f1.write('\n'.join(lstStrItemCode) + '\n')
+            f1.close()
+        except:
+            traceback.print_exc()
+
+if not os.path.isfile(fpCachedAST):
+    f1=open(fpCachedAST,'w')
+    f1.write('')
+    f1.close()
+    # lstDictLiteralKey=sorted(dictValuesToLiterals,reverse=True)
+    for i in range(0,len(lstFpAST)):
+        try:
+            fpItemI = lstFpAST[i]
+            f1 = open(fpItemI, 'r')
+            strJsonAST = f1.read().strip().split('\n')[0]
+            f1.close()
+            jsonAST = ast.literal_eval(strJsonAST)
+            lstStrASTs = []
+            walkASTJson(jsonAST, lstStrASTs)
+            strASTsLine = ' '.join(lstStrASTs)
+            f1 = open(fpCachedAST, 'a')
+            f1.write(strASTsLine + '\n')
+            f1.close()
+        except:
+            traceback.print_exc()
 
 
-f1=open(fpCachedCode,'w')
-f1.write('')
-f1.close()
-lstDictLiteralKey=sorted(dictValuesToLiterals,reverse=True)
-for i in range(0,len(lstFpCode)):
-    try:
-        fpItemI=lstFpCode[i]
-        f1=open(fpItemI,'r')
-        arrItems=f1.read().strip().split('\n')
-        f1.close()
-        lstStrItemCode=[]
-        for j in range(33,len(arrItems)):
-            item=arrItems[j]
-            for key in lstDictLiteralKey:
-                if key in item:
-                    valKey=dictValuesToLiterals[key]
-                    item=item.replace(key,valKey)
-            lstStrItemCode.append(item)
-        f1 = open(fpCachedCode, 'a')
-        f1.write('\n'.join(lstStrItemCode) + '\n')
-        f1.close()
-    except:
-        traceback.print_exc()
-
-f1=open(fpCachedAST,'w')
-f1.write('')
-f1.close()
-# lstDictLiteralKey=sorted(dictValuesToLiterals,reverse=True)
-for i in range(0,len(lstFpAST)):
-    try:
-        fpItemI = lstFpAST[i]
-        f1 = open(fpItemI, 'r')
-        strJsonAST = f1.read().strip().split('\n')[0]
-        f1.close()
-        jsonAST = ast.literal_eval(strJsonAST)
-        lstStrASTs = []
-        walkASTJson(jsonAST, lstStrASTs)
-        strASTsLine = ' '.join(lstStrASTs)
-        f1 = open(fpCachedAST, 'a')
-        f1.write(strASTsLine + '\n')
-        f1.close()
-    except:
-        traceback.print_exc()
-
-f1=open(fpPOSJson,'r')
-arrPOSJson=fpPOSJson.read().split('\n')
-f1.close()
-
-f1=open(fpCachedPOS,'w')
-f1.write('')
-f1.close()
-# lstDictLiteralKey=sorted(dictValuesToLiterals,reverse=True)
-for i in range(0,len(arrPOSJson)):
-    try:
-        strItemI=arrPOSJson[i]
-        strJsonPOS=strItemI.split('\t')[1]
-        f1.close()
-        jsonPOS=ast.literal_eval(strJsonPOS)
-        lstStrPOSs=[]
-        walkPOSJson(jsonPOS,lstStrPOSs)
-        strPOSsLine=' '.join(lstStrPOSs)
-        f1 = open(fpCachedPOS, 'a')
-        f1.write(strPOSsLine+'\n')
-        f1.close()
-    except:
-        traceback.print_exc()
+if not os.path.isfile(fpCachedPOS):
+    f1=open(fpCachedPOS,'w')
+    f1.write('')
+    f1.close()
+    f1=open(fpJsonPseudoAfterPOS,'r')
+    arrPOSJson=f1.read().split('\n')
+    f1.close()
+    # lstDictLiteralKey=sorted(dictValuesToLiterals,reverse=True)
+    for i in range(0,len(arrPOSJson)):
+        try:
+            strItemI=arrPOSJson[i]
+            strJsonPOS=strItemI.split('\t')[1]
+            f1.close()
+            jsonPOS=ast.literal_eval(strJsonPOS)
+            lstStrPOSs=[]
+            walkPOSJson(jsonPOS,lstStrPOSs)
+            strPOSsLine=' '.join(lstStrPOSs)
+            f1 = open(fpCachedPOS, 'a')
+            f1.write(strPOSsLine+'\n')
+            f1.close()
+        except:
+            traceback.print_exc()
 
 print('prepare for the Doc2VecTraining')
 f1=open(fpCachedPseudocode,'r')
