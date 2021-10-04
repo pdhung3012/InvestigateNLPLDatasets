@@ -228,7 +228,7 @@ for i in range(0,len(lstFpJsonFiles)):
                 arrItemStr = strText.split(' , ')
                 # itemStr=arrItemStr[0]
                 strNewPOS = str(getGraphDependencyFromTextUsingNLTKArr(arrItemStr, parser))
-                print('number {} need to be generated {}'.format(fpItemLabel))
+                print('number {} need to be generated {}'.format(i,fpItemLabel))
             else:
                 strNewPOS='{}'
             arrItLabels[11] = strNewPOS
