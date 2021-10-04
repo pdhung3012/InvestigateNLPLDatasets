@@ -36,9 +36,9 @@ fpCachedCode=fopPOSModel+'cached_code.txt'
 fpCachedAST=fopPOSModel+'cached_ast.txt'
 fpD2VModel=fopPOSModel+'d2v.model.txt'
 fpParagraphText=fopPOSModel+'paragraph_text.txt'
-fpParagraphEmb=fopPOSModel+'paragraph_emb.txt'
+fopParagraphEmb=fopPOSModel+'paragraph_emb/'
 fpTokenText=fopPOSModel+'token_text.txt'
-fpTokenEmb=fopPOSModel+'token_emb.txt'
+fopTokenEmb=fopPOSModel+'token_emb/'
 
 print('before traverse')
 lstFpJsonFiles=[]
@@ -121,26 +121,37 @@ if not os.path.isfile(fpParagraphText):
                 f1.write('\n'.join(lstProgramText)+'\n')
                 f1.close()
                 lstProgramText=[]
+                print('end {} paragraphText'.format((i+1)))
         except:
             traceback.print_exc()
 
+print('end paragraph text')
+
 modelD2v=Doc2Vec.load(fpD2VModel)
-f1=open(fpParagraphText,'r')
-arrParagraphText=f1.read().strip().split('\n')
-f1.close()
-lstEmbeddings=[]
-indexPara=0
-for i in range(0,len(arrParagraphText)):
-    arrTabs=arrParagraphText[i].split('\t')
-    if len(arrTabs)>=4:
-        strContent=arrTabs[3:]
-        vectorItem=modelD2v.infer_vector(word_tokenize(strContent))
-        strItem='{}\t{}\t{}\t{}'.format(arrTabs[0],arrTabs[1],arrTabs[2],' '.join(map(str,vectorItem)))
-        lstEmbeddings.append(strItem)
-    if len(lstEmbeddings)%1000==0 or (i+1)==len(arrParagraphText):
-        f1=open(fpParagraphEmb,'a')
-        f1.write('\n'.join(lstEmbeddings)+'\n')
-        f1.close()
+if not os.path.isdir(fopParagraphEmb):
+    createDirIfNotExist(fopParagraphEmb)
+    f1=open(fpParagraphText,'r')
+    arrParagraphText=f1.read().strip().split('\n')
+    f1.close()
+    lstEmbeddings=[]
+    indexPara=0
+    print('reaad paragraph text {}'.format(len(arrParagraphText)))
+    for i in range(0,len(arrParagraphText)):
+        arrTabs=arrParagraphText[i].split('\t')
+        if len(arrTabs)>=4:
+            strContent=''.join(arrTabs[3:])
+            # print(strContent)
+            vectorItem=modelD2v.infer_vector(word_tokenize(strContent))
+            strItem='{}\t{}\t{}\t{}'.format(arrTabs[0],arrTabs[1],arrTabs[2],' '.join(map(str,vectorItem)))
+            lstEmbeddings.append(strItem)
+        if len(lstEmbeddings)%2000==0 or (i+1)==len(arrParagraphText):
+            fpItemPara=fopParagraphEmb+"{:04d}.txt".format((indexPara+1))
+            f1=open(fpItemPara,'w')
+            f1.write('\n'.join(lstEmbeddings))
+            f1.close()
+            lstEmbeddings=[]
+            print('end para {}'.format(i))
+            indexPara=indexPara+1
 
 print('End embedding paaragraaphs')
 
@@ -157,36 +168,36 @@ f1=open(fpCachedPOS,'r')
 arrOutPOS=f1.read().split('\n')
 f1.close()
 
-indexWords=0
-lstWordEmbds=[]
-lstWordText=[]
-lstAllInputTexts=arrOutPseudocode+arrOutCode+arrOutPOS+arrOutPOS
+if not os.path.isdir(fopTokenEmb):
+    createDirIfNotExist(fopTokenEmb)
+    indexWords=0
+    lstWordEmbds=[]
+    lstWordText={}
+    lstAllInputTexts=arrOutPseudocode+arrOutCode+arrOutPOS+arrOutPOS
+    for i in range(0,len(lstAllInputTexts)):
+        arrWordsInLines=lstAllInputTexts[i].split()
+        for j in range(0,len(arrWordsInLines)):
+            itemWord=arrWordsInLines[j]
+            if not itemWord in lstWordText:
+                vectorItem = modelD2v.infer_vector(word_tokenize(itemWord))
+                strVector=' '.join(map(str,vectorItem))
+                strAddLine='{}\t{}'.format(itemWord,strVector)
+                lstWordEmbds.append(strAddLine)
+                lstWordText[itemWord]=''
+        if len(lstWordEmbds)%10000==0 or (i+1)==len(arrWordsInLines):
+            fpTokenEmb=fopTokenEmb++"{:04d}.txt".format((indexWords+1))
+            f1=open(fpTokenEmb,'w')
+            f1.write('\n'.join(lstWordEmbds))
+            f1.close()
+            lstWordEmbds=[]
+            indexWords=indexWords+1
+            print('end word emb {}'.format(i))
 
-f1=open(fpTokenEmb,'w')
-f1.write('')
-f1.close()
-
-
-for i in range(0,len(lstAllInputTexts)):
-    arrWordsInLines=lstAllInputTexts[i].split()
-    for j in range(0,len(arrWordsInLines)):
-        itemWord=arrWordsInLines[j]
-        vectorItem = modelD2v.infer_vector(word_tokenize(itemWord))
-        strVector=' '.join(map(str,vectorItem))
-        strAddLine='{}\t{}'.format(itemWord,s,strVector)
-        lstWordEmbds.append(strAddLine)
-        lstWordText.append(itemWord)
-    if len(lstWordEmbds)%1000==0 or (i+1)==len(arrWordsInLines):
-        f1=open(fpTokenEmb,'a')
-        f1.write('\n'.join(lstWordEmbds)+'\n')
-        f1.close()
-
-lstWordText=sorted(lstWordText)
-f1=open(fpTokenText,'w')
-f1.write('\n'.join(lstWordText))
-f1.close()
-
-print('len all text {}'.format(len(lstAllInputTexts)))
+    lstWordText=sorted(lstWordText.keys())
+    f1=open(fpTokenText,'w')
+    f1.write('\n'.join(lstWordText))
+    f1.close()
+    print('len all text {}'.format(len(lstAllInputTexts)))
 
 
 
