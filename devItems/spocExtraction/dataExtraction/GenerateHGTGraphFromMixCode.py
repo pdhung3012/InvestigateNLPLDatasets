@@ -34,8 +34,8 @@ def getMixJsonDict(jsonASTClone,jsonPartCode,jsonPartPOS):
             lstChildren=jsonASTClone['children']
             for i in range(0,len(lstChildren)):
                 itemChild=lstChildren[i]
-                if itemChild['id']==jsonPartCode['id']:
-                    jsonPartPOS['id']=itemChild['id']
+                if str(itemChild['id'])==str(jsonPartCode['id']):
+                    jsonPartPOS['id']=str(itemChild['id'])
                     jsonPartPOS['isNLRootNode']=True
                     jsonASTClone['children'][i]=jsonPartPOS
                 else:
@@ -69,7 +69,7 @@ def generateGraph(jsonObject,strFatherLabel,arrCodes,idChange,isBlueColor,graph)
             if strLabel!=strChildLabel:
                 graph.add_edge(strLabel,strChildLabel,color='black')
     else:
-        strTerminalLabel='-2\n{}\n{}'.format(strPosition,getTerminalValue(startLine,startOffset,endLine,endOffset,arrCodes))
+        strTerminalLabel='{}\n{}'.format(strPosition,getTerminalValue(startLine,startOffset,endLine,endOffset,arrCodes))
         graph.add_node(strTerminalLabel, color='yellow')
         graph.add_edge(strLabel, strTerminalLabel, color='black')
 
@@ -293,11 +293,11 @@ for i in range(0,len(lstFpJsonFiles)):
 
     try:
 
-        lstFopItemGraphFolders=glob.glob(fopItemProgram+'v_*_graphs/')
-        # print('len {}/{} {} {}'.format(i,len(lstFpJsonFiles),fpItemAST),len(lstFopItemGraphFolders))
-        if len(lstFopItemGraphFolders)>0:
-            print('skip {}/{} {}'.format(i,len(lstFpJsonFiles),fpItemAST))
-            continue
+        # lstFopItemGraphFolders=glob.glob(fopItemProgram+'v_*_graphs/')
+        # # print('len {}/{} {} {}'.format(i,len(lstFpJsonFiles),fpItemAST),len(lstFopItemGraphFolders))
+        # if len(lstFopItemGraphFolders)>0:
+        #     print('skip {}/{} {}'.format(i,len(lstFpJsonFiles),fpItemAST))
+        #     continue
 
         fpCodeLogOutput=fopItemProgram+'a_logPrint.txt'
         sys.stdout = open(fpCodeLogOutput, 'w')
@@ -330,6 +330,7 @@ for i in range(0,len(lstFpJsonFiles)):
             f1.close()
             jsonPartAST = ast.literal_eval(arrVerLabel[5])
             jsonPartPseudo = ast.literal_eval(arrVerLabel[11])
+            print(type(jsonPartPseudo))
             jsonMixClone=copy.deepcopy(jsonAll)
             getMixJsonDict(jsonMixClone,jsonPartAST,jsonPartPseudo)
             fpItemMixCodeJson=fopItemVersionGraph+'jsonMix.txt'

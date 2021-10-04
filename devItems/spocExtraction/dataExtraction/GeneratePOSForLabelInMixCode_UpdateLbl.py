@@ -109,6 +109,8 @@ def getGraphDependencyFromTextUsingNLTK(strText,parser):
     traceback.print_exc()
   return dictTotal
 
+objParsed=OneOrMore(nestedExpr())
+dictCommaItem={'tag': ',', 'value': ',', 'isTerminal': True, 'position': 'Sent_1_Terminal_X'}
 def getGraphDependencyFromTextUsingNLTKArr(arrText,parser):
   dictTotal={}
   lstDicts=[]
@@ -198,7 +200,7 @@ dictTextAndPOS={}
 for i in range(0,len(arrPOSJson)):
     arrTabs=arrPOSJson[i].split('\t')
     if(len(arrTabs)>=2):
-        strJsonContent=arrTabs[1:]
+        strJsonContent='\t'.join(arrTabs[1:])
         idx=int(arrTabs[0])
         dictTextAndPOS[arrRawText[idx]]=strJsonContent
 
@@ -229,7 +231,7 @@ for i in range(0,len(lstFpJsonFiles)):
                 print('number {} need to be generated {}'.format(fpItemLabel))
             else:
                 strNewPOS='{}'
-            arrItLabels[11] = str(strNewPOS)
+            arrItLabels[11] = strNewPOS
         # if len(arrItLabels)>=12 and not ('oak' in arrItLabels[11] and 'India' in arrItLabels[11]):
         #     totalNumLineProcess = totalNumLineProcess + 1
         #     print('skip {}/{} {} total {}'.format(i, len(lstFpJsonFiles), fpItemLabel,totalNumLineProcess))
