@@ -293,11 +293,11 @@ for i in range(0,len(lstFpJsonFiles)):
 
     try:
 
-        # lstFopItemGraphFolders=glob.glob(fopItemProgram+'v_*_graphs/')
-        # # print('len {}/{} {} {}'.format(i,len(lstFpJsonFiles),fpItemAST),len(lstFopItemGraphFolders))
-        # if len(lstFopItemGraphFolders)>0:
-        #     print('skip {}/{} {}'.format(i,len(lstFpJsonFiles),fpItemAST))
-        #     continue
+        lstFopItemGraphFolders=glob.glob(fopItemProgram+'v_*_graphs/')
+        # print('len {}/{} {} {}'.format(i,len(lstFpJsonFiles),fpItemAST),len(lstFopItemGraphFolders))
+        if len(lstFopItemGraphFolders)>0:
+            print('skip {}/{} {}'.format(i,len(lstFpJsonFiles),fpItemAST))
+            continue
 
         fpCodeLogOutput=fopItemProgram+'a_logPrint.txt'
         sys.stdout = open(fpCodeLogOutput, 'w')
