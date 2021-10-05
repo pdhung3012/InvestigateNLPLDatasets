@@ -53,7 +53,7 @@ def walkGraph(graphTotal,graphItem):
     except:
         traceback.print_exc()
 
-def walkAndGetNodeEdgeForHGT(graphItem,dictHGTNodes,dictHGTEdges,fpFileItem,strTrainTestFolder,strProgramId):
+def walkAndGetNodeEdgeForHGT(graphItem,dictHGTNodes,dictHGTEdges,dictValuesToLiterals,fpFileItem,strTrainTestFolder,strProgramId):
     try:
         lstNodes = graphItem.nodes()
         lstEdges = graphItem.edges()
@@ -67,18 +67,22 @@ def walkAndGetNodeEdgeForHGT(graphItem,dictHGTNodes,dictHGTEdges,fpFileItem,strT
                 if strClassName!='' and strValue!='':
                     if strClassName not in dictHGTNodes.keys():
                         dictHGTNodes[strClassName]={}
-                    else:
-                        if strValue not in dictHGTNodes[strClassName].keys():
-                            if strClassName=='ProgramRoot' or strClassName=='NLRoot':
-                                if len(arrNodeItem) >= 5:
-                                    strLabelInClassification = arrNodeItem[3]
-                                    if strClassName=='ProgramRoot':
-                                        strValue=strProgramId
-                                    strNodeId = strTrainTestFolder + '\t' + strProgramId
-                                    strDictValue='{}{}{}{}{}'.format(strValue,strSplitCharacterForNodeEdge,strLabelInClassification,strSplitCharacterForNodeEdge,strNodeId)
-                                    dictHGTNodes[strClassName][strValue]=strDictValue
-                            else:
-                                dictHGTNodes[strClassName][strValue] = strValue
+                    if strClassName=='ProgramRoot':
+                        strItem=strValue
+                        if strItem in dictValuesToLiterals.keys():
+                            strValue=dictValuesToLiterals[strItem]
+
+                    if strValue not in dictHGTNodes[strClassName].keys():
+                        if strClassName=='ProgramRoot' or strClassName=='NLRoot':
+                            if len(arrNodeItem) >= 5:
+                                strLabelInClassification = arrNodeItem[3]
+                                if strClassName=='ProgramRoot':
+                                    strValue=strProgramId
+                                strNodeId = strTrainTestFolder + '\t' + strProgramId
+                                strDictValue='{}{}{}{}{}'.format(strValue,strSplitCharacterForNodeEdge,strLabelInClassification,strSplitCharacterForNodeEdge,strNodeId)
+                                dictHGTNodes[strClassName][strValue]=strDictValue
+                        else:
+                            dictHGTNodes[strClassName][strValue] = strValue
         for item in lstEdges:
             tup = item
             if len(tup) >= 2:
@@ -107,6 +111,7 @@ fopTotalGraphAll= fopRoot + 'step5_totalGraph/all/'
 fpFileCachedVersion=fopRoot+'cached_graph_all.txt'
 fpDotTotalGraph= fopTotalGraphAll + 'total.all.dot'
 fpPngTotalGraph= fopTotalGraphAll + 'total.all.png'
+fpDictLiterals=fopRoot+'step2_dictLiterals_all.txt'
 
 strSplitCharacterForNodeEdge=' ABAZ '
 createDirIfNotExist(fopTotalGraphAll)
@@ -135,6 +140,20 @@ else:
     lstFpVersionFiles=f1.read().strip().split('\n')
     f1.close()
 lstFpVersionFiles=sorted(lstFpVersionFiles,reverse=True)
+
+f1=open(fpDictLiterals,'r')
+arrLits=f1.read().strip().split('\n')
+f1.close()
+dictLiteralsToValues={}
+dictValuesToLiterals={}
+for item in arrLits:
+    arrTabs=item.split('\t')
+    if len(arrTabs)>=2:
+        strContent='\t'.join(arrTabs[1:])
+        dictLiteralsToValues[arrTabs[0]]=strContent
+        dictValuesToLiterals[strContent]=arrTabs[0]
+
+
 graphAll=pgv.AGraph(directed=True)
 dictHGTNodes={}
 dictHGTEdges={}
@@ -147,11 +166,12 @@ for i in range(0,len(lstFpVersionFiles)):
         strTrainTestFolder=arrFpIntem[len(arrFpIntem)-4]
         graphItem = pgv.AGraph(fpItemVersionDot, strict=False, directed=True)
         walkGraph(graphAll,graphItem)
-        walkAndGetNodeEdgeForHGT(graphItem, dictHGTNodes, dictHGTEdges, fpItemVersionDot,strTrainTestFolder,strProgramId)
+        walkAndGetNodeEdgeForHGT(graphItem, dictHGTNodes, dictHGTEdges,dictValuesToLiterals, fpItemVersionDot,strTrainTestFolder,strProgramId)
         if i==10:
             graphAll.write(fpDotTotalGraph)
             graphAll.layout(prog='dot')
             graphAll.draw(fpPngTotalGraph)
+        if i==100:
             break
     except:
         traceback.print_exc()
