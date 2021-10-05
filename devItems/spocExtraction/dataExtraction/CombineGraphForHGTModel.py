@@ -74,11 +74,11 @@ def walkAndGetNodeEdgeForHGT(graphItem,dictHGTNodes,dictHGTEdges,fpFileItem,strT
                                     strLabelInClassification = arrNodeItem[3]
                                     if strClassName=='ProgramRoot':
                                         strValue=strProgramId
-                                    strDictValue='{}\t{}\t{}'.format(strValue,strLabelInClassification,fpFileItem)
+                                    strNodeId = strTrainTestFolder + '\t' + strProgramId
+                                    strDictValue='{}{}{}{}{}'.format(strValue,strSplitCharacterForNodeEdge,strLabelInClassification,strSplitCharacterForNodeEdge,strNodeId)
                                     dictHGTNodes[strClassName][strValue]=strDictValue
                             else:
-                                strDictValue = '{}\t{}'.format(strValue, fpFileItem)
-                                dictHGTNodes[strClassName][strValue] = strDictValue
+                                dictHGTNodes[strClassName][strValue] = strValue
         for item in lstEdges:
             tup = item
             if len(tup) >= 2:
@@ -108,6 +108,7 @@ fpFileCachedVersion=fopRoot+'cached_graph_all.txt'
 fpDotTotalGraph= fopTotalGraphAll + 'total.all.dot'
 fpPngTotalGraph= fopTotalGraphAll + 'total.all.png'
 
+strSplitCharacterForNodeEdge=' ABAZ '
 createDirIfNotExist(fopTotalGraphAll)
 
 dictTotalElements={}
@@ -171,7 +172,7 @@ for key in dictHGTEdges.keys():
     fpElement = fopTotalGraphAll + 'edges_' + key + '.txt'
     lstStr = []
     for objInGraph in lstElements:
-        strItem = '\t'.join(list(objInGraph))
+        strItem = strSplitCharacterForNodeEdge.join(list(objInGraph))
         lstStr.append(strItem)
     f1 = open(fpElement, 'w')
     f1.write('\n'.join(lstStr))
