@@ -67,10 +67,11 @@ def walkAndGetNodeEdgeForHGT(graphItem,dictHGTNodes,dictHGTEdges,dictValuesToLit
                 if strClassName!='' and strValue!='':
                     if strClassName not in dictHGTNodes.keys():
                         dictHGTNodes[strClassName]={}
-                    if strClassName=='ProgramRoot':
+                    if strClassName=='ASTNode':
                         strItem=strValue
                         if strItem in dictValuesToLiterals.keys():
                             strValue=dictValuesToLiterals[strItem]
+                            # print('here {}'.format(strValue))
 
                     if strValue not in dictHGTNodes[strClassName].keys():
                         if strClassName=='ProgramRoot' or strClassName=='NLRoot':
@@ -171,8 +172,10 @@ for i in range(0,len(lstFpVersionFiles)):
             graphAll.write(fpDotTotalGraph)
             graphAll.layout(prog='dot')
             graphAll.draw(fpPngTotalGraph)
-        if i==100:
-            break
+        if((i+1)%1000==0) or ((i+1)==len(lstFpVersionFiles)):
+            print('end {}'.format((i+1)))
+        # if i==1000:
+        #     break
     except:
         traceback.print_exc()
 print('end visit graphs')
