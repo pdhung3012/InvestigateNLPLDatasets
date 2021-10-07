@@ -94,11 +94,16 @@ def walkAndGetNodeEdgeForHGT(graphItem,dictHGTNodes,dictHGTEdges,dictValuesToLit
                     itemTarget=dictLabelOfGraphItems[strTargetLbl]
                     strSourceClass=itemSource[0]
                     strSourceValue=itemSource[1]
+                    if strSourceClass=='translation_unit':
+                        strSourceValue=strProgramId
                     strTargetClass=itemTarget[0]
                     strTargetValue=itemTarget[1]
                     strNewKey='{} - {}'.format(strSourceClass,strTargetClass)
                     if strNewKey not in dictHGTEdges.keys():
                         dictHGTEdges[strNewKey]=[]
+                        strEdgeId=strTrainTestFolder+'\t'+strProgramId
+                        tupItem=(strSourceValue,strTargetValue,strEdgeId)
+                        dictHGTEdges[strNewKey].append(tupItem)
                     else:
                         strEdgeId=strTrainTestFolder+'\t'+strProgramId
                         tupItem=(strSourceValue,strTargetValue,strEdgeId)
@@ -162,7 +167,7 @@ dictHGTEdges={}
 
 for i in range(0,len(lstFpVersionFiles)):
     try:
-        fpItemVersionDot=lstFpVersionFiles[i].replace('g_all.dot','g_1.dot')
+        fpItemVersionDot=lstFpVersionFiles[i].replace('g_all.dot','g_'+str(numContext)+'.dot')
         arrFpIntem=fpItemVersionDot.split('/')
         strProgramId='ProgramRoot_'+arrFpIntem[len(arrFpIntem)-3]+'-'+arrFpIntem[len(arrFpIntem)-2].replace('_graphs','')
         strTrainTestFolder=arrFpIntem[len(arrFpIntem)-4]
@@ -174,6 +179,9 @@ for i in range(0,len(lstFpVersionFiles)):
 
         for key in dictHGTEdges.keys():
             lstElements = dictHGTEdges[key]
+            # if(key=='ASTNode - NLRoot' or key=='ProgramRoot - ASTNode'):
+            #     print('key {}'.format(key))
+            #     print('dictKey {}'.format(lstElements))
             fpElement = fopTotalGraphAll + 'edges_' + key + '.txt'
             lstStr = []
             for objInGraph in lstElements:

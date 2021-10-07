@@ -90,19 +90,25 @@ def walkAndGetNodeEdgeForHGT(graphItem,dictHGTNodes,dictHGTEdges,dictValuesToLit
                 strSourceLbl = tup[0]
                 strTargetLbl = tup[1]
                 if strSourceLbl in dictLabelOfGraphItems.keys() and strTargetLbl in dictLabelOfGraphItems.keys():
-                    itemSource=dictLabelOfGraphItems[strSourceLbl]
-                    itemTarget=dictLabelOfGraphItems[strTargetLbl]
-                    strSourceClass=itemSource[0]
-                    strSourceValue=itemSource[1]
-                    strTargetClass=itemTarget[0]
-                    strTargetValue=itemTarget[1]
-                    strNewKey='{} - {}'.format(strSourceClass,strTargetClass)
+                    itemSource = dictLabelOfGraphItems[strSourceLbl]
+                    itemTarget = dictLabelOfGraphItems[strTargetLbl]
+                    strSourceClass = itemSource[0]
+                    strSourceValue = itemSource[1]
+                    if strSourceClass == 'translation_unit':
+                        strSourceValue = strProgramId
+                    strTargetClass = itemTarget[0]
+                    strTargetValue = itemTarget[1]
+                    strNewKey = '{} - {}'.format(strSourceClass, strTargetClass)
                     if strNewKey not in dictHGTEdges.keys():
-                        dictHGTEdges[strNewKey]=[]
-                    else:
-                        strEdgeId=strTrainTestFolder+'\t'+strProgramId
-                        tupItem=(strSourceValue,strTargetValue,strEdgeId)
+                        dictHGTEdges[strNewKey] = []
+                        strEdgeId = strTrainTestFolder + '\t' + strProgramId
+                        tupItem = (strSourceValue, strTargetValue, strEdgeId)
                         dictHGTEdges[strNewKey].append(tupItem)
+                    else:
+                        strEdgeId = strTrainTestFolder + '\t' + strProgramId
+                        tupItem = (strSourceValue, strTargetValue, strEdgeId)
+                        dictHGTEdges[strNewKey].append(tupItem)
+
     except:
         traceback.print_exc()
 
