@@ -202,7 +202,7 @@ for i in range(0,len(lstFpVersionFiles)):
             graphAll.draw(fpPngTotalGraph)
         if((i+1)%1000==0) or ((i+1)==len(lstFpVersionFiles)):
             print('end {}'.format((i+1)))
-        # if i==10:
+        # if i==10000:
         #     break
     except:
         traceback.print_exc()
