@@ -145,7 +145,8 @@ def getGraphDependencyFromTextUsingStanfordNLP(strText,nlpObj):
     traceback.print_exc()
   return dictTotal
 
-strSplitCharacter=' SplitParsedTree '
+strSplitParsedTree='\n SplitParsedTree \n'
+strSplitParsedLine='\n SplitParsedLine \n'
 def getParsedTreesFromTextUsingStanfordNLP(strText,nlpObj):
   strOutput='ERROR'
   try:
@@ -176,7 +177,7 @@ def getParsedTreesFromTextUsingStanfordNLP(strText,nlpObj):
       # dictWords = {}
       # jsonPOS=walkAndGetPOSJson(data,indexSentence,lstNonTerminals,lstTerminals)
       # dictTotal['children'].append(jsonPOS)
-    strOutput=strSplitCharacter.join(lstOutput)
+    strOutput=strSplitParsedTree.join(lstOutput)
   except:
     # strJsonObj = 'Error'
     # dictTotal=None
@@ -247,7 +248,7 @@ for i in range(0,len(lstFpJsonFiles)):
         fopItemPOS='/'.join(arrFpPOS[:(len(arrFpPOS)-1)])
         createDirIfNotExist(fopItemPOS)
         f1=open(fpItemPOS,'w')
-        f1.write('\n'.join(lstStr))
+        f1.write(strSplitParsedLine.join(lstStr))
         f1.close()
 
         strEstimate='{}\t{}\t{}'.format(wordCount,durationItem,fpItemPseudo)
