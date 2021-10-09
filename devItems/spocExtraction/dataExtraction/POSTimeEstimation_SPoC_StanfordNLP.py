@@ -145,6 +145,45 @@ def getGraphDependencyFromTextUsingStanfordNLP(strText,nlpObj):
     traceback.print_exc()
   return dictTotal
 
+strSplitCharacter=' SplitParsedTree '
+def getParsedTreesFromTextUsingStanfordNLP(strText,nlpObj):
+  strOutput='ERROR'
+  try:
+    output = nlpObj.annotate(strText, properties={
+      'annotators': 'parse',
+      'outputFormat': 'json'
+    })
+    jsonTemp = output
+    # strJsonObj = jsonTemp
+    arrSentences=jsonTemp['sentences']
+    # dictTotal={}
+    # dictTotal['tag'] = 'Paragraph'
+    # dictTotal['label'] = 'Paragraph'
+    # dictTotal['value'] = ''
+    # dictTotal['isTerminal'] = False
+    # dictTotal['children'] = []
+    indexSentence=0
+    # print(strText)
+    lstOutput=[]
+    for sentence in arrSentences:
+      # jsonDependency = sentence['basicDependencies']
+      strParseContent=sentence['parse']
+      lstNonTerminals = []
+      lstTerminals = []
+      # indexSentence=indexSentence+1
+      lstOutput.append(strParseContent)
+      # data = objParsed.parseString(strParseContent)
+      # dictWords = {}
+      # jsonPOS=walkAndGetPOSJson(data,indexSentence,lstNonTerminals,lstTerminals)
+      # dictTotal['children'].append(jsonPOS)
+    strOutput=strSplitCharacter.join(lstOutput)
+  except:
+    # strJsonObj = 'Error'
+    # dictTotal=None
+    traceback.print_exc()
+  return strOutput
+
+
 fopRoot='/home/hungphd/media/dataPapersExternal/mixCodeRaw/'
 fopPseudoTokens=fopRoot+'step2_pseudo_tokenize/'
 fopEstimateTime=fopRoot+'estimate_time_pos/'
@@ -196,11 +235,11 @@ for i in range(0,len(lstFpJsonFiles)):
                 strItem=arrPseudos[j]
                 wordCount=wordCount+len(strItem.split())
                 start_time=time.time()
-                dictItem=getGraphDependencyFromTextUsingStanfordNLP(strItem, nlp)
+                dictItem=getParsedTreesFromTextUsingStanfordNLP(strItem, nlp)
                 end_time=time.time()
                 durationItem=durationItem+(end_time-start_time)
             else:
-                dictItem={}
+                dictItem='ERROR'
             lstStr.append(str(dictItem))
 
         fpItemPOS=fpItemPseudo.replace(fopPseudoTokens,fopPseudocodePOS)
