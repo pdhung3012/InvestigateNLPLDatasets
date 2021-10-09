@@ -176,6 +176,8 @@ else:
     lstFpJsonFiles=f1.read().split('\n')
     f1.close()
 
+lstFpJsonFiles=sorted(lstFpJsonFiles,reverse=True)
+
 f1=open(fpEstimate,'w')
 f1.write('')
 f1.close()
@@ -199,7 +201,7 @@ for i in range(0,len(lstFpJsonFiles)):
                 durationItem=durationItem+(end_time-start_time)
             else:
                 dictItem={}
-            lstStr.append(str(strItem))
+            lstStr.append(str(dictItem))
 
         fpItemPOS=fpItemPseudo.replace(fopPseudoTokens,fopPseudocodePOS)
         arrFpPOS=fpItemPOS.split('/')
