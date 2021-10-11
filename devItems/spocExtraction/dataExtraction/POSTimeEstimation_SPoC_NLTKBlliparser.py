@@ -99,15 +99,15 @@ else:
 
 lstFpJsonFiles=sorted(lstFpJsonFiles,reverse=True)
 
-# f1=open(fpEstimate,'w')
-# f1.write('')
-# f1.close()
+f1=open(fpEstimate,'w')
+f1.write('')
+f1.close()
 lstStrEstimate=[]
 for i in range(0,len(lstFpJsonFiles)):
     fpItemPseudo=lstFpJsonFiles[i]
-    if i<=11600:
-        print('{} number'.format(i))
-        continue
+    # if i<=11600:
+    #     print('{} number'.format(i))
+    #     continue
     try:
         f1=open(fpItemPseudo,'r')
         arrPseudos=f1.read().strip().split('\n')
