@@ -99,12 +99,15 @@ else:
 
 lstFpJsonFiles=sorted(lstFpJsonFiles,reverse=True)
 
-f1=open(fpEstimate,'w')
-f1.write('')
-f1.close()
+# f1=open(fpEstimate,'w')
+# f1.write('')
+# f1.close()
 lstStrEstimate=[]
 for i in range(0,len(lstFpJsonFiles)):
     fpItemPseudo=lstFpJsonFiles[i]
+    if i<=11600:
+        print('{} number'.format(i))
+        continue
     try:
         f1=open(fpItemPseudo,'r')
         arrPseudos=f1.read().strip().split('\n')
@@ -113,8 +116,8 @@ for i in range(0,len(lstFpJsonFiles)):
         durationItem=0
         wordCount=0
         for j in range(0,len(arrPseudos)):
-            if arrPseudos[j]!='':
-                strItem=arrPseudos[j]
+            if arrPseudos[j].strip() != '':
+                strItem = arrPseudos[j].strip()
                 wordCount=wordCount+len(strItem.split())
                 start_time=time.time()
                 dictItem=getParsedTreesFromTextUsingNLTKBlliParser(strItem, parser)
@@ -134,6 +137,7 @@ for i in range(0,len(lstFpJsonFiles)):
 
         strEstimate='{}\t{}\t{}'.format(wordCount,durationItem,fpItemPseudo)
         lstStrEstimate.append(strEstimate)
+        print('end {}'.format((i + 1)))
         if (i+1)%100==0 or (i+1)==len(lstFpJsonFiles):
             print('end {}'.format((i+1)))
             if len(lstStrEstimate)>0:

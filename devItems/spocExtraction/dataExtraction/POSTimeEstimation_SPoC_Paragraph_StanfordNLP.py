@@ -188,10 +188,10 @@ def getParsedTreesFromTextUsingStanfordNLP(strText,nlpObj):
 fopRoot='/home/hungphd/media/dataPapersExternal/mixCodeRaw/'
 fopPseudoTokens=fopRoot+'step2_pseudo_tokenize/'
 fopEstimateTime=fopRoot+'estimate_time_pos/'
-fopPseudocodePOS=fopRoot+'step2_pseudocode_pos/'
+fopPseudocodePOS=fopRoot+'step2_pseudocode_pos_para_stanford/'
 fpCachedFilePath=fopRoot+'cachedFilePaths_pseudo_tokenizes.txt'
 createDirIfNotExist(fopEstimateTime)
-fpEstimate=fopEstimateTime+'pos_estimation.txt'
+fpEstimate=fopEstimateTime+'pos_estimation_paragraph_stanford.txt'
 model_dir = find('models/bllip_wsj_no_aux').path
 parser = RerankingParser.from_unified_model_dir(model_dir)
 
@@ -218,32 +218,31 @@ else:
 
 lstFpJsonFiles=sorted(lstFpJsonFiles,reverse=True)
 
-# f1=open(fpEstimate,'w')
-# f1.write('')
-# f1.close()
+f1=open(fpEstimate,'w')
+f1.write('')
+f1.close()
 lstStrEstimate=[]
 for i in range(0,len(lstFpJsonFiles)):
     fpItemPseudo=lstFpJsonFiles[i]
-    if i<=11600:
-        continue
+    # if i<=11600:
+    #     continue
     try:
         f1=open(fpItemPseudo,'r')
-        arrPseudos=f1.read().strip().split('\n')
+        strPseudos=f1.read().strip().replace('\n',' . ')
         f1.close()
         lstStr=[]
         durationItem=0
         wordCount=0
-        for j in range(0,len(arrPseudos)):
-            if arrPseudos[j].strip()!='':
-                strItem=arrPseudos[j].strip()
-                wordCount=wordCount+len(strItem.split())
-                start_time=time.time()
-                dictItem=getParsedTreesFromTextUsingStanfordNLP(strItem, nlp)
-                end_time=time.time()
-                durationItem=durationItem+(end_time-start_time)
-            else:
-                dictItem='ERROR'
-            lstStr.append(str(dictItem))
+        if strPseudos != '':
+            strItem = strPseudos
+            wordCount = wordCount + len(strItem.split())
+            start_time = time.time()
+            dictItem = getParsedTreesFromTextUsingStanfordNLP(strItem, nlp)
+            end_time = time.time()
+            durationItem = durationItem + (end_time - start_time)
+        else:
+            dictItem = 'ERROR'
+        lstStr.append(str(dictItem))
 
         fpItemPOS=fpItemPseudo.replace(fopPseudoTokens,fopPseudocodePOS)
         arrFpPOS=fpItemPOS.split('/')
