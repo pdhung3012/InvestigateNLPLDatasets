@@ -25,6 +25,7 @@ import time
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import PCA
+from sklearn.metrics import accuracy_score
 
 
 fopRoot='../../../../dataPapers/textInSPOC/correctCodeRaw/'
