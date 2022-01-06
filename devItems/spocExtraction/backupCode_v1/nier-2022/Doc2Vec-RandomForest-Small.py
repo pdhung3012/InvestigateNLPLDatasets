@@ -35,7 +35,7 @@ from nltk.tokenize import word_tokenize
 
 
 
-fopRoot='../../../../../media/dataPapersExternal/mixCodeRaw/'
+fopRoot='../../../../../../media/dataPapersExternal/mixCodeRaw/'
 fpInputText=fopRoot+'embeddingModels/d2v/paragraph_text.txt'
 fopOutputML=fopRoot+'resultMLs/doc2vec-rfs-small/'
 fpResultDetails=fopOutputML+'result_details.txt'
@@ -148,33 +148,62 @@ y_TestW_p3=y_problem_3[idxTestWStart:idxTestWEnd]
 
 
 print('train [{},{})\ntestP [{},{})\ntestW [{},{})'.format(idxTrainStart,idxTrainEnd,idxTestPStart,idxTestPEnd,idxTestWStart,idxTestWEnd))
-
+import  time
+lstTimeRunning=[]
 rf = RandomForestClassifier(n_estimators=150, max_depth=None, n_jobs=-1,random_state = 42)
 print('problem 1:')
+start_time=time.time()
 rf_model = rf.fit(vec_train, y_Train_p1)
+end_time=time.time()
+train_time=end_time-start_time
+start_time=time.time()
 pred_testW_p1 = rf_model.predict(vec_testW)
+end_time=time.time()
+test_time=end_time-start_time
+lstTimeRunning.append(train_time)
+lstTimeRunning.append(test_time)
+
 print('{}\n'.format(confusion_matrix(y_TestW_p1, pred_testW_p1)))
 print('{}\n'.format(classification_report(y_TestW_p1, pred_testW_p1)))
 acc_testw_p1=accuracy_score(y_TestW_p1, pred_testW_p1)
 
 rf = RandomForestClassifier(n_estimators=150, max_depth=None, n_jobs=-1,random_state = 42)
 print('problem 2:')
+start_time=time.time()
 rf_model = rf.fit(vec_train, y_Train_p2)
+end_time=time.time()
+train_time=end_time-start_time
+start_time=time.time()
 pred_testW_p2 = rf_model.predict(vec_testW)
+end_time=time.time()
+test_time=end_time-start_time
+lstTimeRunning.append(train_time)
+lstTimeRunning.append(test_time)
+
+
 print('{}\n'.format(confusion_matrix(y_TestW_p2, pred_testW_p2)))
 print('{}\n'.format(classification_report(y_TestW_p2, pred_testW_p2)))
 acc_testw_p2=accuracy_score(y_TestW_p2, pred_testW_p2)
 
 rf = RandomForestClassifier(n_estimators=150, max_depth=None, n_jobs=-1,random_state = 42)
 print('problem 3:')
+start_time=time.time()
 rf_model = rf.fit(vec_train, y_Train_p3)
+end_time=time.time()
+train_time=end_time-start_time
+start_time=time.time()
 pred_testW_p3 = rf_model.predict(vec_testW)
+end_time=time.time()
+test_time=end_time-start_time
+lstTimeRunning.append(train_time)
+lstTimeRunning.append(test_time)
+
 print('{}\n'.format(confusion_matrix(y_TestW_p3, pred_testW_p3)))
 print('{}\n'.format(classification_report(y_TestW_p3, pred_testW_p3)))
 acc_testw_p3=accuracy_score(y_TestW_p3, pred_testW_p3)
 
 print('\n\nacc problem 1\t{}\nacc problem 2\t{}\nacc problem 3\t{}'.format(acc_testw_p1,acc_testw_p2,acc_testw_p3))
-
+print('\t'.join(map(str,lstTimeRunning)))
 
 sys.stdout.close()
 sys.stdout = sys.__stdout__
