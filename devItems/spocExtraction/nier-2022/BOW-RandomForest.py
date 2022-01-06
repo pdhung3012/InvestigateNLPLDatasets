@@ -51,7 +51,7 @@ dictStartEnd={}
 index=0
 lstTuplesTrainTestValid=[]
 arrText.reverse()
-for i in range(0,len(arrText),2):
+for i in range(1,len(arrText),2):
     try:
         arrItemTabs = arrText[i].split('\t')
         fpItem = arrItemTabs[0]
@@ -65,8 +65,8 @@ for i in range(0,len(arrText),2):
             dictStartEnd[keyStartEnd][1] = index
             dictStartEnd[strTrainTestValid]= [index,-1]
             keyStartEnd=strTrainTestValid
-        if i == len(arrText) - 2:
-            dictStartEnd[strTrainTestValid][1] = index+1
+        if i == len(arrText) - 1:
+            dictStartEnd[strTrainTestValid][1] = index
         index = index + 1
         strItemContent = '\t'.join(arrItemTabs[4:])
         f1 = open(fpItem, 'r')
@@ -83,7 +83,7 @@ for i in range(0,len(arrText),2):
         strThirdLabel = str(strThirdLabel)
         lstItem = [strFirstLabel, strSecondLabel, strThirdLabel, strItemContent, arrItemTabs[0], strTrainTestValid]
         lstTuplesTrainTestValid.append(lstItem)
-        if((i+1)%2001==0):
+        if((i+1)%2000==0):
             print('end {}'.format(i))
     except:
         traceback.print_exc()

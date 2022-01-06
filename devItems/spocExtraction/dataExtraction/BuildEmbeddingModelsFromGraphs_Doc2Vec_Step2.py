@@ -107,14 +107,16 @@ if not os.path.isfile(fpParagraphText):
 
             lstStrItemCode = []
             for j in range(33, len(arrMixCodes)):
-                item = arrMixCodes[j]
+                lstItem = arrMixCodes[j].split()
+                item=' '+' '.join(lstItem)+' '
                 for key in lstDictLiteralKey:
-                    if key in item:
-                        valKey = dictValuesToLiterals[key]
-                        item = item.replace(key, valKey)
+                    key1 = ' ' + key + ' '
+                    if key1 in item or item.startswith(key):
+                        valKey = ' '+dictValuesToLiterals[key]+' '
+                        item = item.replace(key1, valKey)
                 lstStrItemCode.append(item)
             strCodeText = ' '.join(lstStrItemCode)
-            str2LineToAdd='{}\t{}\t{}\tProgramRoot\t{}\n{}\t{}\t{}\tNLRoot\t{}'.format(fpItemLabel,programName,versionName,strPseudoText,fpItemLabel,programName,versionName,strCodeText)
+            str2LineToAdd='{}\t{}\t{}\tProgramRoot\t{}\n{}\t{}\t{}\tNLRoot\t{}'.format(fpItemLabel,programName,versionName,strCodeText,fpItemLabel,programName,versionName,strPseudoText)
             lstProgramText.append(str2LineToAdd)
             if (i+1)%1000==0 or (i+1)==len(lstFpJsonFiles):
                 f1=open(fpParagraphText,'a')

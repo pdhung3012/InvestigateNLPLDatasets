@@ -30,16 +30,12 @@ from sklearn.metrics import classification_report
 from sklearn.metrics import cohen_kappa_score
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
-from gensim.models.doc2vec import Doc2Vec, TaggedDocument
-from nltk.tokenize import word_tokenize
 
 
-
-fopRoot='../../../../../media/dataPapersExternal/mixCodeRaw/'
+fopRoot='/home/hungphd/media/dataPapersExternal/mixCodeRaw/'
 fpInputText=fopRoot+'embeddingModels/d2v/paragraph_text.txt'
-fopOutputML=fopRoot+'resultMLs/doc2vec-rfs/'
+fopOutputML=fopRoot+'resultMLs/bow-small/'
 fpResultDetails=fopOutputML+'result_details.txt'
-fpDoc2VecModel=fopRoot+'embeddingModels/d2v/d2v.model.txt'
 createDirIfNotExist(fopOutputML)
 
 f1=open(fpInputText,'r')
@@ -95,39 +91,43 @@ print('finish')
 sys.stdout = open(fpResultDetails, 'w')
 
 
+numTrainSmall=16000
+numValidSmall=2000
+numTestSmall=2000
+
+# idxTrainStart=dictStartEnd['train'][0]
+# idxTrainEnd=dictStartEnd['train'][1]
+# idxTestPStart=dictStartEnd['testP'][0]
+# idxTestPEnd=dictStartEnd['testP'][1]
+# idxTestWStart=dictStartEnd['testW'][0]
+# idxTestWEnd=dictStartEnd['testW'][1]
+
 idxTrainStart=dictStartEnd['train'][0]
-idxTrainEnd=dictStartEnd['train'][1]
-idxTestPStart=dictStartEnd['testP'][0]
-idxTestPEnd=dictStartEnd['testP'][1]
-idxTestWStart=dictStartEnd['testW'][0]
-idxTestWEnd=dictStartEnd['testW'][1]
+idxTrainEnd=idxTrainStart+numTrainSmall
+idxTestPStart=idxTrainEnd
+idxTestPEnd=idxTestPStart+numValidSmall
+idxTestWStart=idxTestPEnd
+idxTestWEnd=idxTestWStart+numTestSmall
+
 
 print('train [{},{})\ntestP [{},{})\ntestW [{},{})'.format(idxTrainStart,idxTrainEnd,idxTestPStart,idxTestPEnd,idxTestWStart,idxTestWEnd))
 
 
-# vectorizer = TfidfVectorizer(ngram_range=(1, 4),max_features=num_features)
+vectorizer = TfidfVectorizer(ngram_range=(1, 4),max_features=num_features)
 lstAllText=[i[3] for i in lstTuplesTrainTestValid]
 y_problem_1=[i[0] for i in lstTuplesTrainTestValid]
 y_problem_2=[i[1] for i in lstTuplesTrainTestValid]
 y_problem_3=[i[2] for i in lstTuplesTrainTestValid]
-# model = vectorizer.fit(lstAllText)
+model = vectorizer.fit(lstAllText)
 
-modelD2v=Doc2Vec.load(fpDoc2VecModel)
 
 X_Train=lstAllText[idxTrainStart:idxTrainEnd]
 X_TestW=lstAllText[idxTestWStart:idxTestWEnd]
 
-vec_all=[]
-for i in range(0, len(lstAllText)):
-    # lstAllText.append(X_Train[i])
-    x_data = word_tokenize(lstAllText[i])
-    v1 = modelD2v.infer_vector(x_data)
-    vec_all.append(v1)
-
 # vec_total_all=model.transform(lstAllText).toarray()
-vec_train=vec_all[idxTrainStart:idxTrainEnd]
+vec_train=model.transform(X_Train).toarray()
 # vec_testP_all=model.transform(X_TestP).toarray()
-vec_testW=vec_all[idxTestWStart:idxTestWEnd]
+vec_testW=model.transform(X_TestW).toarray()
 
 y_Train_p1=y_problem_1[idxTrainStart:idxTrainEnd]
 y_Train_p2=y_problem_2[idxTrainStart:idxTrainEnd]

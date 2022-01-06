@@ -37,7 +37,7 @@ from nltk.tokenize import word_tokenize
 
 fopRoot='../../../../../media/dataPapersExternal/mixCodeRaw/'
 fpInputText=fopRoot+'embeddingModels/d2v/paragraph_text.txt'
-fopOutputML=fopRoot+'resultMLs/doc2vec-rfs/'
+fopOutputML=fopRoot+'resultMLs/doc2vec-rfs-small/'
 fpResultDetails=fopOutputML+'result_details.txt'
 fpDoc2VecModel=fopRoot+'embeddingModels/d2v/d2v.model.txt'
 createDirIfNotExist(fopOutputML)
@@ -94,13 +94,23 @@ for i in range(1,len(arrText),2):
 print('finish')
 sys.stdout = open(fpResultDetails, 'w')
 
+numTrainSmall=16000
+numValidSmall=2000
+numTestSmall=2000
+
+# idxTrainStart=dictStartEnd['train'][0]
+# idxTrainEnd=dictStartEnd['train'][1]
+# idxTestPStart=dictStartEnd['testP'][0]
+# idxTestPEnd=dictStartEnd['testP'][1]
+# idxTestWStart=dictStartEnd['testW'][0]
+# idxTestWEnd=dictStartEnd['testW'][1]
 
 idxTrainStart=dictStartEnd['train'][0]
-idxTrainEnd=dictStartEnd['train'][1]
-idxTestPStart=dictStartEnd['testP'][0]
-idxTestPEnd=dictStartEnd['testP'][1]
-idxTestWStart=dictStartEnd['testW'][0]
-idxTestWEnd=dictStartEnd['testW'][1]
+idxTrainEnd=idxTrainStart+numTrainSmall
+idxTestPStart=idxTrainEnd
+idxTestPEnd=idxTestPStart+numValidSmall
+idxTestWStart=idxTestPEnd
+idxTestWEnd=idxTestWStart+numTestSmall
 
 print('train [{},{})\ntestP [{},{})\ntestW [{},{})'.format(idxTrainStart,idxTrainEnd,idxTestPStart,idxTestPEnd,idxTestWStart,idxTestWEnd))
 
