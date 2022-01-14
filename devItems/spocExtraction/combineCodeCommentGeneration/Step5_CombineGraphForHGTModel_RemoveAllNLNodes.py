@@ -113,14 +113,14 @@ def walkAndGetNodeEdgeForHGT(graphItem,dictHGTNodes,dictHGTEdges,dictValuesToLit
         traceback.print_exc()
 
 fopRoot='/home/hungphd/media/dataPapersExternal/mixCodeRaw/'
-fopMixVersion=fopRoot+'step4_augmentation_s2/'
+fopMixVersion=fopRoot+'step4_removeAllNLNodes/'
 fpDictLiterals=fopRoot+'step2_dictLiterals_all.txt'
 strSplitCharacterForNodeEdge = ' ABAZ '
 lstContexts=['1','3','5','all']
 
 for strContext in lstContexts:
-    fopTotalGraphAll= fopRoot + 'step5_augmentation/'+strContext+'/'
-    fpFileCachedVersion=fopRoot + 'step5_augmentation/'+'cached_graph_'+strContext+'.txt'
+    fopTotalGraphAll= fopRoot + 'step5_removeAllNLNodes/'+strContext+'/'
+    fpFileCachedVersion=fopRoot + 'step5_removeAllNLNodes/'+'cached_graph_'+strContext+'.txt'
     fpDotTotalGraph= fopTotalGraphAll + 'total.'+strContext+'.dot'
     fpPngTotalGraph= fopTotalGraphAll + 'total.'+strContext+'.png'
 
