@@ -32,6 +32,18 @@ def jaccard(list1, list2):
     union = (len(list1) + len(list2)) - intersection
     return float(intersection) / union
 
+def checkLineOfCodeInsideFunctionDecl(lineInPseudocode,lstRanges):
+    lineInSourceCode=lineInPseudocode+33
+    result=False
+    for item in lstRanges:
+        if item[0]<lineInSourceCode and lineInSourceCode<item[1]:
+            # print('check true')
+            result=True
+            break
+    # if not result:
+    #     print('check false')
+    return result
+
 
 
 fopRoot='/home/hungphd/media/dataPapersExternal/mixCodeRaw/'
@@ -48,6 +60,18 @@ fpSortedTargetAfterTrans=fopInputSortBySimilarityScore+'target.txt'
 fpSortedLocationAfterTrans=fopInputSortBySimilarityScore+'location.txt'
 fpSortedPredAfterTrans=fopInputSortBySimilarityScore+'pred.txt'
 fpSortedDetailsAfterTrans=fopInputSortBySimilarityScore+'sortedDetails.txt'
+fpFuncDeclInfo=fopInputSortBySimilarityScore+'function_declarations.txt'
+
+f1=open(fpFuncDeclInfo,'r')
+arrFuncDecls=f1.read().strip().split('\n')
+f1.close()
+dictFuncDecls={}
+for item in arrFuncDecls:
+    arrTabs=item.split('\t')
+    strKey=arrTabs[0]+'\t'+arrTabs[1]
+    lstVal=ast.literal_eval(arrTabs[2])
+    dictFuncDecls[strKey]=lstVal
+
 
 f1=open(fpLocationAfterTrans,'r')
 arrLocations=f1.read().strip().split('\n')
@@ -73,8 +97,15 @@ for i in range(0,len(arrLocations)):
     scoreSim=jaccard(arrTarget[i].lower().split(),arrPreds[i].lower().split())
     if(scoreSim>scoreDistance):
         continue
+    arrTabLoc=arrLocations[i].split('\t')
+    strKeyLocation='{}\t{}'.format(arrTabLoc[0],arrTabLoc[1])
+    lineInPseudo=int(arrTabLoc[2])
+    lstRanges=dictFuncDecls[strKeyLocation]
+    resultInFD=checkLineOfCodeInsideFunctionDecl(lineInPseudo,lstRanges)
+    if not resultInFD:
+        continue
     print('element {} {}'.format(i + 1,scoreSim))
-    lenSource=len(arrSources[i])
+    lenSource=len(arrSources[i].split())
     lstItem=[scoreSim,lenSource,arrLocations[i],arrSources[i],arrTarget[i],arrPreds[i]]
     lstSortedLines.append(lstItem)
 
