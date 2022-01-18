@@ -33,7 +33,7 @@ def jaccard(list1, list2):
     return float(intersection) / union
 
 def checkLineOfCodeInsideFunctionDecl(lineInPseudocode,lstRanges):
-    lineInSourceCode=lineInPseudocode+33
+    lineInSourceCode=lineInPseudocode+32
     result=False
     for item in lstRanges:
         if item[0]<lineInSourceCode and lineInSourceCode<item[1]:
@@ -109,7 +109,7 @@ for i in range(0,len(arrLocations)):
     lstItem=[scoreSim,lenSource,arrLocations[i],arrSources[i],arrTarget[i],arrPreds[i]]
     lstSortedLines.append(lstItem)
 
-lstSortedLines = sorted(lstSortedLines, key=operator.itemgetter(0))
+# lstSortedLines = sorted(lstSortedLines, key=operator.itemgetter(0))
 lstSoredLocations=[]
 lstSoredSources=[]
 lstSoredTargets=[]
