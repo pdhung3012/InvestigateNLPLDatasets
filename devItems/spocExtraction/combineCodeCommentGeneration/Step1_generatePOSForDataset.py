@@ -43,6 +43,7 @@ fpSortedSource=fopSortedBySimScore+'source.txt'
 fpSortedTarget=fopSortedBySimScore+'target.txt'
 fpSortedPred=fopSortedBySimScore+'pred.txt'
 fpSortedIdentifiers=fopSortedBySimScore+'identifier_log.txt'
+fpSortedDetails=fopSortedBySimScore+'sortedDetails.txt'
 fopSortedPOSStanford=fopSortedBySimScore+'pos_stanford/'
 fopSortedPOSNLTK=fopSortedBySimScore+'pos_nltk/'
 createDirIfNotExist(fopSortedPOSStanford)
@@ -54,6 +55,7 @@ fpFilterSortedLocation=fopFilterSortedBySimScore+'location.txt'
 fpFilterSortedSource=fopFilterSortedBySimScore+'source.txt'
 fpFilterSortedTarget=fopFilterSortedBySimScore+'target.txt'
 fpFilterSortedPred=fopFilterSortedBySimScore+'pred.txt'
+fpFilterSortedSortDetails=fopFilterSortedBySimScore+'sortedDetails.txt'
 fpFilterSortedIdentifier=fopFilterSortedBySimScore+'identifier_log.txt'
 fpFilterSortedPOSNLTK=fopFilterSortedBySimScore+'pos_nltk.txt'
 fpFilterSortedPOSStanford=fopFilterSortedBySimScore+'pos_stanford.txt'
@@ -116,6 +118,9 @@ f1.close()
 f1=open(fpSortedIdentifiers,'r')
 arrIdens=f1.read().strip().split('\n')
 f1.close()
+f1=open(fpSortedDetails,'r')
+arrSortDetails=f1.read().strip().split('\n')
+f1.close()
 
 lstNewLocs=[]
 lstNewSources=[]
@@ -124,7 +129,7 @@ lstNewPreds=[]
 lstNewIdens=[]
 lstNewPOS_NLTKs=[]
 lstNewPOS_Stanfords=[]
-
+lstNewSortDetails=[]
 
 for i in range(0,len(arrSources)):
     itemSource=arrSources[i]
@@ -132,6 +137,7 @@ for i in range(0,len(arrSources)):
     itemLocation = arrLocs[i]
     itemPred = arrPreds[i]
     itemIden=arrIdens[i]
+    itemDetails=arrSortDetails[i]
     if itemSource in dictNLTKAlreadyAppeared.keys() and itemSource in dictStanfordAlreadyAppeared.keys():
         lstNewLocs.append(itemLocation)
         lstNewSources.append(itemSource)
@@ -140,6 +146,7 @@ for i in range(0,len(arrSources)):
         lstNewIdens.append(itemIden)
         lstNewPOS_NLTKs.append(dictNLTKAlreadyAppeared[itemSource])
         lstNewPOS_Stanfords.append(dictStanfordAlreadyAppeared[itemSource])
+        lstNewSortDetails.append(itemDetails)
 
 f1=open(fpFilterSortedSource,'w')
 f1.write('\n'.join(lstNewSources))
@@ -161,6 +168,9 @@ f1.write('\n'.join(lstNewPOS_NLTKs))
 f1.close()
 f1=open(fpFilterSortedPOSStanford,'w')
 f1.write('\n'.join(lstNewPOS_Stanfords))
+f1.close()
+f1=open(fpFilterSortedSortDetails,'w')
+f1.write('\n'.join(lstNewSortDetails))
 f1.close()
 
 

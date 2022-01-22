@@ -47,7 +47,7 @@ def percentageOfOverlap(sourceSentence,targetSentence):
     setOfWordInTarget=[]
     for item in listTarget:
         # print(item)
-        setOfWordInTarget.append(item.lower())
+        setOfWordInTarget.append(item)
         if not item.startswith('SpecialLiteral'):
             arrSubItem = camel_case_split(item)
             # print(arrSubItem)
