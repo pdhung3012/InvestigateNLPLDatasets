@@ -28,8 +28,13 @@ strEndLineChar=' endLineChar '
 strSplitIndent=' IndentSplit '
 strSplitJson=' JsonSplit '
 
+def revertBackWordFromPOS(strInput):
+    strOutput=strInput.replace('_MODULO_','%')
+    return strOutput
+
 def getMixJsonDict(jsonASTClone,jsonPartPOS,lineReplace):
     try:
+        # print(lineReplace)
         if 'children' in jsonASTClone.keys():
             lstChildren=jsonASTClone['children']
             for i in range(0,len(lstChildren)):
@@ -37,9 +42,15 @@ def getMixJsonDict(jsonASTClone,jsonPartPOS,lineReplace):
                 if itemChild['startLine']==itemChild['endLine'] and itemChild['endLine']==lineReplace :
                     jsonPartPOS['id']=str(itemChild['id'])
                     jsonPartPOS['isNLRootNode']=True
+                    jsonPartPOS['startLine'] = itemChild['startLine']
+                    jsonPartPOS['startOffset'] = itemChild['startOffset']
+                    jsonPartPOS['endLine'] = itemChild['endLine']
+                    jsonPartPOS['endOffset'] = itemChild['endOffset']
                     jsonASTClone['children'][i]=jsonPartPOS
+                    # print('{} aaabbbb {} aaabbbb {}'.format(itemChild['startLine'], itemChild['endLine'], lineReplace))
+                    # print('go here aaa')
                 else:
-                    getMixJsonDict(itemChild,jsonPartPOS,jsonPartPOS)
+                    getMixJsonDict(itemChild,jsonPartPOS,lineReplace)
     except:
         traceback.print_exc()
 
@@ -127,30 +138,35 @@ def generateGraphForMixCode(jsonObject,arrCodes,strRootProgramId,isInNLNodes,dic
             strType='ASTNode'
 
         if not 'children' in jsonObject.keys():
-            strValue=getTerminalValue(startLine, startOffset, endLine, endOffset,
+            strValue=jsonObject['type']+'\n'+getTerminalValue(startLine, startOffset, endLine, endOffset,
                                                                 arrCodes)
         else:
             strValue=jsonObject['type']
+        strLabel = '{}\n{}\n{}'.format(strType, strPosition,strValue)
+        # if strValue!='':
+        #     strLabel = '{}\n{}\n{}\n{}'.format(strType, strPosition,strValue)
     else:
-        strPosition=jsonObject['position']
+        strRealLabel=revertBackWordFromPOS(jsonObject['label'])
         if 'isNLRootNode' in jsonObject.keys():
-
             strType = 'NLRoot'
+            startLine = jsonObject['startLine']
+            startOffset = jsonObject['startOffset']
+            endLine = jsonObject['endLine']
+            endOffset = jsonObject['endOffset']
+            strPosition = '{}-{}-{}-{}'.format(startLine, startOffset, endLine, endOffset)
+            strLabel = '{}\n{}\n{}'.format(strType,strPosition, strRealLabel)
         else:
             strType='NLNode'
-        if 'children' in jsonObject.keys():
-            strValue = jsonObject['tag']
-            if strValue == 'S1':
-                strValue = 'NLRoot_' + strRootProgramId
-                # print('tagg {}'.format(strValue))
-
-
-        else:
-            strValue = jsonObject['value']
-
+            strLabel = '{}\n{}'.format(strType, strRealLabel)
+        # if 'children' in jsonObject.keys():
+        #     strValue = jsonObject['tag']
+        #     if strValue == 'S1' or strValue == 'Paragraph':
+        #         strValue = 'NLRoot_' + strRootProgramId
+        #         # print('tagg {}'.format(strValue))
+        # else:
+        #     strValue = jsonObject['value']
     # strLabel = '{}\n{}'.format(strId, jsonObject['type'])
 
-    strLabel = '{}\n{}\n{}\n{}'.format(isAbstract, strType,strValue,strPosition)
     # strLabel = '{}\n{}\n{}'.format(strId,strPosition,strType)
     # print('current label value {}'.format(strValue))
     if isInNLNodes:
@@ -296,36 +312,61 @@ lstNumContexts=[1,3,5,1000]
 lstPOSType=[fnPOSNLTK,fnPOSStanford]
 countNumMixCode=0
 
+arrFinalCodes=None
+arrFinalPseudocodes=None
+arrJsonAST=None
+jsonAll=None
+dictOfFatherIdMainAST = {}
+prevProgramId=''
 for i in range(0,len(arrLocs)):
     arrTabLocs=arrLocs[i].split('\t')
     strTrainTestFolder=arrTabLocs[1]
     strRootProgramId=arrTabLocs[0]
     linePseudocodeProgram=int(arrTabLocs[2])
     lineInRealCode=linePseudocodeProgram-1+distanceHeader
+    # print('line in real {}'.format(lineInRealCode))
+    # input('aaa')
     fpItemAST=fopStep3TreesitterTokenize+strTrainTestFolder+'/'+strRootProgramId+'_code_ast.txt'
     fpItemCode = fopStep2Tokenize + strTrainTestFolder + '/' + strRootProgramId + '_code.cpp'
     fpItemFinalPseudocode = fopStep2PseudoTokenize+strTrainTestFolder+'/'+strRootProgramId + '_text.txt'
-    fopOutputItem=fopStep4NMT+strTrainTestFolder+'__'+strRootProgramId+'/'
+    fopOutputItem=fopStep4NMT+strTrainTestFolder+'__'+strRootProgramId+'__'+str(lineInRealCode+1)+'/'
     createDirIfNotExist(fopOutputItem)
     fpCodeLogOutput = fopOutputItem + 'a_logPrint.txt'
+    fpOutMixCode = fopOutputItem + 'a_mixCode.cpp'
+    fpOutExpectedCode = fopOutputItem + 'a_expectedCode.cpp'
     sys.stdout = open(fpCodeLogOutput, 'w')
-    f1 = open(fpItemCode, 'r')
-    arrFinalCodes = f1.read().strip().split('\n')
+
+    if strRootProgramId!=prevProgramId:
+        f1 = open(fpItemCode, 'r')
+        arrFinalCodes = f1.read().strip().split('\n')
+        f1.close()
+        f1 = open(fpItemFinalPseudocode, 'r')
+        arrFinalPseudocodes = f1.read().strip().split('\n')
+        f1.close()
+        f1 = open(fpItemAST, 'r')
+        arrJsonAST = f1.read().strip().split('\n')
+        f1.close()
+        jsonAll = ast.literal_eval(arrJsonAST[1])
+        dictOfFatherIdMainAST = {}
+        getFatherRelationship(jsonAll, dictOfFatherIdMainAST)
+
+    f1=open(fpOutExpectedCode,'w')
+    f1.write('\n'.join(arrFinalCodes))
     f1.close()
-    f1 = open(fpItemFinalPseudocode, 'r')
-    arrFinalPseudocodes = f1.read().strip().split('\n')
+    lstMix=arrFinalCodes.copy()
+    lstMix[lineInRealCode]='// '+arrFinalPseudocodes[linePseudocodeProgram-1]
+    f1=open(fpOutMixCode,'w')
+    f1.write('\n'.join(lstMix))
     f1.close()
-    f1 = open(fpItemAST, 'r')
-    arrJsonAST = f1.read().strip().split('\n')
-    f1.close()
-    jsonAll = ast.literal_eval(arrJsonAST[1])
-    dictOfFatherIdMainAST = {}
-    getFatherRelationship(jsonAll, dictOfFatherIdMainAST)
+
     for j in range(0,len(lstPOSType)):
         try:
             jsonPartPseudo = ast.literal_eval(dictFolderContent[lstPOSType[j]][i])
+            # print(jsonPartPseudo)
             jsonMixClone = copy.deepcopy(jsonAll)
-            getMixJsonDict(jsonMixClone, jsonPartPseudo, linePseudocodeProgram+distanceHeader-1)
+            # print('line in real {}'.format(lineInRealCode))
+            # input('bbb')
+            getMixJsonDict(jsonMixClone, jsonPartPseudo, lineInRealCode)
             dictGraphIndexContext = {}
             dictAcceptableIdsForVersions = {}
             for idxLine in lstNumContexts:
@@ -340,18 +381,21 @@ for i in range(0,len(arrLocs)):
                                     dictGraphIndexContext, dictAcceptableIdsForVersions)
             for keyGraph in dictGraphIndexContext.keys():
                 graphIt = dictGraphIndexContext[keyGraph]
-                strConTextAndPOSType='graph_context_{}_pos_{}'.format(keyGraph,lstPOSType[j].replace('pos_',''))
+                strConTextAndPOSType='graph_context_{}_pos_{}'.format(keyGraph,lstPOSType[j].replace('pos_','').replace('.txt',''))
                 fpContextItemGraphText = fopOutputItem + strConTextAndPOSType + '.dot'
                 fpContextItemGraphPng = fopOutputItem + strConTextAndPOSType + '.png'
                 graphIt.write(fpContextItemGraphText)
-                if i < 10:
+                if i <=1:
                     graphIt.layout(prog='dot')
                     graphIt.draw(fpContextItemGraphPng)
+
         except:
             traceback.print_exc()
     sys.stdout.close()
     sys.stdout = sys.__stdout__
+    prevProgramId=strRootProgramId
+    # input('need check here ')
     print('end {}/{} {}'.format(i, len(arrLocs), fpItemAST))
-    if i == 10:
+    if i == 5000:
         break
 
