@@ -101,6 +101,8 @@ jsonAll=None
 dictOfFatherIdMainAST = {}
 prevProgramId=''
 for i in range(0,len(arrLocs)):
+    # if (i+1)<=36000:
+    #     continue
     arrTabLocs=arrLocs[i].split('\t')
     # strTrainTestFolder=arrTabLocs[1]
     # strRootProgramId=arrTabLocs[0]
@@ -146,6 +148,9 @@ for i in range(0,len(arrLocs)):
 
     if (i+1)%1000==0 or (i==len(arrLocs)-1) :
         batchNum=str((i+1)//1000)
+        if i==len(arrLocs)-1 and (i+1)%1000!=0:
+            batchNum = str((i + 1) // 1000+1)
+
         for key in dictContextAndPOS.keys():
             createDirIfNotExist(fopOutGraph+key+'/')
             fpOutputKey=fopOutGraph+key+'/'+batchNum+'.txt'

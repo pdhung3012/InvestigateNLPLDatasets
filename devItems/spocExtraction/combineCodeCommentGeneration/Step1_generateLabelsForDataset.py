@@ -65,9 +65,9 @@ def percentageOfOverlap(sourceSentence,targetSentence):
             countDisappear=countDisappear+1
             lstOut.append(item + '#0')
     percentage=countAppear*1.0/(countAppear+countDisappear)
-    percentageLevel=int(percentage*100//10+1)
-    if percentage==100:
-        percentageLevel=1
+    percentageLevel=int((percentage*100)//10+1)
+    if percentage==1:
+        percentageLevel=10
     return percentageLevel,percentage,countAppear,countDisappear,lstOut
 
 def getIdentifierTag(source,lstIdentifiersInCode):
