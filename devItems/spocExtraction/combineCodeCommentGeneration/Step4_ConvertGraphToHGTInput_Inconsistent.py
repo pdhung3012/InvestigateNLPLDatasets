@@ -99,7 +99,8 @@ fopStep3TreesitterTokenize=fopRoot+'step3_treesitter_tokenize/'
 fopStep2Tokenize=fopRoot+'step2_tokenize/'
 fopStep2PseudoTokenize=fopRoot+'step2_pseudo_tokenize/'
 fpDictLiterals=fopRoot+'step2_dictLiterals_all.txt'
-fopGraphEntityInfo=fopStep3V2+'graphEntityInfo/'
+fopGraphEntityInfoConsistent=fopStep3V2+'graphEntityInfo-Consistent/'
+fopGraphEntityInfoInconsistent=fopStep3V2+'graphEntityInfo-Inconsistent/'
 createDirIfNotExist(fopStep5V2)
 
 f1=open(fpDictLiterals,'r')
@@ -159,7 +160,8 @@ arrJsonAST=None
 jsonAll=None
 dictOfFatherIdMainAST = {}
 prevProgramId=''
-arrCurrentGraphPOS=[]
+arrConsistentCurrentGraphPOS=[]
+arrInconsistentCurrentGraphPOS=[]
 fpGraphTemp=fopStep5V2+'graph_temp.txt'
 for context in lstNumContexts:
     for pos in lstPOSType:
@@ -183,8 +185,11 @@ for context in lstNumContexts:
             currentGraphIndex=i%1000
             strProgramIdAndTrainTestFolder = arrTabLocs[1] + '__' + arrTabLocs[0] + '__' + arrTabLocs[2]
             if currentGraphFile!=prevGraphFile:
-                f1=open(fopGraphEntityInfo+fonContextAndPOS+'/'+str(currentGraphFile)+'.txt','r')
-                arrCurrentGraphPOS=f1.read().strip().split('\n')
+                f1=open(fopGraphEntityInfoConsistent+fonContextAndPOS+'/'+str(currentGraphFile)+'.txt','r')
+                arrConsistentCurrentGraphPOS=f1.read().strip().split('\n')
+                f1.close()
+                f1 = open(fopGraphEntityInfoInconsistent + fonContextAndPOS + '/' + str(currentGraphFile) + '.txt', 'r')
+                arrInconsistentCurrentGraphPOS = f1.read().strip().split('\n')
                 f1.close()
 
                 # f1 = open(fopGraphEntityInfo + fonContextAndPOS + '/38.txt', 'r')
@@ -195,17 +200,25 @@ for context in lstNumContexts:
 
             try:
 
-                strGraphContent=arrCurrentGraphPOS[currentGraphIndex].replace(strEndLineChar,'\n')
+                strGraphContent=arrConsistentCurrentGraphPOS[currentGraphIndex].replace(strEndLineChar,'\n')
                 f1=open(fpGraphTemp,'w')
                 f1.write(strGraphContent)
                 f1.close()
-                # strProgramId = 'ProgramRoot_' + arrFpIntem[len(arrFpIntem) - 3] + '-' + arrFpIntem[
-                #     len(arrFpIntem) - 2].replace('_graphs', '')
-                # strTrainTestFolder = arrFpIntem[len(arrFpIntem) - 4]
-
                 graphItem = pgv.AGraph(fpGraphTemp, strict=False, directed=True)
                 # walkGraph(graphAll, graphItem)
-                walkAndGetNodeEdgeForHGT(graphItem, dictHGTNodes, dictHGTEdges, dictValuesToLiterals,strProgramIdAndTrainTestFolder)
+                strIdCorrect='1__'+strProgramIdAndTrainTestFolder
+                walkAndGetNodeEdgeForHGT(graphItem, dictHGTNodes, dictHGTEdges, dictValuesToLiterals,strIdCorrect)
+
+                strGraphContent = arrInconsistentCurrentGraphPOS[currentGraphIndex].replace(strEndLineChar, '\n')
+                f1 = open(fpGraphTemp, 'w')
+                f1.write(strGraphContent)
+                f1.close()
+                graphItem = pgv.AGraph(fpGraphTemp, strict=False, directed=True)
+                # walkGraph(graphAll, graphItem)
+                strIdIncorrect = '0__' + strProgramIdAndTrainTestFolder
+                walkAndGetNodeEdgeForHGT(graphItem, dictHGTNodes, dictHGTEdges, dictValuesToLiterals,
+                                         strIdIncorrect)
+
                 # if i == 10:
                 #     graphAll.write(fpDotTotalGraph)
                 #     graphAll.layout(prog='dot')

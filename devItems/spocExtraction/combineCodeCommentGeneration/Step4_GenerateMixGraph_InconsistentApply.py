@@ -27,6 +27,7 @@ strTabChar=' tabChar '
 strEndLineChar=' endLineChar '
 strSplitIndent=' IndentSplit '
 strSplitJson=' JsonSplit '
+strTabRealChar=' TABCHAR '
 
 def revertBackWordFromPOS(strInput):
     strOutput=strInput.replace('_MODULO_','%')
@@ -46,7 +47,7 @@ def getMixJsonDict(jsonASTClone,jsonPartPOS,lineReplace):
                     jsonPartPOS['startOffset'] = itemChild['startOffset']
                     jsonPartPOS['endLine'] = itemChild['endLine']
                     jsonPartPOS['endOffset'] = itemChild['endOffset']
-                    jsonASTClone['children'][i]=jsonPartPOS
+                    jsonASTClone['children'].append(jsonPartPOS)
                     # print('{} aaabbbb {} aaabbbb {}'.format(itemChild['startLine'], itemChild['endLine'], lineReplace))
                     # print('go here aaa')
                 else:
@@ -261,7 +262,7 @@ def getAllLeaveNodes(g):
 
 
 fopRoot='/home/hungphd/media/dataPapersExternal/mixCodeRaw/'
-fopStep4NMT=fopRoot+'step4_NMT_v2/'
+fopStep4NMT=fopRoot+'step4_Inconsistent_v2/'
 fopStep3V2=fopRoot+'step3_v2/'
 fopStep3TreesitterTokenize=fopRoot+'step3_treesitter_tokenize/'
 fopStep2Tokenize=fopRoot+'step2_tokenize/'
@@ -302,14 +303,16 @@ fnLocation='location.txt'
 fnSource='source.txt'
 fnPOSNLTK='pos_nltk.txt'
 fnPOSStanford='pos_stanford.txt'
+fnInconsistentSource='inconsistentSource.txt'
 
 arrLocs=dictFolderContent[fnLocation]
 arrSource=dictFolderContent[fnSource]
 arrPOSNLTK=dictFolderContent[fnPOSNLTK]
 arrPOSStanford=dictFolderContent[fnPOSStanford]
+arrInconsistentSource=dictFolderContent[fnInconsistentSource]
 
-lstNumContexts=[1,3,5,1000]
-lstPOSType=[fnPOSNLTK,fnPOSStanford]
+lstNumContexts=[0]
+lstPOSType=[fnPOSStanford]
 countNumMixCode=0
 
 arrFinalCodes=None
@@ -363,6 +366,9 @@ for i in range(0,len(arrLocs)):
             dictOfFatherIdMainAST = {}
             getFatherRelationship(jsonAll, dictOfFatherIdMainAST)
             jsonPartPseudo = ast.literal_eval(dictFolderContent[lstPOSType[j]][i])
+            # indexOfIncorrectPseudo=1000
+            indexOfIncorrectPseudo=int(arrInconsistentSource[i].split(strTabRealChar)[0])
+            jsonIncorrectPartPseudo = ast.literal_eval(dictFolderContent[lstPOSType[j]][indexOfIncorrectPseudo])
             # print('{} {}'.format(lstPOSType[j],jsonPartPseudo))
             jsonMixClone = copy.deepcopy(jsonAll)
             # print('line in real {}'.format(lineInRealCode))
@@ -382,16 +388,49 @@ for i in range(0,len(arrLocs)):
                                     dictGraphIndexContext, dictAcceptableIdsForVersions)
             for keyGraph in dictGraphIndexContext.keys():
                 graphIt = dictGraphIndexContext[keyGraph]
-                strConTextAndPOSType='graph_context_{}_pos_{}'.format(keyGraph,lstPOSType[j].replace('pos_','').replace('.txt',''))
+                strConTextAndPOSType='graphCorrect_context_{}_pos_{}'.format(keyGraph,lstPOSType[j].replace('pos_','').replace('.txt',''))
                 fpContextItemGraphText = fopOutputItem + strConTextAndPOSType + '.dot'
                 fpContextItemGraphPng = fopOutputItem + strConTextAndPOSType + '.png'
                 graphIt.write(fpContextItemGraphText)
 
-                # if i <=3:
-                graphIt.layout(prog='dot')
-                graphIt.draw(fpContextItemGraphPng)
-                graphIt.clear()
+                if i <=10:
+                    # print('go here')
+                    # input('aaaa')
+                    graphIt.layout(prog='dot')
+                    graphIt.draw(fpContextItemGraphPng)
+                    graphIt.clear()
 
+            # incorrect pseudo
+            jsonIncorrectMixClone = copy.deepcopy(jsonAll)
+            # print('line in real {}'.format(lineInRealCode))
+            # input('bbb')
+            getMixJsonDict(jsonIncorrectMixClone, jsonIncorrectPartPseudo, lineInRealCode)
+            dictGraphIndexContext = {}
+            dictAcceptableIdsForVersions = {}
+            for idxLine in lstNumContexts:
+                dictAcceptableIdsForVersions[idxLine] = []
+                graphIt = pgv.AGraph(directed=True)
+                dictGraphIndexContext[idxLine] = graphIt
+
+            dictAncestorToRoot = {}
+            findAddableIdsForContext(jsonAll, dictOfFatherIdMainAST, dictAcceptableIdsForVersions, lineInRealCode,
+                                     dictAncestorToRoot)
+            isInNLNode = False
+            generateGraphForMixCode(jsonIncorrectMixClone, arrFinalCodes, strRootProgramId, isInNLNode,
+                                    dictGraphIndexContext, dictAcceptableIdsForVersions)
+            for keyGraph in dictGraphIndexContext.keys():
+                graphIt = dictGraphIndexContext[keyGraph]
+                strConTextAndPOSType = 'graphIncorrect_context_{}_pos_{}'.format(keyGraph, lstPOSType[j].replace('pos_',
+                                                                                                               '').replace(
+                    '.txt', ''))
+                fpContextItemGraphText = fopOutputItem + strConTextAndPOSType + '.dot'
+                fpContextItemGraphPng = fopOutputItem + strConTextAndPOSType + '.png'
+                graphIt.write(fpContextItemGraphText)
+
+                if i <= 3:
+                    graphIt.layout(prog='dot')
+                    graphIt.draw(fpContextItemGraphPng)
+                    graphIt.clear()
         except:
             traceback.print_exc()
     # input('nooooo ')
@@ -400,6 +439,6 @@ for i in range(0,len(arrLocs)):
     prevProgramId=strRootProgramId
     # input('need check here ')
     print('end {}/{} {}'.format(i, len(arrLocs), fpItemAST))
-    if i == 100:
-        break
+    # if i == 10:
+    #     break
 

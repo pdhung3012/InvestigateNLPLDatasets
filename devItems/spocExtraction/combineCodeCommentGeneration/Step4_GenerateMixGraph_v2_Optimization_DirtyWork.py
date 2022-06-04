@@ -32,11 +32,26 @@ def revertBackWordFromPOS(strInput):
     strOutput=strInput.replace('_MODULO_','%')
     return strOutput
 
-def getMixJsonDict(jsonASTClone,jsonPartPOS,lineReplace):
+def removeAllNodesAsSingleChild(jsonMix):
+    pass
+    # if 'children' in jsonMix.keys():
+    #     lstChildren = jsonMix['children']
+    #     if len(lstChildren)==1 and ('isNLRootNode' not in lstChildren[0].keys() or lstChildren[0]['isNLRootNode']==False):
+    #         # print('gp to here')
+    #         if 'children' in lstChildren[0].keys():
+    #             jsonMix['children']=lstChildren[0]['children']
+    #     else:
+    #         for item in lstChildren:
+    #             removeAllNodesAsSingleChild(item)
+
+
+def getMixJsonDictAndIndent(jsonASTClone,jsonPartPOS,lineReplace,indentInCode,dictIndentOfNL):
     try:
         # print(lineReplace)
+        jsonASTClone['levelInAST']=indentInCode
         if 'children' in jsonASTClone.keys():
             lstChildren=jsonASTClone['children']
+            indentInCode=indentInCode+1
             for i in range(0,len(lstChildren)):
                 itemChild=lstChildren[i]
                 if itemChild['startLine']==itemChild['endLine'] and itemChild['endLine']==lineReplace :
@@ -46,13 +61,53 @@ def getMixJsonDict(jsonASTClone,jsonPartPOS,lineReplace):
                     jsonPartPOS['startOffset'] = itemChild['startOffset']
                     jsonPartPOS['endLine'] = itemChild['endLine']
                     jsonPartPOS['endOffset'] = itemChild['endOffset']
+                    jsonPartPOS['levelInAST'] = indentInCode
                     jsonASTClone['children'][i]=jsonPartPOS
+                    dictIndentOfNL['nlIndentInAST']=indentInCode
+                    # print('dict here {}'.format(dictIndentOfNL))
+                    # input('aaa ')
                     # print('{} aaabbbb {} aaabbbb {}'.format(itemChild['startLine'], itemChild['endLine'], lineReplace))
                     # print('go here aaa')
                 else:
-                    getMixJsonDict(itemChild,jsonPartPOS,lineReplace)
+                    getMixJsonDictAndIndent(itemChild,jsonPartPOS,lineReplace,indentInCode,dictIndentOfNL)
     except:
         traceback.print_exc()
+def getLeafNodesFromJSon(jsonMix,lstLeafNodes):
+    if 'children' not in jsonMix.keys() or len(jsonMix['children'])==0:
+        lstLeafNodes.append(jsonMix)
+    else:
+        lstChildren = jsonMix['children']
+        for i in range(0, len(lstChildren)):
+            itemChild = lstChildren[i]
+            getLeafNodesFromJSon(itemChild,lstLeafNodes)
+
+def traverseAndKeepOnlyLevel(jsonMix,currentLevel,levelKeepInPOSTree):
+
+    if currentLevel>=levelKeepInPOSTree:
+        lstLeafs=[]
+        getLeafNodesFromJSon(jsonMix,lstLeafs)
+        jsonMix['children']=lstLeafs
+
+    elif 'children' in jsonMix.keys():
+        lstChildren = jsonMix['children']
+        currentLevel=currentLevel+1
+        for i in range(0, len(lstChildren)):
+            itemChild = lstChildren[i]
+            traverseAndKeepOnlyLevel(itemChild,currentLevel,levelKeepInPOSTree)
+def removeNodeWithSpecificIndentLevel(jsonMix,dictIndentOfNL,levelKeepInPOSTree):
+    indentInCode=jsonMix['levelInAST']
+    if indentInCode>=dictIndentOfNL['nlIndentInAST'] and 'children' in jsonMix.keys():
+        if ('isNLRootNode' not in jsonMix.keys() or jsonMix['isNLRootNode']==False):
+            lstLeafNodes=[]
+            getLeafNodesFromJSon(jsonMix,lstLeafNodes)
+            jsonMix['children']=lstLeafNodes
+        else:
+            currentLevel=1
+            traverseAndKeepOnlyLevel(jsonMix,currentLevel,levelKeepInPOSTree)
+    elif 'children' in jsonMix.keys():
+        lstChildren = jsonMix['children']
+        for i in range(0, len(lstChildren)):
+            removeNodeWithSpecificIndentLevel(lstChildren[i],dictIndentOfNL,levelKeepInPOSTree)
 
 
 def generateGraph(jsonObject,strFatherLabel,arrCodes,idChange,isBlueColor,graph):
@@ -60,12 +115,17 @@ def generateGraph(jsonObject,strFatherLabel,arrCodes,idChange,isBlueColor,graph)
     startOffset=jsonObject['startOffset']
     endLine=jsonObject['endLine']
     endOffset=jsonObject['endOffset']
-    strPosition='{}-{}-{}-{}'.format(startLine,startOffset,endLine,endOffset)
+    if startLine==endLine:
+        strPosition='Line {}'.format(startLine+1)
+    else:
+        strPosition='Lines [{} - {}]'.format(startLine+1,endLine+1)
+    # strPosition='{}-{}-{}-{}'.format(startLine,startOffset,endLine,endOffset)
     strId=str(jsonObject['id'])
     strLabel='{}\n{}\n{}'.format(strId,strPosition,jsonObject['type'])
     # strLabel = '{}\n{}'.format(strId, jsonObject['type'])
 
     if isBlueColor and strId!=idChange:
+
         graph.add_node(strLabel, color='blue')
     else:
         graph.add_node(strLabel, color='red')
@@ -129,7 +189,11 @@ def generateGraphForMixCode(jsonObject,arrCodes,strRootProgramId,isInNLNodes,dic
         endOffset = jsonObject['endOffset']
         strId = str(jsonObject['id'])
         strPosition = '{}-{}-{}-{}'.format(startLine, startOffset, endLine, endOffset)
-
+        if startLine == endLine:
+            strPosition = 'Line {}[{}:{}]'.format(startLine + 1, startOffset + 1, endOffset + 1)
+        else:
+            strPosition = 'Line {}[{}:] to {}[:{}]'.format(startLine + 1, startOffset + 1, endLine + 1,
+                                                           endOffset + 1)
         if strId=='1':
             strType='ProgramRoot'
             isAbstract = True
@@ -154,6 +218,12 @@ def generateGraphForMixCode(jsonObject,arrCodes,strRootProgramId,isInNLNodes,dic
             endLine = jsonObject['endLine']
             endOffset = jsonObject['endOffset']
             strPosition = '{}-{}-{}-{}'.format(startLine, startOffset, endLine, endOffset)
+            if startLine == endLine:
+                strPosition = 'Line {}[{}:{}]'.format(startLine + 1, startOffset + 1, endOffset + 1)
+            else:
+                strPosition = 'Line {}[{}:] to {}[:{}]'.format(startLine + 1, startOffset + 1, endLine + 1,
+                                                                   endOffset + 1)
+
             strLabel = '{}\n{}\n{}'.format(strType,strPosition, strRealLabel)
         else:
             strType='NLNode'
@@ -172,14 +242,22 @@ def generateGraphForMixCode(jsonObject,arrCodes,strRootProgramId,isInNLNodes,dic
     if isInNLNodes:
         for numContext in dictGraphIndexContext.keys():
             graphId = dictGraphIndexContext[numContext]
-            graphId.add_node(strLabel, color='red')
+            strRealType=strLabel.split('\n')[0]
+            if strRealType=='NLRoot':
+                graphId.add_node(strLabel,style='filled',fillcolor='lightpink', color='red')
+            else:
+                graphId.add_node(strLabel, color='red')
     else:
         for numContext in dictGraphIndexContext.keys():
             # print('accept lbl here {}\n{}'.format(strId, dictAcceptableIdsForVersions[numContext]))
             if int(strId) in dictAcceptableIdsForVersions[numContext]:
                 # print('accept lbl here {} {}'.format(strId,strLabel))
                 graphId = dictGraphIndexContext[numContext]
-                graphId.add_node(strLabel, color='blue')
+                strRealType = strLabel.split('\n')[0]
+                if strRealType == 'ProgramRoot':
+                    graphId.add_node(strLabel, style='filled', fillcolor='lightblue1', color='blue')
+                else:
+                    graphId.add_node(strLabel, color='blue')
 
 
 
@@ -257,17 +335,47 @@ def getAllLeaveNodes(g):
     leafs = [x for x in g.nodes() if g.out_degree(x)==0 and g.in_degree(x)==1]
     return leafs
 
+def augmentLeafNodes(graph):
+    leafs=getAllLeaveNodes(graph)
+    if(len(leafs)>1):
+        nodeNLRoot=None
+        for x in graph.nodes():
+            strLabel=str(x).split('\n')[0]
+            if strLabel=='NLRoot':
+                nodeNLRoot=x
+                break
+        for i in range(0,len(leafs)-1):
+            # print(leafs[i])
+            strLabelI = str(leafs[i]).split('\n')[0]
+            strLabelPlus = str(leafs[i+1]).split('\n')[0]
+            if strLabelI=='ASTNode' and strLabelPlus=='ASTNode':
+                graph.add_edge(leafs[i],leafs[i+1])
+            elif strLabelI=='ASTNode' and strLabelPlus=='NLNode':
+                graph.add_edge(leafs[i],nodeNLRoot)
+            elif strLabelI=='NLNode' and strLabelPlus=='ASTNode':
+                graph.add_edge(nodeNLRoot,leafs[i+1])
+
+        # if not nodeNLRoot is None:
+        #     for i in range(0, len(leafs)):
+        #         strLabel = str(leafs[i]).split('\n')[1]
+        #         if strLabel=='NLNode':
+        #             graph.add_edge(leafs[i], nodeNLRoot)
+
 
 
 
 fopRoot='/home/hungphd/media/dataPapersExternal/mixCodeRaw/'
-fopStep4NMT=fopRoot+'step4_NMT_v2/'
+fopStep4NMT=fopRoot+'step4_NMT_dirty/'
 fopStep3V2=fopRoot+'step3_v2/'
 fopStep3TreesitterTokenize=fopRoot+'step3_treesitter_tokenize/'
 fopStep2Tokenize=fopRoot+'step2_tokenize/'
 fopStep2PseudoTokenize=fopRoot+'step2_pseudo_tokenize/'
 fpDictLiterals=fopRoot+'step2_dictLiterals_all.txt'
 createDirIfNotExist(fopStep4NMT)
+fpErrorLog2=fopStep3V2+'error_log_2.txt'
+f1=open(fpErrorLog2,'w')
+f1.write('')
+f1.close()
 
 f1=open(fpDictLiterals,'r')
 arrLits=f1.read().strip().split('\n')
@@ -308,8 +416,8 @@ arrSource=dictFolderContent[fnSource]
 arrPOSNLTK=dictFolderContent[fnPOSNLTK]
 arrPOSStanford=dictFolderContent[fnPOSStanford]
 
-lstNumContexts=[1,3,5,1000]
-lstPOSType=[fnPOSNLTK,fnPOSStanford]
+lstNumContexts=[1]
+lstPOSType=[fnPOSStanford]
 countNumMixCode=0
 
 arrFinalCodes=None
@@ -319,6 +427,9 @@ jsonAll=None
 dictOfFatherIdMainAST = {}
 prevProgramId=''
 for i in range(0,len(arrLocs)):
+    # i != 54 and
+    if(i!=54):
+        continue
     arrTabLocs=arrLocs[i].split('\t')
     strTrainTestFolder=arrTabLocs[1]
     strRootProgramId=arrTabLocs[0]
@@ -346,7 +457,9 @@ for i in range(0,len(arrLocs)):
         f1 = open(fpItemAST, 'r')
         arrJsonAST = f1.read().strip().split('\n')
         f1.close()
-
+        jsonAll = ast.literal_eval(arrJsonAST[1])
+        dictOfFatherIdMainAST = {}
+        getFatherRelationship(jsonAll, dictOfFatherIdMainAST)
 
     f1=open(fpOutExpectedCode,'w')
     f1.write('\n'.join(arrFinalCodes))
@@ -359,47 +472,92 @@ for i in range(0,len(arrLocs)):
 
     for j in range(0,len(lstPOSType)):
         try:
-            jsonAll = ast.literal_eval(arrJsonAST[1])
-            dictOfFatherIdMainAST = {}
-            getFatherRelationship(jsonAll, dictOfFatherIdMainAST)
             jsonPartPseudo = ast.literal_eval(dictFolderContent[lstPOSType[j]][i])
-            # print('{} {}'.format(lstPOSType[j],jsonPartPseudo))
+            jsonPartPseudo2 = ast.literal_eval(dictFolderContent[lstPOSType[j]][i])
+            # print(jsonPartPseudo)
+            jsonAll = ast.literal_eval(arrJsonAST[1])
             jsonMixClone = copy.deepcopy(jsonAll)
+            jsonMixCloneFilter = copy.deepcopy(jsonAll)
+
+
             # print('line in real {}'.format(lineInRealCode))
             # input('bbb')
-            getMixJsonDict(jsonMixClone, jsonPartPseudo, lineInRealCode)
+            indentInCode=1
+            dictIndentOfNL={}
+            getMixJsonDictAndIndent(jsonMixClone, jsonPartPseudo, lineInRealCode,indentInCode,dictIndentOfNL)
+            getMixJsonDictAndIndent(jsonMixCloneFilter, jsonPartPseudo2, lineInRealCode, indentInCode, dictIndentOfNL)
+            removeAllNodesAsSingleChild(jsonMixCloneFilter)
+            levelOfPOSTreeKeep=3
+            removeNodeWithSpecificIndentLevel(jsonMixCloneFilter,dictIndentOfNL, levelOfPOSTreeKeep)
+
             dictGraphIndexContext = {}
+            dictGraphFilterIndexContext = {}
             dictAcceptableIdsForVersions = {}
+            dictFilterAcceptableIdsForVersions = {}
             for idxLine in lstNumContexts:
                 dictAcceptableIdsForVersions[idxLine] = []
+                dictFilterAcceptableIdsForVersions[idxLine] = []
                 graphIt = pgv.AGraph(directed=True)
+                graphItFilter = pgv.AGraph(directed=True)
                 dictGraphIndexContext[idxLine] = graphIt
+                dictGraphFilterIndexContext[idxLine] = graphItFilter
+
 
             dictAncestorToRoot={}
+            dictFilterAncestorToRoot = {}
             findAddableIdsForContext(jsonAll, dictOfFatherIdMainAST, dictAcceptableIdsForVersions, lineInRealCode, dictAncestorToRoot)
+            findAddableIdsForContext(jsonAll, dictOfFatherIdMainAST, dictFilterAcceptableIdsForVersions, lineInRealCode,
+                                     dictFilterAncestorToRoot)
             isInNLNode=False
             generateGraphForMixCode(jsonMixClone, arrFinalCodes, strRootProgramId, isInNLNode,
                                     dictGraphIndexContext, dictAcceptableIdsForVersions)
+            isInNLNode = False
+            generateGraphForMixCode(jsonMixCloneFilter, arrFinalCodes, strRootProgramId, isInNLNode,
+                                    dictGraphFilterIndexContext, dictFilterAcceptableIdsForVersions)
             for keyGraph in dictGraphIndexContext.keys():
                 graphIt = dictGraphIndexContext[keyGraph]
+                graphItFilter=dictGraphFilterIndexContext[keyGraph]
                 strConTextAndPOSType='graph_context_{}_pos_{}'.format(keyGraph,lstPOSType[j].replace('pos_','').replace('.txt',''))
                 fpContextItemGraphText = fopOutputItem + strConTextAndPOSType + '.dot'
                 fpContextItemGraphPng = fopOutputItem + strConTextAndPOSType + '.png'
                 graphIt.write(fpContextItemGraphText)
 
-                # if i <=3:
-                graphIt.layout(prog='dot')
-                graphIt.draw(fpContextItemGraphPng)
-                graphIt.clear()
+                strFilterConTextAndPOSType = 'graphFilter_context_{}_pos_{}'.format(keyGraph,
+                                                                        lstPOSType[j].replace('pos_', '').replace(
+                                                                            '.txt', ''))
+                fpFilterContextItemGraphText = fopOutputItem + strFilterConTextAndPOSType + '.dot'
+                fpFilterContextItemGraphPng = fopOutputItem + strFilterConTextAndPOSType + '.png'
+                graphItFilter.write(fpFilterContextItemGraphText)
+                if i <=100:
+                    graphIt.layout(prog='dot')
+                    graphIt.draw(fpContextItemGraphPng)
+                    graphItFilter.layout(prog='dot')
+                    graphItFilter.draw(fpFilterContextItemGraphPng)
+
+
+                augmentLeafNodes(graphItFilter)
+                strFilterAddEdgesConTextAndPOSType = 'graphFilterAddEdges_context_{}_pos_{}'.format(keyGraph,
+                                                                                    lstPOSType[j].replace('pos_',
+                                                                                                          '').replace(
+                                                                                        '.txt', ''))
+                fpFilterAddEdgesContextItemGraphText = fopOutputItem + strFilterAddEdgesConTextAndPOSType + '.dot'
+                fpFilterAddEdgesContextItemGraphPng = fopOutputItem + strFilterAddEdgesConTextAndPOSType + '.png'
+                graphItFilter.write(fpFilterAddEdgesContextItemGraphText)
+
+                if i <=100:
+                    graphItFilter.layout(prog='dot')
+                    graphItFilter.draw(fpFilterAddEdgesContextItemGraphPng)
 
         except:
+            f1 = open(fpErrorLog2, 'a')
+            f1.write(arrTabLocs[1]+'__'+arrTabLocs[0]+'__'+arrTabLocs[2]+'\n')
+            f1.close()
             traceback.print_exc()
-    # input('nooooo ')
     # sys.stdout.close()
     # sys.stdout = sys.__stdout__
     prevProgramId=strRootProgramId
     # input('need check here ')
     print('end {}/{} {}'.format(i, len(arrLocs), fpItemAST))
-    if i == 100:
-        break
+    # if i >= 3:
+    #     break
 
